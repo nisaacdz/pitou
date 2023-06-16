@@ -1,5 +1,5 @@
 use super::size;
-use std::{fs, io, path};
+use std::{fs, io, path::{self, PathBuf}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Permission {
@@ -7,6 +7,7 @@ pub enum Permission {
     Write,
 }
 
+/// Represents either a directory file or a normal file
 #[derive(Debug, Clone, Copy)]
 pub enum FileType {
     File,
@@ -105,7 +106,7 @@ impl From<io::Error> for DirContent {
 
 macro_rules! overflows_isize {
     ($val:expr) => {
-        ($val as i128) < (isize::MAX as i128)
+        ($val as i128) > (isize::MAX as i128)
     };
 }
 
@@ -186,13 +187,13 @@ impl File {
     /// Returns the content of the file in bytes
     pub fn content(&self) -> Result<FileContent, io::Error> {
         let mut file = self.open()?;
-        let cpcs = self.metadata().size;
+        let cpcs = self.metadata.size;
         if overflows_isize!(cpcs) {
-            let res = io::Error::new(io::ErrorKind::OutOfMemory, "error");
+            let res = io::Error::new(io::ErrorKind::OutOfMemory, "Cannot Read so many bytes at once");
             Ok(FileContent::Error(res))
         } else {
             let mut res = vec![0; cpcs as usize];
-            match io::Read::read(&mut file, &mut res) {
+            match io::Read::read_exact(&mut file, &mut res) {
                 Ok(_) => Ok(FileContent::File(res)),
                 Err(e) => Ok(FileContent::Error(e)),
             }
@@ -202,5 +203,20 @@ impl File {
     // Returns the files and folders within the current directory
     pub fn children(&self) -> Result<Vec<DirContent>, io::Error> {
         Self::files_in(self.path())
+    }
+}
+
+
+pub struct Directory(File);
+
+impl Directory {
+    pub fn create(path: PathBuf) -> Result<Self, io::Error> {
+        fs::create_dir(&path)?;
+        let file = File::create(path)?;
+        Ok(Self(file))
+    }
+
+    pub fn entries(&self) -> Result<Vec<DirContent>, io::Error> {
+        self.0.children()
     }
 }
