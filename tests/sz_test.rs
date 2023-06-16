@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use std::{io::Write, path};
 
 use pitu::{fs::File, size::*};
