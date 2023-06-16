@@ -5,13 +5,19 @@ pub trait Unit {
 
 #[derive(Clone, Copy)]
 pub struct Bytes(f64);
+
+
 #[derive(Clone, Copy)]
 pub struct Kilobytes(f64);
+
+
 #[derive(Clone, Copy)]
 pub struct Megabytes(f64);
 
+
 #[derive(Clone, Copy)]
 pub struct Gigabytes(f64);
+
 
 macro_rules! impl_unit {
     ($type:ty, $val:literal) => {
@@ -42,10 +48,18 @@ macro_rules! impl_dbg {
     ($type:ty,$dp:literal) => {
         impl std::fmt::Debug for $type {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                write!(f, "{:.prec$}", self.0, prec = $dp) // Display two decimal places
+                write!(f, "{}({:.prec$})", stringify!($type), self.0, prec = $dp) // Display two decimal places
             }
         }
     };
+}
+
+#[test]
+fn test_me() {
+    let dbg = stringify!(Debug);
+    println!("{}", dbg);
+    let dbg = Bytes::from_bytes(4);
+    println!("{:?}", dbg);
 }
 
 impl_unit!(Bytes, 1f64);
