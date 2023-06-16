@@ -38,9 +38,6 @@ mod tests {
 
         // Check if the file has read permission
         assert_eq!(file.metadata().permission(), Permission::Write);
-
-        // Clean up the file
-        fs::remove_file(&file_path).unwrap();
     }
 
     #[test]
@@ -69,8 +66,5 @@ mod tests {
         assert!(matches!(children[0], DirContent::File(_)));
         assert!(matches!(children[1], DirContent::File(_)));
         assert!(matches!(children[2], DirContent::File(_)));
-
-        // Clean up the directory
-        fs::remove_dir_all(&dir_path).unwrap();
     }
 }
