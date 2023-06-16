@@ -76,9 +76,13 @@ fn test_file_io() {
     let file_path = path::PathBuf::from("target/tmp/test_file_io");
 
     let input = b"In the land of myth and in the time of magic";
-    let mut file = File::create(file_path).unwrap();
-    file.open_mut().unwrap().write(input).unwrap();
-    file.refresh().unwrap();
+
+    if !file_path.exists() {
+        let mut file = File::create(file_path.clone()).unwrap();
+        file.open_mut().unwrap().write(input).unwrap();
+    }
+
+    let file = File::get(file_path).unwrap();
     let output = file.content().unwrap().unwrap();
 
     assert_eq!(input.len(), output.len());
