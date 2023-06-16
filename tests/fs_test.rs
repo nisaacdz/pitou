@@ -1,70 +1,89 @@
-mod tests {
-    use pitu::fs::*;
-    use std::{fs, path};
+#![cfg(test)]
 
-    #[test]
-    fn test_file_creation() {
-        let file_path = path::PathBuf::from("target/tmp/test_file_creation.txt");
+use pitu::fs::*;
+use std::{fs, io, path};
 
-        // Clean up the file if it already exists
-        let file = if !file_path.exists() {
-            File::create(file_path.clone()).unwrap()
-        } else {
-            File::get(file_path.clone()).unwrap()
-        };
+#[test]
+fn test_file_creation() {
+    let file_path = path::PathBuf::from("target/tmp/test_file_creation.txt");
 
-        // Check if the file was created successfully
-        assert_eq!(file.path(), &file_path);
+    // Clean up the file if it already exists
+    let file = if !file_path.exists() {
+        File::create(file_path.clone()).unwrap()
+    } else {
+        File::get(file_path.clone()).unwrap()
+    };
 
-        // Check if the file has write permission
-        assert_eq!(file.metadata().permission(), Permission::Write);
+    // Check if the file was created successfully
+    assert_eq!(file.path(), &file_path);
+
+    // Check if the file has write permission
+    assert_eq!(file.metadata().permission(), Permission::Write);
+}
+
+#[test]
+fn test_file_opening() {
+    let file_path = path::PathBuf::from("target/tmp/test_file_opening.txt");
+
+    // Create a file to test opening
+    if !file_path.exists() {
+        fs::File::create(&file_path).unwrap();
     }
 
-    #[test]
-    fn test_file_opening() {
-        let file_path = path::PathBuf::from("target/tmp/test_file_opening.txt");
+    fs::write(&file_path, "Hello, World!").unwrap();
 
-        // Create a file to test opening
-        if !file_path.exists() {
-            fs::File::create(&file_path).unwrap();
-        }
+    let file = File::get(file_path.clone()).unwrap();
 
-        fs::write(&file_path, "Hello, World!").unwrap();
+    // Check if the file was opened successfully
+    assert_eq!(file.path(), &file_path);
 
-        let file = File::get(file_path.clone()).unwrap();
+    // Check if the file has read permission
+    assert_eq!(file.metadata().permission(), Permission::Write);
+}
 
-        // Check if the file was opened successfully
-        assert_eq!(file.path(), &file_path);
+#[test]
+fn test_file_children() {
+    let dir_path = path::PathBuf::from("target/tmp/test_file_children");
 
-        // Check if the file has read permission
-        assert_eq!(file.metadata().permission(), Permission::Write);
-    }
+    // Create a directory
+    if !dir_path.exists() {
+        File::create(dir_path.clone()).unwrap();
 
-    #[test]
-    fn test_file_children() {
-        let dir_path = path::PathBuf::from("target/tmp/test_file_children");
-
-        // Create a directory
-        if !dir_path.exists() {
-            fs::create_dir(&dir_path).unwrap();
-        }
-
-        // Create some files inside the directory
         fs::write(dir_path.join("file1.txt"), "File 1").unwrap();
         fs::write(dir_path.join("file2.txt"), "File 2").unwrap();
         fs::create_dir(dir_path.join("subdir")).unwrap();
-
-        let file = File::get(dir_path.clone()).unwrap();
-
-        // Get the children of the directory
-        let children = file.children().unwrap();
-
-        // Check if the number of children is correct
-        assert_eq!(children.len(), 3);
-
-        // Check if the children are files or errors
-        assert!(matches!(children[0], DirContent::File(_)));
-        assert!(matches!(children[1], DirContent::File(_)));
-        assert!(matches!(children[2], DirContent::File(_)));
     }
+
+    // Create some files inside the directory
+
+    let file = File::get(dir_path.clone()).unwrap();
+
+    // Get the children of the directory
+    let children = file.children().unwrap();
+
+    // Check if the number of children is correct
+    assert_eq!(children.len(), 3);
+
+    // Check if the children are files or errors
+    assert!(matches!(children[0], DirContent::File(_)));
+    assert!(matches!(children[1], DirContent::File(_)));
+    assert!(matches!(children[2], DirContent::File(_)));
+}
+
+#[test]
+fn test_file_io() {
+    use io::Write;
+    let file_path = path::PathBuf::from("target/tmp/test_file_io");
+
+    let input = b"In the land of myth and in the time of magic";
+    let mut file = File::create(file_path).unwrap();
+    file.open_mut().unwrap().write(input).unwrap();
+    file.refresh().unwrap();
+    let output = file.content().unwrap().unwrap();
+
+    assert_eq!(input.len(), output.len());
+
+    assert_eq!(input.as_slice(), &output);
+
+    println!("{}", String::from_utf8(output).unwrap());
 }
