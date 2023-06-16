@@ -1,5 +1,5 @@
 mod tests {
-    use pitou::fs::*;
+    use pitu::fs::*;
     use std::{fs, path};
 
     #[test]
