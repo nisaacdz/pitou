@@ -101,7 +101,7 @@ impl File {
         let metadata = Metadata::of(self.path())?;
         self.metadata = metadata;
         Ok(())
-    }
+    }//pitu
 
     pub fn files_in(dir_path: &path::PathBuf) -> Result<Vec<DirContent>, io::Error> {
         let mut res = Vec::new();
