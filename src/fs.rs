@@ -1,5 +1,8 @@
 use super::size;
-use std::{fs, io, path::{self, PathBuf}};
+use std::{
+    fs, io,
+    path::{self, PathBuf},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Permission {
@@ -7,51 +10,56 @@ pub enum Permission {
     Write,
 }
 
-/// Represents either a directory file or a normal file
+/// Represents either a directory or a non-directory file
 #[derive(Debug, Clone, Copy)]
-pub enum FileType {
+pub enum Category {
     File,
     Folder,
 }
 
 pub struct Metadata {
-    filetype: FileType,
+    category: Category,
     size: u64,
     permission: Permission,
 }
 
 impl Metadata {
+    /// Queries the system for the metadata of the file at the given path
     pub fn of(path: &path::PathBuf) -> Result<Metadata, io::Error> {
         let metadata = path::Path::metadata(path)?;
-        let filetype = if metadata.is_dir() {
-            FileType::Folder
+        let category = if metadata.is_dir() {
+            Category::Folder
         } else {
-            FileType::File
+            Category::File
         };
         let size = metadata.len();
-        let permission = if metadata.permissions()./*TODO*/readonly() {
+        let permission = if metadata.permissions().readonly() {
             Permission::Read
         } else {
             Permission::Write
         };
 
         Ok(Self {
-            filetype,
+            category,
             size,
             permission,
         })
     }
 
+    // Returns the permission type contained in this `Metadata`
     pub fn permission(&self) -> Permission {
         self.permission
     }
 
+    /// Returns the size of the file in the given unit.
+    ///
     pub fn size<S: size::Unit>(&self) -> S {
         S::from_bytes(self.size)
     }
 
-    pub fn filetype(&self) -> FileType {
-        self.filetype
+    /// Returns true if the file is a Directoroy
+    pub fn category(&self) -> Category {
+        self.category
     }
 }
 
@@ -116,8 +124,14 @@ pub struct File {
 }
 
 impl File {
-    pub fn create(path: path::PathBuf) -> Result<File, io::Error> {
+    pub fn create_file(path: path::PathBuf) -> Result<File, io::Error> {
         fs::File::create(&path)?;
+        let metadata = Metadata::of(&path)?;
+        Ok(File { path, metadata })
+    }
+
+    pub fn create_dir(path: path::PathBuf) -> Result<File, io::Error> {
+        fs::create_dir(&path)?;
         let metadata = Metadata::of(&path)?;
         Ok(File { path, metadata })
     }
@@ -145,6 +159,10 @@ impl File {
         Ok(res)
     }
 
+    pub fn is_dir(&self) -> bool {
+        matches!(self.metadata().category(), Category::Folder)
+    }
+
     pub fn open(&self) -> Result<fs::File, io::Error> {
         fs::File::open(self.path())
     }
@@ -156,25 +174,25 @@ impl File {
             .open(self.path())
     }
 
+    /// Returns the path of this file
     pub fn path(&self) -> &path::PathBuf {
         &self.path
     }
 
-    /// Returns the size of the file in bytes
+    /// Returns the size of the file or folder in bytes
     pub fn size(&self) -> Result<u64, io::Error> {
-        let res = match self.metadata().filetype() {
-            FileType::File => self.metadata().size,
-            FileType::Folder => {
-                let mut sz = 0;
-                let cnts = self.children()?;
-                cnts.into_iter()
-                    .filter(|f| matches!(f, DirContent::File(_)))
-                    .map(|f| f.unwrap())
-                    .for_each(|file| {
-                        sz += file.size().unwrap_or(0);
-                    });
-                sz
-            }
+        let res = if self.is_dir() {
+            let mut sz = 0;
+            let cnts = self.entries()?;
+            cnts.into_iter()
+                .filter(|f| matches!(f, DirContent::File(_)))
+                .map(|f| f.unwrap())
+                .for_each(|file| {
+                    sz += file.size().unwrap_or(0);
+                });
+            sz
+        } else {
+            self.metadata().size
         };
 
         Ok(res)
@@ -189,7 +207,10 @@ impl File {
         let mut file = self.open()?;
         let cpcs = self.metadata.size;
         if overflows_isize!(cpcs) {
-            let res = io::Error::new(io::ErrorKind::OutOfMemory, "Cannot Read so many bytes at once");
+            let res = io::Error::new(
+                io::ErrorKind::OutOfMemory,
+                "Cannot Read so many bytes at once",
+            );
             Ok(FileContent::Error(res))
         } else {
             let mut res = vec![0; cpcs as usize];
@@ -200,23 +221,22 @@ impl File {
         }
     }
 
-    // Returns the files and folders within the current directory
-    pub fn children(&self) -> Result<Vec<DirContent>, io::Error> {
+    // Returns the files within the current directory
+    pub fn entries(&self) -> Result<Vec<DirContent>, io::Error> {
         Self::files_in(self.path())
     }
 }
-
 
 pub struct Directory(File);
 
 impl Directory {
     pub fn create(path: PathBuf) -> Result<Self, io::Error> {
         fs::create_dir(&path)?;
-        let file = File::create(path)?;
-        Ok(Self(file))
+        let metadata = Metadata::of(&path)?;
+        Ok(Self(File { path, metadata }))
     }
 
     pub fn entries(&self) -> Result<Vec<DirContent>, io::Error> {
-        self.0.children()
+        self.0.entries()
     }
 }

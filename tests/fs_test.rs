@@ -9,7 +9,7 @@ fn test_file_creation() {
 
     // Clean up the file if it already exists
     let file = if !file_path.exists() {
-        File::create(file_path.clone()).unwrap()
+        File::create_file(file_path.clone()).unwrap()
     } else {
         File::get(file_path.clone()).unwrap()
     };
@@ -42,12 +42,12 @@ fn test_file_opening() {
 }
 
 #[test]
-fn test_file_children() {
-    let dir_path = path::PathBuf::from("target/tmp/test_file_children");
+fn test_file_entries() {
+    let dir_path = path::PathBuf::from("target/tmp/test_file_entries");
 
     // Create a directory
     if !dir_path.exists() {
-        File::create(dir_path.clone()).unwrap();
+        Directory::create(dir_path.clone()).unwrap();
 
         fs::write(dir_path.join("file1.txt"), "File 1").unwrap();
         fs::write(dir_path.join("file2.txt"), "File 2").unwrap();
@@ -58,27 +58,29 @@ fn test_file_children() {
 
     let file = File::get(dir_path.clone()).unwrap();
 
-    // Get the children of the directory
-    let children = file.children().unwrap();
+    println!("{:?}", file.path().to_str());
 
-    // Check if the number of children is correct
-    assert_eq!(children.len(), 3);
+    // Get the contents of the directory
+    let entries = file.entries().unwrap();
 
-    // Check if the children are files or errors
-    assert!(matches!(children[0], DirContent::File(_)));
-    assert!(matches!(children[1], DirContent::File(_)));
-    assert!(matches!(children[2], DirContent::File(_)));
+    // Check if the number of entries is correct
+    assert_eq!(entries.len(), 3);
+
+    // Check if the entries are files or errors
+    assert!(matches!(entries[0], DirContent::File(_)));
+    assert!(matches!(entries[1], DirContent::File(_)));
+    assert!(matches!(entries[2], DirContent::File(_)));
 }
 
 #[test]
 fn test_file_io() {
     use io::Write;
-    let file_path = path::PathBuf::from("target/tmp/test_file_io");
+    let file_path = path::PathBuf::from("target/tmp/test_file_io.txt");
 
     let input = b"In the land of myth and in the time of magic";
 
     if !file_path.exists() {
-        let mut file = File::create(file_path.clone()).unwrap();
+        let mut file = File::create_file(file_path.clone()).unwrap();
         file.open_mut().unwrap().write(input).unwrap();
     }
 

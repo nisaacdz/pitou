@@ -10,7 +10,7 @@ fn test_file_content_n_size() {
 
     // Create a file to test opening
     let mut pfile = if !file_path.exists() {
-        File::create(file_path.clone()).unwrap()
+        File::create_file(file_path.clone()).unwrap()
     } else {
         File::get(file_path.clone()).unwrap()
     };
