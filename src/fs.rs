@@ -231,9 +231,8 @@ pub struct Directory(File);
 
 impl Directory {
     pub fn create(path: PathBuf) -> Result<Self, io::Error> {
-        fs::create_dir(&path)?;
-        let metadata = Metadata::of(&path)?;
-        Ok(Self(File { path, metadata }))
+        let file = File::create_dir(path)?;
+        Ok(Self(file))
     }
 
     pub fn entries(&self) -> Result<Vec<DirContent>, io::Error> {
