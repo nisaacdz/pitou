@@ -2,7 +2,7 @@
 
 use std::{io::Write, path};
 
-use pitu::{fs::File, size::*};
+use pitou::{units::*, *};
 
 #[test]
 fn test_file_content_n_size() {

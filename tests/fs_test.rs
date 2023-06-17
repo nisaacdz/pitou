@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use pitu::fs::*;
+use pitou::*;
 use std::{fs, io, path};
 
 #[test]

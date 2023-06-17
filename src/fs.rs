@@ -1,4 +1,4 @@
-use super::size;
+use super::units;
 use std::{
     fs, io,
     path::{self, PathBuf},
@@ -53,7 +53,7 @@ impl Metadata {
 
     /// Returns the size of the file in the given unit.
     ///
-    pub fn size<S: size::Unit>(&self) -> S {
+    pub fn size<S: units::Unit>(&self) -> S {
         S::from_bytes(self.size)
     }
 
