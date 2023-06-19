@@ -32,7 +32,7 @@ fn test_size_conversion() {
 
     let file = File::get(file_path.clone()).unwrap();
 
-    let bytes = file.size().unwrap();
+    let bytes = file.size();
 
     println!("{:?}", Bytes::from_bytes(bytes));
     println!("{:?}", Kilobytes::from_bytes(bytes));

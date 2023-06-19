@@ -61,7 +61,7 @@ fn test_file_entries() {
     println!("{:?}", file.path().to_str());
 
     // Get the contents of the directory
-    let entries = file.entries().unwrap();
+    let entries = file.entries().unwrap().collect::<Vec<DirContent>>();
 
     // Check if the number of entries is correct
     assert_eq!(entries.len(), 3);
