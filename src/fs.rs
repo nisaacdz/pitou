@@ -54,7 +54,7 @@ impl Metadata {
         })
     }
 
-    // Returns the permission type contained in this `Metadata`
+    /// Returns the permission type contained in this `Metadata`
     pub fn permission(&self) -> Permission {
         self.permission
     }
@@ -131,13 +131,6 @@ impl From<io::Error> for DirContent {
     }
 }
 
-/// Checks if the value is bigger than isize::MAX
-macro_rules! overflows_isize {
-    ($val:expr) => {
-        ($val as i128) > (isize::MAX as i128)
-    };
-}
-
 /// Represents a file in the file system.
 ///
 /// A `File` may be a directory file or a non-directory file
@@ -179,7 +172,7 @@ impl File {
         Ok(File { path, metadata })
     }
 
-    // Returns a pointer to an existing in the file system
+    /// Returns a pointer to an existing in the file system
     pub fn get(path: path::PathBuf) -> Result<File, io::Error> {
         let metadata = Metadata::of(&path)?;
         Ok(Self { path, metadata })
@@ -247,22 +240,15 @@ impl File {
     pub fn content(&self) -> Result<FileContent, io::Error> {
         let mut file = self.open()?;
         let cpcs = self.metadata.size;
-        if overflows_isize!(cpcs) {
-            let res = io::Error::new(
-                io::ErrorKind::OutOfMemory,
-                "Cannot Read so many bytes at once",
-            );
-            Ok(FileContent::Error(res))
-        } else {
-            let mut res = vec![0; cpcs as usize];
-            match io::Read::read_exact(&mut file, &mut res) {
-                Ok(_) => Ok(FileContent::File(res)),
-                Err(e) => Ok(FileContent::Error(e)),
-            }
+
+        let mut res = vec![0; cpcs as usize];
+        match io::Read::read_exact(&mut file, &mut res) {
+            Ok(_) => Ok(FileContent::File(res)),
+            Err(e) => Ok(FileContent::Error(e)),
         }
     }
 
-    // Returns the files contained within the current directory
+    /// Returns the files contained within the current directory
     pub fn entries(&self) -> io::Result<FilesIn<impl FnMut(DirEntryResult) -> DirContent>> {
         Self::files_in(self.path())
     }

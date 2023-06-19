@@ -63,6 +63,12 @@ pub fn available() -> Vec<Drive> {
 }
 
 #[test]
+fn test_path() {
+    let buf = path::PathBuf::from("");
+    let d = buf.display();
+}
+
+#[test]
 fn test_available() {
     for drive in available() {
         println!(
