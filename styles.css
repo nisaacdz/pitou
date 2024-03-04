@@ -1,0 +1,88 @@
+.logo.yew:hover {
+  filter: drop-shadow(0 0 2em #20a88a);
+}
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0% 0% 0% 0%;
+  background-image: url(assets/noise.svg);
+  user-select: none;
+}
+
+#content {
+  margin: 0;
+  padding: 0;
+  top: 32px;
+  width: 100%;
+  height: calc(100% - 32px);
+  background-color: pink;
+}
+
+#title-bar {
+  width: 100%;
+  height: 32px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  box-sizing: border-box;
+  background-color: #f0f0f0; /* Set your desired background color */
+}
+
+
+#app-logo {
+  left: 0;
+  width: 90px;
+  font-size: 14px;
+  height: 30px;
+  background-color: blue;
+}
+
+#tabs-container {
+  position: relative;
+  left: 90px;
+  right: 135px;
+  height: 30px;
+  background-color: green;
+}
+
+/* Control box (close, minimize, maximize-restore) */
+#control-box {
+  width: 135px;
+  height: 30px;
+  right: 0;
+  background-color: orange;
+}
+
+#all-tabs {
+  right: 30px;
+  left: 30px;
+  height: 30px;
+  background-color: bisque;
+}
+
+.control-button {
+  width: 45px;
+  height: 30px;
+  cursor: pointer;
+}
+
+/* Optional: Hover effect for buttons */
+.control-button:hover {
+  background-color: #ddd; /* Set hover color */
+}
