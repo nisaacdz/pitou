@@ -22,67 +22,123 @@ body {
   width: 100%;
   height: 100%;
   margin: 0% 0% 0% 0%;
-  background-image: url(assets/noise.svg);
-  user-select: none;
 }
 
 #content {
+  position: absolute;
   margin: 0;
   padding: 0;
   top: 32px;
   width: 100%;
   height: calc(100% - 32px);
-  background-color: pink;
+  background-color: var(--primary-background-color);
 }
 
 #title-bar {
+  position: absolute;
+  top: 0;
   width: 100%;
   height: 32px;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
+  border-top: 1px solid var(--primary-spare-color);
+  border-bottom: 1px solid var(--primary-spare-color);
+  background-color: var(--seconday-background-color);
   box-sizing: border-box;
-  background-color: #f0f0f0; /* Set your desired background color */
 }
 
-
 #app-logo {
+  position: absolute;
   left: 0;
   width: 90px;
-  font-size: 14px;
   height: 30px;
-  background-color: blue;
 }
 
 #tabs-container {
-  position: relative;
+  position: absolute;
   left: 90px;
   right: 135px;
   height: 30px;
-  background-color: green;
 }
 
-/* Control box (close, minimize, maximize-restore) */
 #control-box {
+  position: absolute;
+  display: flex;
+  gap: 0;
+  flex-direction: row-reverse;
   width: 135px;
   height: 30px;
   right: 0;
-  background-color: orange;
 }
 
 #all-tabs {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
   right: 30px;
   left: 30px;
   height: 30px;
-  background-color: bisque;
 }
 
 .control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 45px;
   height: 30px;
-  cursor: pointer;
+  box-sizing: border-box;
 }
 
-/* Optional: Hover effect for buttons */
-.control-button:hover {
-  background-color: #ddd; /* Set hover color */
+.control-button:hover .elem {
+  transition: transform 0.3s, filter 0.3s;
+  transform: scale(1.5);
+}
+
+.control-button.close-button:hover {
+  background-color: red;
+  border: 1px solid white;
+}
+
+#close-button-cross, #add-tab-plus, #mini-button-dash {
+  fill: var(--primary-foreground-color);
+}
+
+.maxi-button-line {
+  stroke: var(--primary-foreground-color);
+}
+
+.control-button.mini-button:hover,.control-button.maxi-button:hover {
+  background-color: var(--primary-background-color);
+  border: 1px solid white;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-left: 1px solid var(--primary-spare-color);
+  color: var(--secondary-foreground-color);
+  font-size: small;
+}
+
+.tab.add-tab { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 30px;
+  border-right: 1px solid var(--primary-spare-color);;
+}
+
+.tab.inactive,.tab.active {
+  width: 120px;
+  height: 30px;
+}
+
+
+.tab.inactive:hover, .tab.add-tab:hover {
+  background-color: var(--primary-background-color);
+}
+
+.tab.active {
+  background-color: var(--primary-background-color);
 }

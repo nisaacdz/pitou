@@ -1,14 +1,14 @@
 use std::{cell::RefCell, rc::Rc};
 
+use pitou_core::frontend::*;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
-use pitou_core::frontend::*;
-mod title_bar;
 mod body;
+mod title_bar;
 
-use title_bar::TitleBar;
 use body::Body;
+use title_bar::TitleBar;
 
 #[wasm_bindgen]
 extern "C" {
@@ -24,7 +24,7 @@ struct GreetArgs<'a> {
 #[derive(Clone)]
 pub struct AllTabsCtx {
     pub all_tabs: Rc<RefCell<Vec<Rc<TabCtx>>>>,
-    pub active_tab: Rc<TabCtx>,
+    pub active_tab: usize,
 }
 
 impl PartialEq for AllTabsCtx {
@@ -34,25 +34,68 @@ impl PartialEq for AllTabsCtx {
 }
 
 impl AllTabsCtx {
+    fn debug_version() -> Self {
+        let all_tabs = Rc::new(RefCell::new(vec![Rc::new(TabCtx::default()); 6]));
+        Self {
+            active_tab: 3,
+            all_tabs,
+        }
+    }
     fn default() -> Self {
-        let active_tab = Rc::new(TabCtx::default());
-        let all_tabs = Rc::new(RefCell::new(vec![active_tab.clone()]));
-        Self { active_tab, all_tabs }
+        let all_tabs = Rc::new(RefCell::new(vec![Rc::new(TabCtx::default())]));
+        Self {
+            active_tab: 0,
+            all_tabs,
+        }
     }
 }
-
 
 #[function_component]
 pub fn App() -> Html {
-    let tabs_ctx = use_state(|| AllTabsCtx::default());
-    let genr_ctx = use_state(|| GenCtx::new());
+    let tabs_ctx = use_state(|| AllTabsCtx::debug_version());
+    let genr_ctx = use_state(|| {
+        let mut v = GenCtx::default();
+        v.color_theme = pitou_core::frontend::ColorTheme::GPT_LIGHT;
+        v
+    });
+
+    let active_tab = tabs_ctx.all_tabs.borrow()[tabs_ctx.active_tab].clone();
+
+    let ColorTheme {
+        background1,
+        background2,
+        foreground1,
+        foreground2,
+        spare1,
+        spare2,
+    } = (*genr_ctx).color_theme;
+
+    let style = format! {r"
+    --primary-background-color: {background1};
+    --seconday-background-color: {background2};
+    --primary-foreground-color: {foreground1};
+    --secondary-foreground-color: {foreground2};
+    --primary-spare-color: {spare1};
+    --secondary-spare-color: {spare2};
+    "};
+
+    let onclose = {
+        |()| {}
+    };
+    let onrestore = {
+        |()| {}
+    };
+    let onminimize = {
+        |()| {}
+    };
+    let onmaximize = {
+        |()| {}
+    };
 
     html! {
-        <>
-            <TitleBar tabs_ctx = { (*tabs_ctx).clone() } />
-            <Body active_tab = { tabs_ctx.active_tab.clone() } />
-        </>
+        <main {style}>
+            <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {onrestore} {onmaximize} {onminimize}/>
+            <Body {active_tab} />
+        </main>
     }
 }
-
-

@@ -10,6 +10,6 @@ pub struct BodyProps {
 #[function_component]
 pub fn Body(prop: &BodyProps) -> Html {
     html! {
-        <main id = "content"></main>
+        <div id = "content"></div>
     }
 }
