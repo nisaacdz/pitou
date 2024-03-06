@@ -13,7 +13,8 @@ wasm-bindgen-futures = "0.4"
 js-sys = "0.3"
 pitou-core = { git = "https://github.com/nisaacdz/pitou-core" }
 web-sys = "0.3.69"
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" }
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = ["window", "tauri", "event"] }
+yew-hooks = "0.3.1"
 
 [workspace]
 members = ["src-tauri"]

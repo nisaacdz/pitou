@@ -13,25 +13,18 @@
   "tauri": {
     "allowlist": {
       "all": false,
+      "window": {
+        "all": true
+      },
       "shell": {
         "all": false,
         "open": true
       }
     },
-    "windows": [
-      {
-        "title": "pitou",
-        "width": 800,
-        "height": 600
-      }
-    ],
-    "security": {
-      "csp": null
-    },
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "com.tauri.build",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -39,6 +32,19 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ]
-    }
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "pitou",
+        "width": 800,
+        "height": 600,
+        "decorations": false
+      }
+    ]
   }
 }

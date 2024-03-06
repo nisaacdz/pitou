@@ -50,6 +50,9 @@ body {
   left: 0;
   width: 90px;
   height: 30px;
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
 }
 
 #tabs-container {
@@ -133,7 +136,6 @@ body {
   width: 120px;
   height: 30px;
 }
-
 
 .tab.inactive:hover, .tab.add-tab:hover {
   background-color: var(--primary-background-color);

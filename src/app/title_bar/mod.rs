@@ -1,6 +1,8 @@
 use pitou_core::frontend::*;
-use std::{cell::RefCell, rc::Rc};
+use wasm_bindgen_futures::spawn_local;
+use std::rc::Rc;
 use yew::prelude::*;
+use yew_hooks::prelude::*;
 
 use super::AllTabsCtx;
 
@@ -8,22 +10,21 @@ use super::AllTabsCtx;
 pub struct TitleBarProps {
     pub tabs_ctx: AllTabsCtx,
     pub onclose: Callback<()>,
-    pub onmaximize: Callback<()>,
-    pub onrestore: Callback<()>,
+    pub ontogglemaximize: Callback<()>,
     pub onminimize: Callback<()>,
 }
 
 #[function_component]
 pub fn TitleBar(props: &TitleBarProps) -> Html {
     let onclose = props.onclose.clone();
-    let onrestore = props.onrestore.clone();
-    let onmaximize = props.onmaximize.clone();
+    let ontogglemaximize = props.ontogglemaximize.clone();
     let onminimize = props.onminimize.clone();
+
     html! {
-        <div id="title-bar">
+        <div id="title-bar" data-tauri-drag-region = "true">
             <AppLogo />
             <TabbedInterface tabs_ctx = { props.tabs_ctx.clone() }/>
-            <ControlBox {onclose} {onminimize} {onmaximize} {onrestore}/>
+            <ControlBox {onclose} {onminimize} {ontogglemaximize} />
         </div>
     }
 }
@@ -54,8 +55,8 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
         .chain(Some(html! { <AddTab /> }))
         .collect::<Html>();
     html! {
-        <div id="tabs-container">
-            <div id="all-tabs">
+        <div id="tabs-container" data-tauri-drag-region = "true">
+            <div id="all-tabs" data-tauri-drag-region = "true">
                 {tabs_disp}
             </div>
         </div>
@@ -78,7 +79,7 @@ fn InactiveTab(prop: &TabProps) -> Html {
 #[function_component]
 fn ActiveTab(prop: &TabProps) -> Html {
     html! {
-        <div class = "tab active"> { "nisaacdz" } </div>
+        <div class = "tab active" data-tauri-drag-region = "true"> { "nisaacdz" } </div>
     }
 }
 
@@ -96,21 +97,32 @@ fn AddTab() -> Html {
 #[derive(PartialEq, Properties)]
 struct ControlBoxProps {
     onclose: Callback<()>,
-    onmaximize: Callback<()>,
-    onrestore: Callback<()>,
+    ontogglemaximize: Callback<()>,
     onminimize: Callback<()>,
 }
 
 #[function_component]
 fn ControlBox(props: &ControlBoxProps) -> Html {
+    let is_maximized = use_state_eq(|| true);
+
+    {
+        let is_maximized =  is_maximized.clone();
+        use_interval(move || {
+            let is_maximized = is_maximized.clone();
+            spawn_local(async move {
+                is_maximized.set(tauri_sys::window::current_window().is_maximized().await.unwrap_or(false))
+            })
+        }, 200);
+    }
+
     let onclose = {
         let onclose = props.onclose.clone();
         move |_| onclose.emit(())
     };
 
     let onresize = {
-        let onrestore = props.onrestore.clone();
-        move |_| onrestore.emit(())
+        let ontoggle = props.ontogglemaximize.clone();
+        move |_| ontoggle.emit(())
     };
 
     let onminimize = {
@@ -118,18 +130,9 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
         move |_| onminimize.emit(())
     };
 
-    let maxi_or_restore = if true {
+    let maxi_or_restore = if *is_maximized {
         html! {
-            <svg class="elem" width="24" height="24" viewBox="-3 -4 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path class="maxi-button-line" d="M8 2H4C2.89543 2 2 2.89543 2 4V8" stroke-width="2" stroke-linecap="round"/>
-                <path class="maxi-button-line" d="M22 8L22 4C22 2.89543 21.1046 2 20 2H16" stroke-width="2" stroke-linecap="round"/>
-                <path class="maxi-button-line" d="M16 22L20 22C21.1046 22 22 21.1046 22 20L22 16" stroke-width="2" stroke-linecap="round"/>
-                <path class="maxi-button-line" d="M8 22L4 22C2.89543 22 2 21.1046 2 20V16" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        }
-    } else {
-        html! {
-            <svg class="elem" width="24" height="24" viewBox="-4 -5 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <svg class="elem" width="24" height="24" viewBox="-6 -6 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
                     <g transform="translate(-969.000000, -748.000000)" id="Group" stroke="#000000" stroke-width="2">
                         <g transform="translate(967.000000, 746.000000)" id="Shape">
@@ -137,6 +140,15 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
                         </g>
                     </g>
                 </g>
+            </svg>
+        }
+    } else {
+        html! {
+            <svg class="elem" width="24" height="24" viewBox="-3 -4 32 32" fill="none">
+                <path class="maxi-button-line" d="M8 2H4C2.89543 2 2 2.89543 2 4V8" stroke-width="2" stroke-linecap="round"/>
+                <path class="maxi-button-line" d="M22 8L22 4C22 2.89543 21.1046 2 20 2H16" stroke-width="2" stroke-linecap="round"/>
+                <path class="maxi-button-line" d="M16 22L20 22C21.1046 22 22 21.1046 22 20L22 16" stroke-width="2" stroke-linecap="round"/>
+                <path class="maxi-button-line" d="M8 22L4 22C2.89543 22 2 21.1046 2 20V16" stroke-width="2" stroke-linecap="round"/>
             </svg>
         }
     };
@@ -163,6 +175,6 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
 #[function_component]
 fn AppLogo() -> Html {
     html! {
-        <div id="app-logo"> {"AppLogo"} </div>
+        <div id="app-logo" data-tauri-drag-region = "true"> {"AppLogo"} </div>
     }
 }

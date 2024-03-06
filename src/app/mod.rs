@@ -3,6 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use pitou_core::frontend::*;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 mod body;
 mod title_bar;
@@ -54,8 +55,7 @@ impl AllTabsCtx {
 pub fn App() -> Html {
     let tabs_ctx = use_state(|| AllTabsCtx::debug_version());
     let genr_ctx = use_state(|| {
-        let mut v = GenCtx::default();
-        v.color_theme = pitou_core::frontend::ColorTheme::GPT_LIGHT;
+        let v = GenCtx::default();
         v
     });
 
@@ -80,21 +80,33 @@ pub fn App() -> Html {
     "};
 
     let onclose = {
-        |()| {}
+        |()| {
+            let wd = tauri_sys::window::current_window();
+            spawn_local(async move {
+                wd.close().await.unwrap()
+            })
+        }
     };
-    let onrestore = {
-        |()| {}
+    let ontogglemaximize = {
+        |()| {
+            let wd = tauri_sys::window::current_window();
+            spawn_local(async move {
+                wd.toggle_maximize().await.unwrap()
+            })
+        }
     };
     let onminimize = {
-        |()| {}
-    };
-    let onmaximize = {
-        |()| {}
+        |()| {
+            let wd = tauri_sys::window::current_window();
+            spawn_local(async move {
+                wd.minimize().await.unwrap()
+            })
+        }
     };
 
     html! {
         <main {style}>
-            <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {onrestore} {onmaximize} {onminimize}/>
+            <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize}/>
             <Body {active_tab} />
         </main>
     }
