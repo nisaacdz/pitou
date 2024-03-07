@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-mod body;
+mod content;
 mod title_bar;
 
-use body::Body;
+use content::*;
 use title_bar::TitleBar;
 
 #[wasm_bindgen]
@@ -107,7 +107,7 @@ pub fn App() -> Html {
     html! {
         <main {style}>
             <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize}/>
-            <Body {active_tab} />
+            <Content {active_tab} />
         </main>
     }
 }

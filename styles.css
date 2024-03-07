@@ -34,6 +34,43 @@ body {
   background-color: var(--primary-background-color);
 }
 
+#ribbon {
+  position: absolute;
+  top: 5px;
+  height: 60px;
+  left: 10px;
+  right: 10px;
+  background-color: var(--seconday-background-color);
+}
+
+#status-bar {
+  position: absolute;
+  bottom: 0px;
+  height: 30px;
+  left: 1px;
+  right: 1px;
+  background-color: var(--seconday-background-color);
+}
+
+#side-menus {
+  position: absolute;
+  left: 5px;
+  width: 50px;
+  top: 70px;
+  bottom: 35px;
+  background-color: var(--seconday-background-color);
+}
+
+
+#pane {
+  position: absolute;
+  left: 60px;
+  bottom: 35px;
+  top: 70px;
+  right: 5px;
+  border: 1px solid var(--seconday-background-color);
+}
+
 #title-bar {
   position: absolute;
   top: 0;
@@ -75,10 +112,16 @@ body {
 #all-tabs {
   position: absolute;
   display: flex;
-  flex-direction: row;
+  overflow: hidden;
   right: 30px;
   left: 30px;
   height: 30px;
+  justify-content: flex-end;
+}
+
+#all-tabs::after {
+  content: "";
+  flex-grow: 1;
 }
 
 .control-button {
@@ -121,6 +164,8 @@ body {
   border-left: 1px solid var(--primary-spare-color);
   color: var(--secondary-foreground-color);
   font-size: small;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .tab.add-tab { 
@@ -132,6 +177,10 @@ body {
   border-right: 1px solid var(--primary-spare-color);;
 }
 
+.tab.inactive {
+  cursor: pointer;
+}
+
 .tab.inactive,.tab.active {
   width: 120px;
   height: 30px;
@@ -139,6 +188,14 @@ body {
 
 .tab.inactive:hover, .tab.add-tab:hover {
   background-color: var(--primary-background-color);
+}
+
+.tab.add-tab:active {
+  filter: brightness(125%);
+}
+
+.tab.tab.add-tab:active #add-tab-plus {
+  scale: 1.5;
 }
 
 .tab.active {
