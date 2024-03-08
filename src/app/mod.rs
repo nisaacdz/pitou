@@ -11,6 +11,8 @@ mod title_bar;
 use content::*;
 use title_bar::TitleBar;
 
+pub mod reusables;
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
@@ -36,9 +38,9 @@ impl PartialEq for AllTabsCtx {
 
 impl AllTabsCtx {
     fn debug_version() -> Self {
-        let all_tabs = Rc::new(RefCell::new(vec![Rc::new(TabCtx::default()); 6]));
+        let all_tabs = Rc::new(RefCell::new(vec![Rc::new(TabCtx::default()); 4]));
         Self {
-            active_tab: 3,
+            active_tab: 2,
             all_tabs,
         }
     }
@@ -55,7 +57,8 @@ impl AllTabsCtx {
 pub fn App() -> Html {
     let tabs_ctx = use_state(|| AllTabsCtx::debug_version());
     let genr_ctx = use_state(|| {
-        let v = GenCtx::default();
+        let mut v = GenCtx::default();
+        v.color_theme = ColorTheme::GPT_DARK;
         v
     });
 

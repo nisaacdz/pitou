@@ -4,7 +4,7 @@ use std::rc::Rc;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use super::AllTabsCtx;
+use super::{reusables::*, AllTabsCtx};
 
 #[derive(PartialEq, Properties)]
 pub struct TitleBarProps {
@@ -71,15 +71,33 @@ struct TabProps {
 
 #[function_component]
 fn InactiveTab(prop: &TabProps) -> Html {
+    let logo = get_tab_logo(prop.ctx.current_menu);
     html! {
-        <div class = "tab inactive"> { "nisaacdz" } </div>
+        <div class = "tab inactive">
+            <div class="tab-logo">{ logo }</div>
+            <div class="tab-text">{ "nisaacdz" }</div>
+            <div class="tab-close">
+                <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
+                </svg>
+            </div>
+        </div>
     }
 }
 
 #[function_component]
 fn ActiveTab(prop: &TabProps) -> Html {
+    let logo = get_tab_logo(prop.ctx.current_menu);
     html! {
-        <div class = "tab active" data-tauri-drag-region = "true"> { "nisaacdz" } </div>
+        <div class = "tab active" data-tauri-drag-region = "true">
+            <div class="tab-logo">{ logo }</div>
+            <div class="tab-text">{ "nisaacdz" }</div>
+            <div class="tab-close">
+                <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
+                </svg>
+            </div>
+        </div>
     }
 }
 
@@ -176,5 +194,17 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
 fn AppLogo() -> Html {
     html! {
         <div id="app-logo" data-tauri-drag-region = "true"> {"AppLogo"} </div>
+    }
+}
+
+pub fn get_tab_logo(menu: AppMenu) -> Html {
+    match menu {
+        AppMenu::Home => html! { <HomeIcon id="home-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Explorer => html! { <ExplorerIcon id="explorer-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Trash => html! { <TrashIcon id="trash-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Bookmarks => html! { <FavoritesIcon id="favorites-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Recents => html! { <RecentsIcon id="recents-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Cloud => html! { <CloudIcon id="cloud-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Settings => html! { <SettingsIcon id="settings-tab-logo" class="tab-logo-elem" /> },
     }
 }
