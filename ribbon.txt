@@ -1,0 +1,14 @@
+Items on the ribbon
+Cut
+Copy
+Paste
+Clipboard
+New Folder
+New
+Compress
+Share - email, usb, bluetooth, wifi
+Delete
+Properties
+View - grid, list, Show extentions, show thumbnails, size
+Favorites - Add to Favorites, Remove from Favorites, lock, unlock
+Cloud - Upload to cloud, update to cloud, update from cloud, 

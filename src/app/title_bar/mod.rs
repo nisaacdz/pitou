@@ -12,6 +12,9 @@ pub struct TitleBarProps {
     pub onclose: Callback<()>,
     pub ontogglemaximize: Callback<()>,
     pub onminimize: Callback<()>,
+    pub add_tab: Callback<()>,
+    pub rem_tab: Callback<usize>,
+    pub change_tab: Callback<usize>,
 }
 
 #[function_component]
@@ -20,10 +23,14 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     let ontogglemaximize = props.ontogglemaximize.clone();
     let onminimize = props.onminimize.clone();
 
+    let add_tab = props.add_tab.clone();
+    let rem_tab = props.rem_tab.clone();
+    let change_tab = props.change_tab.clone();
+
     html! {
         <div id="title-bar" data-tauri-drag-region = "true">
             <AppLogo />
-            <TabbedInterface tabs_ctx = { props.tabs_ctx.clone() }/>
+            <TabbedInterface tabs_ctx = { props.tabs_ctx.clone() } {add_tab} {rem_tab} {change_tab} />
             <ControlBox {onclose} {onminimize} {ontogglemaximize} />
         </div>
     }
@@ -32,6 +39,9 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
 #[derive(PartialEq, Properties)]
 struct TabbedInterfaceProps {
     tabs_ctx: AllTabsCtx,
+    add_tab: Callback<()>,
+    rem_tab: Callback<usize>,
+    change_tab: Callback<usize>,
 }
 
 #[function_component]
@@ -46,13 +56,15 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
         .enumerate()
         .map(|(idx, ctx)| {
             let ctx = ctx.clone();
+            let rem_tab = props.rem_tab.clone();
+            let change_tab = props.change_tab.clone();
             if idx == active_tab {
-                html! { <ActiveTab {idx} {ctx} /> }
+                html! { <ActiveTab {idx} {ctx} {rem_tab} {change_tab} /> }
             } else {
-                html! { <InactiveTab {idx} {ctx} /> }
+                html! { <InactiveTab {idx} {ctx} {rem_tab} {change_tab} /> }
             }
         })
-        .chain(Some(html! { <AddTab /> }))
+        .chain(Some(html! { <AddTab add_tab = {props.add_tab.clone()} /> }))
         .collect::<Html>();
     html! {
         <div id="tabs-container" data-tauri-drag-region = "true">
@@ -67,16 +79,34 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
 struct TabProps {
     idx: usize,
     ctx: Rc<TabCtx>,
+    rem_tab: Callback<usize>,
+    change_tab: Callback<usize>,
 }
 
 #[function_component]
-fn InactiveTab(prop: &TabProps) -> Html {
-    let logo = get_tab_logo(prop.ctx.current_menu);
+fn InactiveTab(props: &TabProps) -> Html {
+    let onclose = {
+        let rem_tab = props.rem_tab.clone();
+        let idx = props.idx;
+        move |e: MouseEvent| {
+            e.stop_propagation();
+            rem_tab.emit(idx)
+        }
+    };
+
+    let onchange = {
+        let change_tab = props.change_tab.clone();
+        let idx = props.idx;
+        move |_| change_tab.emit(idx)
+    };
+
     html! {
-        <div class = "tab inactive">
-            <div class="tab-logo">{ logo }</div>
+        <div class = "tab inactive" onclick = {onchange}>
+            <div class="tab-logo">
+                <TabLogo menu = { props.ctx.current_menu } />
+            </div>
             <div class="tab-text">{ "nisaacdz" }</div>
-            <div class="tab-close">
+            <div class="tab-close" onclick = {onclose}>
                 <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                     <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
                 </svg>
@@ -86,13 +116,22 @@ fn InactiveTab(prop: &TabProps) -> Html {
 }
 
 #[function_component]
-fn ActiveTab(prop: &TabProps) -> Html {
-    let logo = get_tab_logo(prop.ctx.current_menu);
+fn ActiveTab(props: &TabProps) -> Html {
+    let onclose = {
+        let rem_tab = props.rem_tab.clone();
+        let idx = props.idx;
+        move |e: MouseEvent| {
+            e.stop_propagation();
+            rem_tab.emit(idx)
+        }
+    };
     html! {
         <div class = "tab active" data-tauri-drag-region = "true">
-            <div class="tab-logo">{ logo }</div>
+            <div class="tab-logo">
+                <TabLogo menu = { props.ctx.current_menu } />
+            </div>
             <div class="tab-text">{ "nisaacdz" }</div>
-            <div class="tab-close">
+            <div class="tab-close" onclick={onclose}>
                 <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                     <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
                 </svg>
@@ -101,10 +140,19 @@ fn ActiveTab(prop: &TabProps) -> Html {
     }
 }
 
+#[derive(Properties, PartialEq)]
+struct AddTabProps {
+    add_tab: Callback<()>,
+}
+
 #[function_component]
-fn AddTab() -> Html {
+fn AddTab(prop: &AddTabProps) -> Html {
+    let onclick = {
+        let add_tab = prop.add_tab.clone();
+        move |_| add_tab.emit(())
+    };
     html! {
-        <div class = "tab add-tab"> 
+        <div class = "tab add-tab" {onclick} > 
             <svg id = "add-tab-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" width="24" height="24">
                 <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2z"/>
             </svg>
@@ -197,14 +245,22 @@ fn AppLogo() -> Html {
     }
 }
 
-pub fn get_tab_logo(menu: AppMenu) -> Html {
-    match menu {
+#[derive(Properties, PartialEq)]
+pub struct TabLogoProp {
+    menu: AppMenu,
+}
+
+#[function_component]
+pub fn TabLogo(prop: &TabLogoProp) -> Html {
+    match prop.menu {
         AppMenu::Home => html! { <HomeIcon id="home-tab-logo" class="tab-logo-elem" /> },
         AppMenu::Explorer => html! { <ExplorerIcon id="explorer-tab-logo" class="tab-logo-elem" /> },
         AppMenu::Trash => html! { <TrashIcon id="trash-tab-logo" class="tab-logo-elem" /> },
-        AppMenu::Bookmarks => html! { <FavoritesIcon id="favorites-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Favorites => html! { <FavoritesIcon id="favorites-tab-logo" class="tab-logo-elem" /> },
         AppMenu::Recents => html! { <RecentsIcon id="recents-tab-logo" class="tab-logo-elem" /> },
         AppMenu::Cloud => html! { <CloudIcon id="cloud-tab-logo" class="tab-logo-elem" /> },
         AppMenu::Settings => html! { <SettingsIcon id="settings-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Locked => html! { <LockedIcon id="locked-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Search => html! { <SearchIcon id="search-tab-logo" class="tab-logo-elem" /> }
     }
 }

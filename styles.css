@@ -40,7 +40,7 @@ body {
   height: 60px;
   left: 10px;
   right: 10px;
-  background-color: var(--seconday-background-color);
+  background-color: var(--secondary-background-color);
 }
 
 #status-bar {
@@ -49,7 +49,7 @@ body {
   height: 30px;
   left: 1px;
   right: 1px;
-  background-color: var(--seconday-background-color);
+  background-color: var(--secondary-background-color);
 }
 
 #side-menus {
@@ -62,7 +62,7 @@ body {
   top: 70px;
   bottom: 35px;
   gap: 5px;
-  background-color: var(--seconday-background-color);
+  background-color: var(--secondary-background-color);
 }
 
 .menu-item-elem {
@@ -78,8 +78,16 @@ body {
   padding: 10px;
 }
 
+.menu-item:hover {
+  background-color: var(--primary-background-color);
+}
+
 .menu-item:hover .menu-item-elem {
-  transition: transform 0.2s ease-in-out;
+  fill: var(--secondary-background-color);
+}
+
+.menu-item:active .menu-item-elem {
+  transition: transform 0.1s ease-in-out;
   transform: scale(1.3);
 }
 
@@ -87,9 +95,18 @@ body {
   position: absolute;
   left: 60px;
   bottom: 35px;
-  top: 70px;
+  top: 95px;
   right: 5px;
-  border: 1px solid var(--seconday-background-color);
+  border: 1px solid var(--secondary-background-color);
+}
+
+#ancestry {
+  position: absolute;
+  top: 70px;
+  left: 60px;
+  right: 5px;
+  height: 20px;
+  border: 1px solid var(--secondary-background-color);
 }
 
 #title-bar {
@@ -97,7 +114,7 @@ body {
   top: 0;
   width: 100%;
   height: 32px;
-  background-color: var(--seconday-background-color);
+  background-color: var(--secondary-background-color);
 }
 
 #app-logo {
@@ -223,7 +240,7 @@ body {
 }
 
 .tab.active>.tab-logo>.tab-logo-elem {
-  fill: var(--seconday-background-color);
+  fill: var(--secondary-background-color);
 }
 
 .tab.inactive>.tab-logo>.tab-logo-elem {
@@ -267,7 +284,7 @@ body {
 }
 
 .tab.inactive:hover .tab-logo>.tab-logo-elem {
-  fill: var(--seconday-background-color);
+  fill: var(--secondary-background-color);
 }
 
 .tab.add-tab:active {

@@ -1,0 +1,9 @@
+pub mod explorer;
+pub mod home;
+pub mod settings;
+pub mod trash;
+pub mod recents;
+pub mod favorites;
+pub mod locked;
+pub mod search;
+pub mod cloud;

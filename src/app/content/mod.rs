@@ -24,7 +24,7 @@ pub fn Content(prop: &ContentProps) -> Html {
             <Ribbon />
             <Menus />
             <Status />
-            <Pane />
+            <Pane ctx = {prop.active_tab.clone()}/>
         </div>
     }
 }
