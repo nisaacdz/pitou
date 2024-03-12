@@ -1,4 +1,7 @@
 use yew::prelude::*;
+mod labels;
+
+pub use labels::*;
 
 #[derive(PartialEq, Properties)]
 pub struct ReusableItemProps {

@@ -1,5 +1,4 @@
 use yew::prelude::*;
-use std::rc::Rc;
 use pitou_core::frontend::*;
 
 mod ribbon;
@@ -14,17 +13,17 @@ use pane::*;
 
 #[derive(PartialEq, Properties)]
 pub struct ContentProps {
-    pub active_tab: Rc<TabCtx>,
+    pub onswitchmenu: Callback<AppMenu>,
 }
 
 #[function_component]
-pub fn Content(prop: &ContentProps) -> Html {
+pub fn Content(props: &ContentProps) -> Html {
     html! {
         <div id = "content">
             <Ribbon />
-            <Menus />
+            <Menus onswitchmenu = { props.onswitchmenu.clone() } />
             <Status />
-            <Pane ctx = {prop.active_tab.clone()}/>
+            <Pane />
         </div>
     }
 }

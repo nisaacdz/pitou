@@ -103,9 +103,9 @@ fn InactiveTab(props: &TabProps) -> Html {
     html! {
         <div class = "tab inactive" onclick = {onchange}>
             <div class="tab-logo">
-                <TabLogo menu = { props.ctx.current_menu } />
+                <TabLogo menu = { *props.ctx.current_menu.borrow() } />
             </div>
-            <div class="tab-text">{ "nisaacdz" }</div>
+            <div class="tab-text">{ props.ctx.current_dir.name() }</div>
             <div class="tab-close" onclick = {onclose}>
                 <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                     <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
@@ -126,11 +126,11 @@ fn ActiveTab(props: &TabProps) -> Html {
         }
     };
     html! {
-        <div class = "tab active" data-tauri-drag-region = "true">
-            <div class="tab-logo">
-                <TabLogo menu = { props.ctx.current_menu } />
+        <div class = "tab active">
+            <div class="tab-logo" data-tauri-drag-region = "true">
+                <TabLogo menu = { *props.ctx.current_menu.borrow() } />
             </div>
-            <div class="tab-text">{ "nisaacdz" }</div>
+            <div class="tab-text" data-tauri-drag-region = "true">{ props.ctx.current_dir.name() }</div>
             <div class="tab-close" onclick={onclose}>
                 <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                     <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>

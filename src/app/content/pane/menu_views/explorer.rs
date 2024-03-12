@@ -22,6 +22,6 @@ pub fn ExplorerView() -> Html {
 #[function_component]
 pub fn Explorer() -> Html {
     html! {
-        <div id="pane" class="explorer-pane fullpane"></div>
+        <div id="explorer-pane" class="explorer-pane"></div>
     }
 }

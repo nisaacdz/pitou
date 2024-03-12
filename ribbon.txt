@@ -1,14 +1,57 @@
-Items on the ribbon
+
+File
+open
+properties
+Show extentions
+show thumbnails
+
+Clipboard
 Cut
 Copy
 Paste
-Clipboard
-New Folder
+
+
 New
+New Folder
 Compress
-Share - email, usb, bluetooth, wifi
+New file
+
+Share
+email
+hdmi
+usb
+bluetooth
+wifi
+
+Trash
 Delete
-Properties
-View - grid, list, Show extentions, show thumbnails, size
-Favorites - Add to Favorites, Remove from Favorites, lock, unlock
-Cloud - Upload to cloud, update to cloud, update from cloud, 
+
+Actions
+undo
+redo
+
+View
+grid
+list
+tiles
+
+Custom
+Add to Favorites
+Remove from Favorites
+lock
+unlock
+
+Cloud
+Upload to cloud
+update to cloud
+update from cloud
+
+Search
+Sort
+
+Trash
+Sort,
+Restore,
+View Trash Properties
+Delete permanently
+Empty bin
