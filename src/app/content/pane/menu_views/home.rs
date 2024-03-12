@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::GeneralFolder, PitouFilePath};
+use pitou_core::{frontend::GeneralFolder, PitouFilePath, PitouDrive};
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -27,12 +27,13 @@ pub fn HomeView() -> Html {
 
 #[function_component]
 pub fn DrivesSection() -> Html {
-    let drives = use_state(None);
+    let drives = use_state(|| None);
     {
         let drives = drives.clone();
         use_effect_with((), move |()| {
             spawn_local(async move {
-                let res: PitouFilePath = tauri_sys::tauri::invoke("drives", &NoArg).await.unwrap();
+                let res: Vec<PitouDrive> = tauri_sys::tauri::invoke("drives", &NoArg).await.unwrap();
+                drives.set(Some(res))
             })
         })
     }
