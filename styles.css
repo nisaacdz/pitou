@@ -154,7 +154,7 @@ body {
 }
 
 .folders-section-elem:active {
-  background-color: var(--secondary-spare-color);
+  background-color: var(--primary-foreground-color);
 }
 
 .folders-section-elem {
@@ -211,6 +211,7 @@ body {
   top: 95px;
   right: 5px;
   border: 1px solid var(--secondary-background-color);
+  display: flex;
 }
 
 #ancestry {
@@ -220,6 +221,83 @@ body {
   right: 5px;
   height: 20px;
   border: 1px solid var(--secondary-background-color);
+}
+
+#ancestry-path {
+  all: unset;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: transparent;
+  color: var(--primary-foreground-color);
+  border: none;
+  font-size: small;
+}
+
+#ancestry-path:focus {
+  box-sizing: border-box;
+  border: 1px solid var(--secondary-background-color);
+}
+
+#ancestry-items-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: left;
+}
+
+.ancestry-chevron-container {
+  height: 20px;
+  width: 20px;
+  box-sizing: border-box;
+}
+
+.ancestry-chevron {
+  height: 20px;
+  width: 20px;
+  stroke: var(--secondary-background-color);
+  fill: transparent;
+}
+
+.ancestry-chevron:hover {
+  box-sizing: border-box;
+  border: 1px solid var(--secondary-spare-color);
+}
+
+.ancestry-chevron:active {
+  background-color: var(--secondary-background-color);
+}
+
+.ancestry-ancestor {
+  height: 20px;
+  font-size: small;
+  width: auto;
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding-left: 2px;
+  padding-right: 2px;
+  color: var(--primary-foreground-color);
+  max-width: 240px;
+  text-overflow: ellipsis;
+}
+
+.ancestry-ancestor:active {
+  filter: brightness(150%);
+}
+
+.ancestry-ancestor:hover {
+  background-color: var(--secondary-background-color);
 }
 
 #title-bar {
@@ -235,9 +313,24 @@ body {
   left: 0;
   width: 90px;
   height: 32px;
-  margin-left: 15px;
   display: flex;
   align-items: center;
+  padding-left: 0px;
+}
+
+#app-logo-img {
+  width: 26px;
+  height: 24px;
+}
+
+#app-logo-name {
+  width: 58px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  color: var(--primary-foreground-color);
+  font-size: small;
 }
 
 #tabs-container {
@@ -257,6 +350,29 @@ body {
   width: 135px;
   height: 32px;
   right: 0;
+}
+
+#tabs-shower {
+  position: absolute;
+  left: 0px;
+  width: 30px;
+  height: 32px;
+  box-sizing: border-box;
+  border: 1px solid var(--secondary-spare-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#tabs-shower:active {
+  border: 2px solid var(--secondary-spare-color);
+  background-color: var(--primary-background-color);
+}
+
+#tabs-shower-chevron {
+  width: 24px;
+  height: 24px;
+  fill: var(--primary-foreground-color);
 }
 
 #all-tabs {

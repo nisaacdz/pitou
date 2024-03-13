@@ -1,6 +1,6 @@
 use pitou_core::frontend::*;
-use wasm_bindgen_futures::spawn_local;
 use std::rc::Rc;
+use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
@@ -8,7 +8,7 @@ use super::{reusables::*, AllTabsCtx};
 
 #[derive(PartialEq, Properties)]
 pub struct TitleBarProps {
-    pub tabs_ctx: AllTabsCtx,
+    pub tabs_ctx: Option<AllTabsCtx>,
     pub onclose: Callback<()>,
     pub ontogglemaximize: Callback<()>,
     pub onminimize: Callback<()>,
@@ -27,10 +27,16 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     let rem_tab = props.rem_tab.clone();
     let change_tab = props.change_tab.clone();
 
+    let tabbed_interface = if let Some(tabs_ctx) = props.tabs_ctx.clone() {
+        html! { <TabbedInterface tabs_ctx = { tabs_ctx } {add_tab} {rem_tab} {change_tab} /> }
+    } else {
+        html! {}
+    };
+
     html! {
         <div id="title-bar" data-tauri-drag-region = "true">
             <AppLogo />
-            <TabbedInterface tabs_ctx = { props.tabs_ctx.clone() } {add_tab} {rem_tab} {change_tab} />
+            { tabbed_interface }
             <ControlBox {onclose} {onminimize} {ontogglemaximize} />
         </div>
     }
@@ -68,6 +74,7 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
         .collect::<Html>();
     html! {
         <div id="tabs-container" data-tauri-drag-region = "true">
+            <TabsShower />
             <div id="all-tabs" data-tauri-drag-region = "true">
                 {tabs_disp}
             </div>
@@ -152,7 +159,7 @@ fn AddTab(prop: &AddTabProps) -> Html {
         move |_| add_tab.emit(())
     };
     html! {
-        <div class = "tab add-tab" {onclick} > 
+        <div class = "tab add-tab" {onclick} >
             <svg id = "add-tab-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" width="24" height="24">
                 <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2z"/>
             </svg>
@@ -172,13 +179,21 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
     let is_maximized = use_state_eq(|| true);
 
     {
-        let is_maximized =  is_maximized.clone();
-        use_interval(move || {
-            let is_maximized = is_maximized.clone();
-            spawn_local(async move {
-                is_maximized.set(tauri_sys::window::current_window().is_maximized().await.unwrap_or(false))
-            })
-        }, 200);
+        let is_maximized = is_maximized.clone();
+        use_interval(
+            move || {
+                let is_maximized = is_maximized.clone();
+                spawn_local(async move {
+                    is_maximized.set(
+                        tauri_sys::window::current_window()
+                            .is_maximized()
+                            .await
+                            .unwrap_or(false),
+                    )
+                })
+            },
+            200,
+        );
     }
 
     let onclose = {
@@ -241,7 +256,19 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
 #[function_component]
 fn AppLogo() -> Html {
     html! {
-        <div id="app-logo" data-tauri-drag-region = "true"> {"AppLogo"} </div>
+        <div id="app-logo" data-tauri-drag-region = "true">
+            <img id="app-logo-img" src = "./public/pitou_logo.png" />
+            <div id="app-logo-name">{ "pitou" }</div>
+        </div>
+    }
+}
+
+#[function_component]
+fn TabsShower() -> Html {
+    html! {
+        <div id="tabs-shower">
+            <DBChevronDownIcon id="tabs-shower-chevron" class=""/>
+        </div>
     }
 }
 
@@ -254,13 +281,19 @@ pub struct TabLogoProp {
 pub fn TabLogo(prop: &TabLogoProp) -> Html {
     match prop.menu {
         AppMenu::Home => html! { <HomeIcon id="home-tab-logo" class="tab-logo-elem" /> },
-        AppMenu::Explorer => html! { <ExplorerIcon id="explorer-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Explorer => {
+            html! { <ExplorerIcon id="explorer-tab-logo" class="tab-logo-elem" /> }
+        }
         AppMenu::Trash => html! { <TrashIcon id="trash-tab-logo" class="tab-logo-elem" /> },
-        AppMenu::Favorites => html! { <FavoritesIcon id="favorites-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Favorites => {
+            html! { <FavoritesIcon id="favorites-tab-logo" class="tab-logo-elem" /> }
+        }
         AppMenu::Recents => html! { <RecentsIcon id="recents-tab-logo" class="tab-logo-elem" /> },
         AppMenu::Cloud => html! { <CloudIcon id="cloud-tab-logo" class="tab-logo-elem" /> },
-        AppMenu::Settings => html! { <SettingsIcon id="settings-tab-logo" class="tab-logo-elem" /> },
+        AppMenu::Settings => {
+            html! { <SettingsIcon id="settings-tab-logo" class="tab-logo-elem" /> }
+        }
         AppMenu::Locked => html! { <LockedIcon id="locked-tab-logo" class="tab-logo-elem" /> },
-        AppMenu::Search => html! { <SearchIcon id="search-tab-logo" class="tab-logo-elem" /> }
+        AppMenu::Search => html! { <SearchIcon id="search-tab-logo" class="tab-logo-elem" /> },
     }
 }

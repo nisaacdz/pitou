@@ -1,8 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
 use pitou_core::{frontend::*, PitouFilePath};
-use serde::{Deserialize, Serialize};
-use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 mod content;
@@ -14,17 +12,6 @@ use title_bar::TitleBar;
 use crate::app::reusables::NoArg;
 
 pub mod reusables;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-    async fn invoke(cmd: &str, args: JsValue) -> JsValue;
-}
-
-#[derive(Serialize, Deserialize)]
-struct GreetArgs<'a> {
-    name: &'a str,
-}
 
 #[derive(Clone)]
 pub struct AllTabsCtx {
@@ -41,23 +28,32 @@ impl PartialEq for AllTabsCtx {
 #[derive(Clone)]
 pub struct ApplicationContext {
     pub gen_ctx: Rc<GenCtx>,
-    pub active_tab: Rc<TabCtx>, 
+    pub active_tab: Option<Rc<TabCtx>>, 
 }
 
 impl PartialEq for ApplicationContext {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         // TODO to change this to correct implementation
         false
     }
 }
 
 impl ApplicationContext {
-    fn new(gen_ctx: Rc<GenCtx>, active_tab: Rc<TabCtx>) -> Self {
+    fn new(gen_ctx: Rc<GenCtx>, active_tab: Option<Rc<TabCtx>>) -> Self {
         Self { gen_ctx, active_tab }
     }
 }
 
 impl AllTabsCtx {
+    pub fn new_with(default_dir: PitouFilePath) -> Self {
+        let active_tab = Rc::new(TabCtx::new_with(default_dir));
+        let all_tabs = Rc::new(RefCell::new(vec![active_tab]));
+        Self {
+            all_tabs,
+            active_tab: 0,
+        }
+    }
+
     pub fn add_tab(mut self, default_dir: PitouFilePath) -> Self {
         let mut all_tabs = self.all_tabs.borrow_mut();
         let next_idx = all_tabs.len();
@@ -72,9 +68,9 @@ impl AllTabsCtx {
         self
     }
 
-    pub fn remove_tab(mut self, idx: usize) -> Self {
+    pub fn remove_tab(mut self, idx: usize) -> Option<Self> {
         let mut all_tabs = self.all_tabs.borrow_mut();
-        if all_tabs.len() <= 1 { return Self::default() }
+        if all_tabs.len() <= 1 { return None }
         all_tabs.remove(idx);
         std::mem::drop(all_tabs);
         if idx <= self.active_tab {
@@ -82,7 +78,7 @@ impl AllTabsCtx {
                 self.active_tab -= 1;
             }
         }
-        self
+        Some(self)
     }
 
     fn current_tab(&self) -> Rc<TabCtx> {
@@ -94,21 +90,27 @@ impl AllTabsCtx {
         *current_tab.current_menu.borrow_mut() = menu;
         self
     }
-
-    fn default() -> Self {
-        let all_tabs = Rc::new(RefCell::new(vec![Rc::new(TabCtx::default())]));
-        Self {
-            active_tab: 0,
-            all_tabs,
-        }
-    }
 }
 
 #[function_component]
 pub fn App() -> Html {
-    let tabs_ctx = use_state(|| AllTabsCtx::default());
+    let tabs_ctx = use_state(|| None);
     
-    let genr_ctx = use_state(|| Rc::new(GenCtx::default()));
+    let genr_ctx = use_state(|| {
+        let mut val = GenCtx::default();
+        // val.color_theme = ColorTheme::POLISH;
+        //val.color_theme.spare2 = pitou_core::frontend::Color(50, 60, 15, 255);
+        Rc::new(val)
+    });
+
+    if let None = *tabs_ctx {
+        let tabs_ctx = tabs_ctx.clone();
+        spawn_local(async move {
+            let default_dir: PitouFilePath = tauri_sys::tauri::invoke("default_folder", &NoArg).await.unwrap();
+            let all_tabs = AllTabsCtx::new_with(default_dir);
+            tabs_ctx.set(Some(all_tabs));
+        });
+    }
     
     let add_tab = {
         let tabs_ctx = tabs_ctx.clone();
@@ -116,19 +118,26 @@ pub fn App() -> Html {
             let tabs_ctx = tabs_ctx.clone();
             spawn_local(async move {
                 let default_dir = tauri_sys::tauri::invoke("default_folder", &NoArg).await.unwrap();
-                tabs_ctx.set((*tabs_ctx).clone().add_tab(default_dir))
+                let new_tabs = (*tabs_ctx).clone().map(|v| v.add_tab(default_dir));
+                tabs_ctx.set(new_tabs)
             })
         }
     };
 
     let rem_tab = {
         let tabs_ctx = tabs_ctx.clone();
-        move |idx| tabs_ctx.set((*tabs_ctx).clone().remove_tab(idx))
+        move |idx| {
+            let new_tabs = (*tabs_ctx).clone().map(|v| v.remove_tab(idx)).flatten();
+            tabs_ctx.set(new_tabs);
+        }
     };
 
     let change_tab = {
         let tabs_ctx = tabs_ctx.clone();
-        move |idx| tabs_ctx.set((*tabs_ctx).clone().change_tab(idx))
+        move |idx| {
+            let new_tabs = (*tabs_ctx).clone().map(|v| v.change_tab(idx));
+            tabs_ctx.set(new_tabs)
+        }
     };
 
     let ColorTheme {
@@ -177,18 +186,19 @@ pub fn App() -> Html {
     let onswitchmenu = {
         let tabs_ctx = tabs_ctx.clone();
         move |menu| {
-            tabs_ctx.set((*tabs_ctx).clone().change_menu(menu))
+            let new_tabs = (*tabs_ctx).clone().map(|v| v.change_menu(menu));
+            tabs_ctx.set(new_tabs)
         }
     };
 
-    let active_tab = tabs_ctx.all_tabs.borrow()[tabs_ctx.active_tab].clone();
+    let active_tab = tabs_ctx.as_ref().map(|v| v.all_tabs.borrow()[v.active_tab].clone());
 
     html! {
-            <main {style}>
-                <ContextProvider<ApplicationContext> context={ApplicationContext::new((*genr_ctx).clone(), active_tab)}>
-                    <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
-                    <Content { onswitchmenu } />
-                </ContextProvider<ApplicationContext>>
-            </ main>
+        <main {style}>
+            <ContextProvider<ApplicationContext> context={ApplicationContext::new((*genr_ctx).clone(), active_tab)}>
+                <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
+                <Content { onswitchmenu } />
+            </ContextProvider<ApplicationContext>>
+        </main>
     }
 }

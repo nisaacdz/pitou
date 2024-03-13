@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::GeneralFolder, PitouFilePath, PitouDrive};
-use serde_wasm_bindgen::{from_value, to_value};
+use pitou_core::{frontend::GeneralFolder, PitouDrive};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 

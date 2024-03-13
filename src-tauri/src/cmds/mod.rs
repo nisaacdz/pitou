@@ -1,4 +1,4 @@
-use pitou_core::{frontend::GeneralFolder, PitouDrive, PitouFilePath};
+use pitou_core::{frontend::{GeneralFolder, PitouFileFilter, PitouFileSort}, PitouDrive, PitouFile, PitouFilePath};
 
 #[tauri::command]
 pub fn general_folders() -> Vec<GeneralFolder> {
@@ -13,4 +13,9 @@ pub fn default_folder() -> PitouFilePath {
 #[tauri::command]
 pub fn drives() -> Vec<PitouDrive> {
     PitouDrive::get_drives()
+}
+
+#[tauri::command]
+pub async fn children(dir: PitouFilePath, filter: PitouFileFilter, sort: Option<PitouFileSort>) -> Option<Vec<PitouFile>> {
+    pitou_core::backend::children(dir, filter, sort).await.ok()
 }

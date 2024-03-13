@@ -8,7 +8,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             general_folders,
             default_folder,
-            drives
+            drives,
+            children,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
