@@ -113,6 +113,21 @@ fn ListItem(props: &ItemProps) -> Html {
             })
     });
 
+    let onclick = {
+        let highlighted = highlighted.clone();
+        let item = props.item.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            if !*highlighted {
+                ctx.active_tab.append_selected(item.clone());
+                highlighted.set(true)
+            } else {
+                ctx.active_tab.remove_selected(item.clone());
+                highlighted.set(false)
+            }
+        }
+    };
+
     let ontoggle = {
         let highlighted = highlighted.clone();
         let ctx = ctx.clone();
@@ -157,7 +172,7 @@ fn ListItem(props: &ItemProps) -> Html {
     let filetype = props.item.metadata.as_ref().map(|v| v.kind);
 
     html! {
-        <div class={list_item_class} {ondblclick}>
+        <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
                 <input class={checkbox_class} type="checkbox" checked={*highlighted} {ontoggle} />
             </div>

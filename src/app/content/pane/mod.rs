@@ -10,7 +10,6 @@ mod menu_views;
 #[derive(PartialEq, Properties)]
 pub struct PaneProps {
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
-    pub onopen: Callback<Rc<PitouFile>>,
 }
 
 #[function_component]
@@ -29,12 +28,21 @@ pub fn Pane(props: &PaneProps) -> Html {
         return html! {};
     }
 
+    let onopen = {
+        let onupdatedir = props.onupdatedir.clone();
+        move |pf: Rc<PitouFile>| {
+            if pf.is_file() {
+            } else if pf.is_link() {
+            } else {
+                onupdatedir.emit(Some(pf))
+            }
+        }
+    };
+
     let menu = *ctx.active_tab.current_menu.borrow();
     match menu {
         pitou_core::frontend::AppMenu::Home => html! { <HomeView /> },
-        pitou_core::frontend::AppMenu::Explorer => {
-            html! { <ExplorerView onopen={props.onopen.clone()} /> }
-        }
+        pitou_core::frontend::AppMenu::Explorer => html! { <ExplorerView {onopen} /> },
         pitou_core::frontend::AppMenu::Trash => html! { <TrashView /> },
         pitou_core::frontend::AppMenu::Favorites => html! {},
         pitou_core::frontend::AppMenu::Search => html! {},

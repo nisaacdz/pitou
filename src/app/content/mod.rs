@@ -21,22 +21,12 @@ pub struct ContentProps {
 
 #[function_component]
 pub fn Content(props: &ContentProps) -> Html {
-    let onopen = {
-        let onupdatedir = props.onupdatedir.clone();
-        move |pf: Rc<PitouFile>| {
-            if pf.is_file() {
-            } else if pf.is_link() {
-            } else {
-                onupdatedir.emit(Some(pf))
-            }
-        }
-    };
     html! {
         <div id = "content">
             <Ribbon />
             <Menus onswitchmenu = { props.onswitchmenu.clone() } />
             <Status />
-            <Pane onupdatedir = { props.onupdatedir.clone() } onopen = { onopen } />
+            <Pane onupdatedir = { props.onupdatedir.clone() } />
         </div>
     }
 }

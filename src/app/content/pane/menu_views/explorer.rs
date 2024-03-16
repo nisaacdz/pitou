@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::PitouFile;
+use pitou_core::{PitouFile, PitouFilePath};
 use tauri_sys::tauri::invoke;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
@@ -36,9 +36,36 @@ fn Ancestry(props: &AncestryProps) -> Html {
         "show-absolute-path"
     };
 
-    let onblur = {
+    let onopen = {
         let show_ancestry = show_ancestry.clone();
-        move |_| show_ancestry.set(true)
+        let onopen = props.onopen.clone();
+        move |path_str: String| {
+            let file = PitouFile {
+                path: PitouFilePath::from_pathbuf(std::path::PathBuf::from(path_str)),
+                metadata: None,
+            };
+            show_ancestry.set(true);
+            onopen.emit(Rc::new(file))
+        }
+    };
+
+    let oninput = {
+        let onopen = onopen.clone();
+        move |e: InputEvent| {
+            let input = e.data().unwrap_or_default();
+            if input.len() == 1 && input.as_bytes()[0] == 13 {
+                let val = e.target_dyn_into::<HtmlInputElement>().unwrap().value();
+                onopen(val)
+            }
+        }
+    };
+
+    let onblur = {
+        move |e: FocusEvent| {
+            let e = e.target_dyn_into::<HtmlInputElement>().unwrap();
+            let val = e.value();
+            onopen(val)
+        }
     };
 
     let onclick = {
@@ -46,18 +73,22 @@ fn Ancestry(props: &AncestryProps) -> Html {
         move |_| show_ancestry.set(false)
     };
 
-    let content =
-        if *show_ancestry {
-            let onclickchevron = { move |e: MouseEvent| e.stop_propagation() };
+    let content = if *show_ancestry {
+        let onclickchevron = { move |e: MouseEvent| e.stop_propagation() };
 
-            let onclickancestor = { move |e: MouseEvent| e.stop_propagation() };
-            let db = gen_ctx.active_tab.current_dir.borrow();
-            let items = db
+        let onclickancestor = { move |e: MouseEvent| e.stop_propagation() };
+        let db = gen_ctx.active_tab.current_dir.borrow();
+        let items = db
             .as_ref()
             .into_iter()
             .map(|v| v.path.ancestors())
             .flatten()
-            .map(|path| Rc::new(PitouFile { path, metadata: None }))
+            .map(|path| {
+                Rc::new(PitouFile {
+                    path,
+                    metadata: None,
+                })
+            })
             .map(|v| {
                 let onclick = {
                     let onopen = props.onopen.clone();
@@ -76,23 +107,23 @@ fn Ancestry(props: &AncestryProps) -> Html {
                 }
             })
             .collect::<Html>();
-            html! {
-                <div id = "ancestry-items-container">
-                { items }
-                </div>
-            }
-        } else {
-            let value = gen_ctx
-                .active_tab
-                .current_dir
-                .borrow()
-                .as_ref()
-                .map(|v| v.path.path.display().to_string())
-                .unwrap_or_default();
-            html! {
-                <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value}/>
-            }
-        };
+        html! {
+            <div id = "ancestry-items-container">
+            { items }
+            </div>
+        }
+    } else {
+        let value = gen_ctx
+            .active_tab
+            .current_dir
+            .borrow()
+            .as_ref()
+            .map(|v| v.path.path.display().to_string())
+            .unwrap_or_default();
+        html! {
+            <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value} {oninput}/>
+        }
+    };
 
     html! {
         <div id="ancestry" {class} {onclick}>
