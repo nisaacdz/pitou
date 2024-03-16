@@ -31,7 +31,8 @@ pub fn DrivesSection() -> Html {
         let drives = drives.clone();
         use_effect_with((), move |()| {
             spawn_local(async move {
-                let res: Vec<PitouDrive> = tauri_sys::tauri::invoke("drives", &NoArg).await.unwrap();
+                let res: Vec<PitouDrive> =
+                    tauri_sys::tauri::invoke("drives", &NoArg).await.unwrap();
                 drives.set(Some(res))
             })
         })

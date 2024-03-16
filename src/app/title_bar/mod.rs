@@ -8,7 +8,7 @@ use super::{reusables::*, AllTabsCtx};
 
 #[derive(PartialEq, Properties)]
 pub struct TitleBarProps {
-    pub tabs_ctx: Option<AllTabsCtx>,
+    pub tabs_ctx: AllTabsCtx,
     pub onclose: Callback<()>,
     pub ontogglemaximize: Callback<()>,
     pub onminimize: Callback<()>,
@@ -26,12 +26,10 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     let add_tab = props.add_tab.clone();
     let rem_tab = props.rem_tab.clone();
     let change_tab = props.change_tab.clone();
+    let tabs_ctx = props.tabs_ctx.clone();
 
-    let tabbed_interface = if let Some(tabs_ctx) = props.tabs_ctx.clone() {
-        html! { <TabbedInterface tabs_ctx = { tabs_ctx } {add_tab} {rem_tab} {change_tab} /> }
-    } else {
-        html! {}
-    };
+    let tabbed_interface =
+        html! { <TabbedInterface tabs_ctx = { tabs_ctx } {add_tab} {rem_tab} {change_tab} /> };
 
     html! {
         <div id="title-bar" data-tauri-drag-region = "true">
@@ -106,16 +104,20 @@ fn InactiveTab(props: &TabProps) -> Html {
         let idx = props.idx;
         move |_| change_tab.emit(idx)
     };
+    let dir_borrow = props.ctx.current_dir.borrow();
+    let name = dir_borrow.as_ref().map(|v| v.name()).unwrap_or_default();
 
     html! {
         <div class = "tab inactive" onclick = {onchange}>
             <div class="tab-logo">
                 <TabLogo menu = { *props.ctx.current_menu.borrow() } />
             </div>
-            <div class="tab-text">{ props.ctx.current_dir.name() }</div>
+            <div class="tab-text">{ name }</div>
             <div class="tab-close" onclick = {onclose}>
-                <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
+                <svg class="tab-close-cross" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42
+                    1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 
+                    1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
                 </svg>
             </div>
         </div>
@@ -132,15 +134,21 @@ fn ActiveTab(props: &TabProps) -> Html {
             rem_tab.emit(idx)
         }
     };
+
+    let dir_borrow = props.ctx.current_dir.borrow();
+    let name = dir_borrow.as_ref().map(|v| v.name()).unwrap_or_default();
+
     html! {
         <div class = "tab active">
             <div class="tab-logo" data-tauri-drag-region = "true">
                 <TabLogo menu = { *props.ctx.current_menu.borrow() } />
             </div>
-            <div class="tab-text" data-tauri-drag-region = "true">{ props.ctx.current_dir.name() }</div>
+            <div class="tab-text" data-tauri-drag-region = "true">{ name }</div>
             <div class="tab-close" onclick={onclose}>
-                <svg class="tab-close-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
+                <svg class="tab-close-cross" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42
+                    1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 
+                    1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
                 </svg>
             </div>
         </div>
@@ -160,7 +168,7 @@ fn AddTab(prop: &AddTabProps) -> Html {
     };
     html! {
         <div class = "tab add-tab" {onclick} >
-            <svg id = "add-tab-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23" width="24" height="24">
+            <svg id = "add-tab-plus" viewBox="0 0 23 23" width="24" height="24">
                 <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2z"/>
             </svg>
         </div>
@@ -213,11 +221,12 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
 
     let maxi_or_restore = if *is_maximized {
         html! {
-            <svg class="elem" width="24" height="24" viewBox="-6 -6 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <svg class="elem" width="24" height="24" viewBox="-6 -6 32 32">
                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
                     <g transform="translate(-969.000000, -748.000000)" id="Group" stroke="#000000" stroke-width="2">
                         <g transform="translate(967.000000, 746.000000)" id="Shape">
-                            <path class="maxi-button-line" d="M3,15 L9,15 L9,21 M15,21 L15,15 L21,15 M21,9 L15,9 L15,3 M9,3 L9,9 L3,9"></path>
+                            <path class="maxi-button-line" d="M3,15 L9,15 L9,21 M15,21 L15,15 L21,15 M21,9 L15,9 L15,3 M9,3 L9,9 L3,9">
+                            </path>
                         </g>
                     </g>
                 </g>
@@ -237,15 +246,17 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
     html! {
         <div id="control-box">
             <div class="control-button close-button" onclick={onclose}>
-                <svg class="elem" id="close-button-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 1 0 0 0 0-1.42z"/>
+                <svg class="elem" id="close-button-cross" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59
+                    12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 
+                    1 0 0 0 0-1.42z"/>
                 </svg>
             </div>
             <div class="control-button maxi-button" onclick={onresize}>
                 { maxi_or_restore }
             </div>
             <div class="control-button mini-button" onclick={onminimize}>
-                <svg class="elem" id="mini-button-dash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <svg class="elem" id="mini-button-dash" viewBox="0 0 24 24" width="24" height="24">
                     <rect x="5" y="12" width="14" height="2"/>
                 </svg>
             </div>

@@ -55,3 +55,8 @@ Restore,
 View Trash Properties
 Delete permanently
 Empty bin
+
+Zoom
+++
+--
+default

@@ -1,7 +1,10 @@
+use pitou_core::PitouFileKind;
 use yew::prelude::*;
 mod labels;
+mod panes;
 
 pub use labels::*;
+pub use panes::*;
 
 #[derive(PartialEq, Properties)]
 pub struct ReusableItemProps {
@@ -186,5 +189,84 @@ pub fn ChevronRightIcon(props: &ReusableItemProps) -> Html {
         <svg {id} {class} viewBox="0 0 24 24">
             <path d="M11 15L13.6997 12.3003V12.3003C13.8656 12.1344 13.8656 11.8656 13.6997 11.6997V11.6997L11 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+    }
+}
+
+#[function_component]
+pub fn UnknownFileIcon(props: &ReusableItemProps) -> Html {
+    let class = props.class.clone();
+    let id = props.id.clone();
+    html! {
+        <svg {class} {id} viewBox="0 0 24 24" >
+            <path d="M12,2 L12,8.5 C12,9.32843 12.6716,10 13.5,10 L20,10 L20,20 C20,21.1046 19.1046,22 18,22 L6,22 C4.89543,22 4,21.1046 4,20 L4,4 C4,2.89543 4.89543,2 6,2 L12,2 Z M12,18 C11.4477,18 11,18.4477 11,19 C11,19.5523 11.4477,20 12,20 C12.5523,20 13,19.5523 13,19 C13,18.4477 12.5523,18 12,18 Z M12,12 C10.6193,12 9.5,13.1193 9.5,14.5 C9.5,15.0523 9.94772,15.5 10.5,15.5 C11.0523,15.5 11.5,15.0523 11.5,14.5 C11.5,14.2239 11.7239,14 12,14 C12.2761,14 12.5,14.2239 12.5,14.5 C12.5,14.6589 12.427,14.8002 12.3087,14.8934 C12.0896,15.0661 11.7792,15.3172 11.5252,15.6297 C11.351,15.844 11.1406,16.2239 11.1406,16.5781 C11.1406,16.9324 11.375,17.4219 12,17.4219 C12.4015,17.4219 12.8466,17.0478 13.2543,16.705 C13.3543,16.6209 13.4521,16.5387 13.5464,16.4644 C14.1254,16.0083 14.5,15.2976 14.5,14.5 C14.5,13.1193 13.3807,12 12,12 Z M14,2.04336 C14.3759,2.12295 14.7241,2.30991 15,2.58579 L19.4142,7 C19.6901,7.27588 19.8771,7.62406 19.9566,8 L14,8 L14,2.04336 Z">
+            </path>
+        </svg>
+    }
+}
+
+#[function_component]
+pub fn FolderIcon(props: &ReusableItemProps) -> Html {
+    let class = props.class.clone();
+    let id = props.id.clone();
+    html! {
+        <svg {id} {class} viewBox="0 0 1024 1024">
+            <path d="M853.333333 256H469.333333l-85.333333-85.333333H170.666667c-46.933333 0-85.333333 38.4-85.333334 85.333333v170.666667h853.333334v-85.333334c0-46.933333-38.4-85.333333-85.333334-85.333333z"/>
+            <path d="M853.333333 256H170.666667c-46.933333 0-85.333333 38.4-85.333334 85.333333v426.666667c0 46.933333 38.4 85.333333 85.333334 85.333333h682.666666c46.933333 0 85.333333-38.4 85.333334-85.333333V341.333333c0-46.933333-38.4-85.333333-85.333334-85.333333z" />
+        </svg>
+    }
+}
+
+#[function_component]
+pub fn LinkIcon(props: &ReusableItemProps) -> Html {
+    let class = props.class.clone();
+    let id = props.id.clone();
+    html! {
+        <svg {id} {class} viewBox="0 0 32 32" >
+            <polygon points="20,2.6 20,8 25.4,8 "/>
+            <path d="M23.5,10H19c-0.6,0-1-0.4-1-1V2H7C6.4,2,6,2.4,6,3v26c0,0.6,0.4,1,1,1h18c0.6,0,1-0.4,1-1V12.5C26,11.1,24.9,10,23.5,10z
+                M17.7,22.7l-1.5,1.5c-0.9,0.9-2,1.3-3.2,1.3s-2.3-0.4-3.2-1.3c-1.8-1.8-1.8-4.6,0-6.4l1.5-1.5c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4
+                l-1.5,1.5c-1,1-1,2.6,0,3.6c1,1,2.6,1,3.6,0l1.5-1.5c0.4-0.4,1-0.4,1.4,0S18.1,22.3,17.7,22.7z M13.3,19.3l3-3c0.4-0.4,1-0.4,1.4,0
+                s0.4,1,0,1.4l-3,3C14.5,20.9,14.3,21,14,21s-0.5-0.1-0.7-0.3C12.9,20.3,12.9,19.7,13.3,19.3z M21.2,19.2l-1.5,1.5
+                C19.5,20.9,19.3,21,19,21s-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l1.5-1.5c1-1,1-2.6,0-3.6c-1-1-2.6-1-3.6,0l-1.5,1.5
+                c-0.4,0.4-1,0.4-1.4,0s-0.4-1,0-1.4l1.5-1.5c1.8-1.8,4.6-1.8,6.4,0S23,17.4,21.2,19.2z"/>
+        </svg>
+    }
+}
+
+#[function_component]
+pub fn FileIcon(props: &ReusableItemProps) -> Html {
+    let id = props.id.clone();
+    let class = format! {"spare-fill-2 {}", &props.class };
+    html! {
+        <svg {id} {class} viewBox="0 0 64 64">
+            <path d="M56,0H8C5.789,0,4,1.789,4,4v56c0,2.211,1.789,4,4,4h48c2.211,0,4-1.789,4-4V4C60,1.789,58.211,0,56,0z
+                M24,20h8c2.211,0,4,1.789,4,4s-1.789,4-4,4h-8c-2.211,0-4-1.789-4-4S21.789,20,24,20z M40,44H24c-2.211,0-4-1.789-4-4s1.789-4,4-4
+                h16c2.211,0,4,1.789,4,4S42.211,44,40,44z"/>
+        </svg>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+pub struct FileTypeIconProps {
+    filetype: Option<PitouFileKind>,
+}
+
+#[function_component]
+pub fn FileTypeIcon(props: &FileTypeIconProps) -> Html {
+    match props.filetype {
+        Some(filetype) => match filetype {
+            PitouFileKind::Directory => {
+                html! { <FolderIcon id="" class="folder-file-icon file-type-icon list-type-icon" /> }
+            }
+            PitouFileKind::File => {
+                html! { <FileIcon id="" class="file-file-icon file-type-icon list-type-icon" /> }
+            }
+            PitouFileKind::Link => {
+                html! { <LinkIcon id="" class="link-file-icon file-type-icon list-type-icon" /> }
+            }
+        },
+        None => {
+            html! { <UnknownFileIcon id="" class="unknown-file-icon file-type-icon list-type-icon"/> }
+        }
     }
 }

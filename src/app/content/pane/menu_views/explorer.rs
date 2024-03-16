@@ -1,10 +1,15 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::ItemsView, PitouFile, PitouFilePath};
+use tauri_sys::tauri::invoke;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
+use yew_hooks::use_interval;
 
-use crate::app::{reusables::ChevronRightIcon, ApplicationContext};
+use crate::app::{
+    reusables::{ChevronRightIcon, DirChildren, DirChildrenArgs, MainPane},
+    ApplicationContext,
+};
 
 #[function_component]
 pub fn Ancestry() -> Html {
@@ -19,7 +24,6 @@ pub fn Ancestry() -> Html {
             }
         });
     }
-    let active_tab = gen_ctx.active_tab.clone();
     let class = if *show_ancestry {
         "show-ancestry"
     } else {
@@ -37,34 +41,27 @@ pub fn Ancestry() -> Html {
     };
 
     let content = if *show_ancestry {
-        let onclickchevron = {
-            move |e: MouseEvent| e.stop_propagation() 
-        };
+        let onclickchevron = { move |e: MouseEvent| e.stop_propagation() };
 
-        let onclickancestor = {
-            move |e: MouseEvent| e.stop_propagation() 
-        };
-        let items = Some(html! {})
+        let onclickancestor = { move |e: MouseEvent| e.stop_propagation() };
+        let db = gen_ctx.active_tab.current_dir.borrow();
+        let items = db
+            .as_ref()
             .into_iter()
-            .chain(
-                active_tab
-                    .into_iter()
-                    .map(|v| {
-                        pitou_path_ancestors(&*v.current_dir).map(|v| {
-                            html! {
-                                <>
-                                    <div class="ancestry-chevron-container" onclick={onclickchevron}>
-                                        <ChevronRightIcon id="" class="ancestry-chevron"/>
-                                    </div>
-                                    <div class="ancestry-ancestor" onclick={onclickancestor.clone()}>
-                                    { v.name() }
-                                    </div>
-                                </>
-                            }
-                        })
-                    })
-                    .flatten(),
-            )
+            .map(|v| v.path.ancestors())
+            .flatten()
+            .map(|v| {
+                html! {
+                    <>
+                        <div class="ancestry-chevron-container" onclick={onclickchevron}>
+                            <ChevronRightIcon id="" class="ancestry-chevron"/>
+                        </div>
+                        <div class="ancestry-ancestor" onclick={onclickancestor.clone()}>
+                        { v.name() }
+                        </div>
+                    </>
+                }
+            })
             .collect::<Html>();
         html! {
             <div id = "ancestry-items-container">
@@ -74,14 +71,10 @@ pub fn Ancestry() -> Html {
     } else {
         let value = gen_ctx
             .active_tab
+            .current_dir
+            .borrow()
             .as_ref()
-            .map(|v| {
-                v.current_dir
-                    .path
-                    .to_str()
-                    .map(|u| u.to_owned())
-                    .unwrap_or_default()
-            })
+            .map(|v| v.path.path.display().to_string())
             .unwrap_or_default();
         html! {
             <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value}/>
@@ -95,8 +88,11 @@ pub fn Ancestry() -> Html {
     }
 }
 
+#[derive(Properties, PartialEq)]
+pub struct ExplorerViewProps {}
+
 #[function_component]
-pub fn ExplorerView() -> Html {
+pub fn ExplorerView(props: &ExplorerViewProps) -> Html {
     html! {
         <>
             <Ancestry />
@@ -107,72 +103,54 @@ pub fn ExplorerView() -> Html {
 
 #[function_component]
 pub fn Explorer() -> Html {
-    html! {
-        <div id="explorer-pane" class="explorer-pane">
-        </div>
-    }
-}
-
-#[function_component]
-fn ChildrenExplorer() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let children = use_state(|| {
-        ctx.active_tab
-            .as_ref()
-            .map(|v| v.dir_children.borrow().clone())
-            .flatten()
-    });
+    let children = use_state(|| ctx.active_tab.dir_children.borrow().clone());
 
-    let children_node = match ctx.gen_ctx.app_settings.items_view {
-        ItemsView::Grid => html! { <GridView items = { (*children).clone() } /> },
-        ItemsView::Rows => html! { <RowView items = { (*children).clone() } /> },
-        ItemsView::Tiles => html! { <TileView items = { (*children).clone() } /> },
+    {
+        let ctx = ctx.clone();
+        let children = children.clone();
+        use_interval(
+            move || {
+                let ctx = ctx.clone();
+                let children = children.clone();
+                spawn_local(async move {
+                    if let Some(file) = &*ctx.active_tab.current_dir.borrow() {
+                        let new_children = invoke::<DirChildrenArgs, DirChildren>(
+                            "children",
+                            &DirChildrenArgs::new_default(&file.path),
+                        )
+                        .await
+                        .ok()
+                        .map(|v| Rc::new(v.children));
+
+                        *ctx.active_tab.dir_children.borrow_mut() = new_children;
+                        let items = ctx.active_tab.dir_children.borrow().clone();
+                        children.set(items)
+                    }
+                })
+            },
+            250,
+        )
+    }
+
+    let onopen = {
+        let _ctx = ctx.clone();
+        move |_v| {
+            // TODO
+        }
+    };
+
+    let content = if let Some(items) = &*children {
+        let items = items.clone();
+        let view = ctx.gen_ctx.app_settings.items_view;
+        html! { <MainPane {view} {items} {onopen} />}
+    } else {
+        html! {}
     };
 
     html! {
-        <div>
-            { children_node }
+        <div id="explorer-pane" class="explorer-pane">
+        { content }
         </div>
     }
-}
-
-#[derive(Properties)]
-struct ItemsViewProps {
-    items: Option<Rc<Vec<Rc<PitouFile>>>>,
-}
-
-impl PartialEq for ItemsViewProps {
-    fn eq(&self, other: &Self) -> bool {
-        match (self.items.as_ref(), other.items.as_ref()) {
-            (None, None) => true,
-            (Some(vals1), Some(vals2)) => vals1.as_ptr() == vals2.as_ptr(),
-            _ => false,
-        }
-    }
-}
-
-fn pitou_path_ancestors(pitou: &PitouFilePath) -> impl Iterator<Item = PitouFilePath> {
-    let mut ll = std::collections::LinkedList::new();
-    for anc in pitou.path.ancestors() {
-        if anc.as_os_str().len() == 0 {
-            break;
-        }
-        ll.push_front(PitouFilePath::from_pathbuf(std::path::PathBuf::from(anc)))
-    }
-    ll.into_iter()
-}
-
-#[function_component]
-fn GridView(props: &ItemsViewProps) -> Html {
-    html! {}
-}
-
-#[function_component]
-fn TileView(props: &ItemsViewProps) -> Html {
-    html! {}
-}
-
-#[function_component]
-fn RowView(props: &ItemsViewProps) -> Html {
-    html! {}
 }

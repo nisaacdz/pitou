@@ -33,10 +33,7 @@ pub fn Menus(props: &MenuProps) -> Html {
 #[function_component]
 pub fn ExplorerMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Explorer)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Explorer) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -55,10 +52,7 @@ pub fn ExplorerMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 pub fn SettingsMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Settings)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Settings) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -77,10 +71,7 @@ pub fn SettingsMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 pub fn FavoritesMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Favorites)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Favorites) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -99,10 +90,7 @@ pub fn FavoritesMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn RecentsMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Recents)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Recents) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -121,10 +109,7 @@ fn RecentsMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn TrashMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Trash)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Trash) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -143,10 +128,7 @@ fn TrashMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn LockedMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Locked)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Locked) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -165,10 +147,7 @@ fn LockedMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn SearchMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Search)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Search) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -187,10 +166,7 @@ fn SearchMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn CloudMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Cloud)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Cloud) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -209,10 +185,7 @@ fn CloudMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn HomeMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(
-        ctx.active_tab.as_ref().map(|v| *v.current_menu.borrow()),
-        Some(AppMenu::Home)
-    ) {
+    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Home) {
         "menu-item active-menu"
     } else {
         "menu-item"

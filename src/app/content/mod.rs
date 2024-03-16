@@ -1,19 +1,22 @@
+use std::rc::Rc;
+
+use pitou_core::{frontend::*, PitouFile};
 use yew::prelude::*;
-use pitou_core::frontend::*;
 
-mod ribbon;
 mod menus;
-mod status;
 mod pane;
+mod ribbon;
+mod status;
 
-use ribbon::*;
 use menus::*;
-use status::*;
 use pane::*;
+use ribbon::*;
+use status::*;
 
 #[derive(PartialEq, Properties)]
 pub struct ContentProps {
     pub onswitchmenu: Callback<AppMenu>,
+    pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
 }
 
 #[function_component]
@@ -23,7 +26,7 @@ pub fn Content(props: &ContentProps) -> Html {
             <Ribbon />
             <Menus onswitchmenu = { props.onswitchmenu.clone() } />
             <Status />
-            <Pane />
+            <Pane onupdatedir = { props.onupdatedir.clone() } />
         </div>
     }
 }

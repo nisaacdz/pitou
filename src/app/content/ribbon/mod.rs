@@ -4,7 +4,7 @@ use yew::prelude::*;
 pub fn Ribbon() -> Html {
     html! {
         <div id="ribbon">
-            
+
         </div>
     }
 }
