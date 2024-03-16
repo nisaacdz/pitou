@@ -118,6 +118,7 @@ fn ListItem(props: &ItemProps) -> Html {
         let ctx = ctx.clone();
         let item = props.item.clone();
         move |e: Event| {
+            e.stop_propagation();
             let elem = e.target_dyn_into::<HtmlInputElement>().unwrap();
             if elem.checked() {
                 ctx.active_tab.append_selected(item.clone());

@@ -132,6 +132,8 @@ pub fn App() -> Html {
         let tabs_ctx = tabs_ctx.clone();
         move |file| {
             let new_tabs = (*tabs_ctx).clone();
+            tabs_ctx.current_tab().update_children(None);
+            tabs_ctx.current_tab().update_siblings(None);
             new_tabs.current_tab().update_cur_dir(file);
             tabs_ctx.set(new_tabs)
         }
