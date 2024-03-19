@@ -1,10 +1,9 @@
 use std::rc::Rc;
 
 use pitou_core::{
-    frontend::{extra::PitouFileWrapper, *},
+    frontend::{extra::VWrapper, ItemsView},
     PitouFile,
 };
-use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 use crate::app::{reusables::FileTypeIcon, ApplicationContext};
@@ -105,12 +104,8 @@ fn ListDsc() -> Html {
 fn ListItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let highlighted = use_state_eq(|| {
-        ctx.active_tab
-            .selected_files
-            .borrow()
-            .contains(&PitouFileWrapper {
-                file: props.item.clone(),
-            })
+        ctx.static_data
+            .is_selected(VWrapper::FirstAncestor(props.item.clone()))
     });
 
     let onclick = {
@@ -119,10 +114,12 @@ fn ListItem(props: &ItemProps) -> Html {
         let ctx = ctx.clone();
         move |_| {
             if !*highlighted {
-                ctx.active_tab.append_selected(item.clone());
+                ctx.static_data
+                    .add_selection(VWrapper::FirstAncestor(item.clone()));
                 highlighted.set(true)
             } else {
-                ctx.active_tab.remove_selected(item.clone());
+                ctx.static_data
+                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
                 highlighted.set(false)
             }
         }
@@ -134,12 +131,13 @@ fn ListItem(props: &ItemProps) -> Html {
         let item = props.item.clone();
         move |e: Event| {
             e.stop_propagation();
-            let elem = e.target_dyn_into::<HtmlInputElement>().unwrap();
-            if elem.checked() {
-                ctx.active_tab.append_selected(item.clone());
+            if !*highlighted {
+                ctx.static_data
+                    .add_selection(VWrapper::FirstAncestor(item.clone()));
                 highlighted.set(true)
             } else {
-                ctx.active_tab.remove_selected(item.clone());
+                ctx.static_data
+                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
                 highlighted.set(false)
             }
         }
@@ -170,6 +168,26 @@ fn ListItem(props: &ItemProps) -> Html {
     );
 
     let filetype = props.item.metadata.as_ref().map(|v| v.kind);
+    let accessed = props
+        .item
+        .metadata
+        .as_ref()
+        .map(|v| v.accessed.datetime.format("%Y-%m-%d %H:%M").to_string())
+        .unwrap_or_default();
+
+    let modified = props
+        .item
+        .metadata
+        .as_ref()
+        .map(|v| v.modified.datetime.format("%Y-%m-%d %H:%M").to_string())
+        .unwrap_or_default();
+
+    let created = props
+        .item
+        .metadata
+        .as_ref()
+        .map(|v| v.created.datetime.format("%Y-%m-%d %H:%M").to_string())
+        .unwrap_or_default();
 
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
@@ -183,13 +201,13 @@ fn ListItem(props: &ItemProps) -> Html {
                 <div class="list-filename">{ props.item.name() }</div>
             </div>
             <div class="list-modifieddate-container">
-                <div>{ "Today" }</div>
+                <div>{ modified }</div>
             </div>
             <div class="list-accesseddate-container">
-                <div>{ "Yesterday" }</div>
+                <div>{ accessed }</div>
             </div>
             <div class="list-createddate-container">
-                <div>{ "Last week" }</div>
+                <div>{ created }</div>
             </div>
         </div>
     }

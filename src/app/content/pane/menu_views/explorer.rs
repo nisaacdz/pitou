@@ -49,11 +49,10 @@ fn Ancestry(props: &AncestryProps) -> Html {
         }
     };
 
-    let oninput = {
+    let onkeypress = {
         let onopen = onopen.clone();
-        move |e: InputEvent| {
-            let input = e.data().unwrap_or_default();
-            if input.len() == 1 && input.as_bytes()[0] == 13 {
+        move |e: KeyboardEvent| {
+            if e.char_code() == 13 {
                 let val = e.target_dyn_into::<HtmlInputElement>().unwrap().value();
                 onopen(val)
             }
@@ -121,7 +120,7 @@ fn Ancestry(props: &AncestryProps) -> Html {
             .map(|v| v.path.path.display().to_string())
             .unwrap_or_default();
         html! {
-            <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value} {oninput}/>
+            <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value} {onkeypress}/>
         }
     };
 
@@ -140,10 +139,10 @@ pub struct ExplorerViewProps {
 #[function_component]
 pub fn ExplorerView(props: &ExplorerViewProps) -> Html {
     html! {
-        <>
+        <div id="explorer-view-pane" class="fullpane">
             <Ancestry onopen={props.onopen.clone()}/>
             <Explorer onopen={props.onopen.clone()}/>
-        </>
+        </div>
     }
 }
 
@@ -180,11 +179,21 @@ fn Explorer(props: &ExplorerProps) -> Html {
                     }
                 })
             },
-            250,
+            5000,
         )
     }
 
-    let onopen = props.onopen.clone();
+    let onopen = {
+        let children = children.clone();
+        let onopen = props.onopen.clone();
+        move |pf: Rc<PitouFile>| {
+            let can_be_dir = !(pf.is_file() || pf.is_dir());
+            onopen.emit(pf);
+            if can_be_dir {
+                children.set(None);
+            }
+        }
+    };
 
     let content = if let Some(items) = &*children {
         let items = items.clone();
@@ -195,7 +204,7 @@ fn Explorer(props: &ExplorerProps) -> Html {
     };
 
     html! {
-        <div id="explorer-pane" class="explorer-pane">
+        <div id="explorer-main-section">
         { content }
         </div>
     }

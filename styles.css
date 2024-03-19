@@ -131,10 +131,94 @@ body {
 }
 
 #drives-section {
-  min-height: 90px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex: 1;
+  padding: 20px;
+}
+
+.drives-section-elem {
+  width: 240px;
+  height: 60px;
+  position: relative;
+  font-size: small;
+  color: var(--primary-foreground-color);
+  box-sizing: content-box;
+  border: 1px solid var(--secondary-spare-color);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.drives-section-elem:hover {
+  background-color: var(--secondary-background-color);
+}
+
+.drives-section-elem-icon {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  left: 0;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-grow: 0;
+}
+
+.drives-section-item-icon-img {
+  width: 54px;
+  height: 54px;
+}
+
+.drives-section-elem-name {
+  position: absolute;
+  width: 180px;
+  height: 20px;
+  left: 60px;
+  top: 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: first baseline;
+  flex-wrap: nowrap;
+  justify-content: left;
+}
+
+.drives-section-elem-guage {
+  position: absolute;
+  width: 180px;
+  height: 20px;
+  left: 60px;
+  top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+.drives-section-elem-guage-outer {
+  height: 14px;
+  width: 170px;
+  box-sizing: content-box;
+  border: 1px solid var(--primary-spare-color);
+}
+
+.drives-section-elem-guage-inner {
+  position: relative;
+  height: 100%;
+  background-color: var(--secondary-spare-color);
+}
+
+.drives-section-elem-desc {
+  position: absolute;
+  width: 180px;
+  height: 20px;
+  left: 60px;
+  bottom: 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: last baseline;
 }
 
 #folders-section {
@@ -143,7 +227,7 @@ body {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  flex: 0.5;
+  flex: 1;
   padding: 20px;
 }
 
@@ -186,13 +270,23 @@ body {
 }
 
 #favorites-section {
-  height: 120px;
   display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex: 1;
+  padding: 20px;
 }
 
 #recents-section {
-  min-height: 120px;
   display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex: 1;
+  padding: 20px;
 }
 
 .fullpane {
@@ -204,23 +298,24 @@ body {
 }
 
 #pane-list-view {
-  padding-left: 5px;
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   top: 25px;
+  padding-left: 5px;
   display: flex;
   flex-direction: column;
   row-gap: 5px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #pane-list-view-dsc {
   position: absolute;
   width: 770px;
   top: 0px;
-  left: 0;
+  left: 0px;
   height: 25px;
   margin-left: 5px;
   display: flex;
@@ -296,22 +391,20 @@ body {
 .list-filename-container {
   height: 30px;
   width: 350px;
-  padding-left: 0px;
-  padding-right: 15px;
   display: flex;
-  align-items: center;
-  justify-content: left;
-  text-wrap: nowrap;
   flex-grow: 0;
   flex-shrink: 0;
 }
 
 .list-filename {
+  width: 350px;
+  height: 30px;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  justify-content: left;
+  white-space: nowrap;
+  display: block;
+  padding-left: 5px;
+  padding-right: 15px;
 }
 
 .list-modifieddate-container {
@@ -328,6 +421,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: left;
+  font-size: small;
 }
 
 .list-createddate-container {
@@ -336,36 +430,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: left;
+  font-size: small;
 }
-
-/*
-.folder-file-icon {
-}
-
-.file-type-icon {
-}
-*/
 
 .list-type-icon {
   width: 24px;
   height: 24px;
 }
 
-#explorer-pane {
+#explorer-view-pane {
+  overflow: hidden;
+}
+
+#explorer-main-section {
   position: absolute;
-  left: 60px;
-  bottom: 35px;
-  top: 95px;
-  right: 5px;
+  left: 0px;
+  bottom: 0px;
+  top: 25px;
+  right: 0px;
   border: 1px solid var(--secondary-background-color);
-  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 #ancestry {
   position: absolute;
-  top: 70px;
-  left: 60px;
-  right: 5px;
+  top: 0px;
+  left: 0px;
+  right: 0px;
   height: 20px;
   border: 1px solid var(--secondary-background-color);
 }

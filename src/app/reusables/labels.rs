@@ -1,8 +1,8 @@
-use std::rc::Rc;
+use std::{marker::PhantomData, rc::Rc};
 
 use pitou_core::{
     frontend::{GeneralFolder, PitouFileFilter, PitouFileSort},
-    PitouFile, PitouFilePath,
+    PitouDrive, PitouFile, PitouFilePath,
 };
 use serde::{
     de::{SeqAccess, Visitor},
@@ -58,6 +58,19 @@ pub struct GeneralFolderElems {
     pub items: Vec<Rc<GeneralFolder>>,
 }
 
+pub struct DriveItems {
+    pub items: Rc<Vec<Rc<PitouDrive>>>,
+}
+
+impl<'d> Deserialize<'d> for DriveItems {
+    fn deserialize<D: Deserializer<'d>>(dz: D) -> Result<Self, D::Error> {
+        let items = rc_serde::deserialize(dz)?;
+        Ok(Self {
+            items: Rc::new(items),
+        })
+    }
+}
+
 impl<'d> Deserialize<'d> for GeneralFolderElems {
     fn deserialize<D: Deserializer<'d>>(dz: D) -> Result<Self, D::Error> {
         struct VMS;
@@ -76,5 +89,34 @@ impl<'d> Deserialize<'d> for GeneralFolderElems {
         }
         let items = dz.deserialize_seq(VMS)?;
         Ok(Self { items })
+    }
+}
+
+mod rc_serde {
+    use super::*;
+    pub fn deserialize<'d, D: Deserializer<'d>, T: Deserialize<'d>>(
+        dz: D,
+    ) -> Result<Vec<Rc<T>>, D::Error> {
+        struct VMS<T> {
+            data: PhantomData<T>,
+        }
+
+        impl<'d, T: Deserialize<'d>> Visitor<'d> for VMS<T> {
+            type Value = Vec<Rc<T>>;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "expecting a GeneralFolder instance")
+            }
+            fn visit_seq<A: SeqAccess<'d>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+                let mut items = Vec::new();
+                while let Some(elem) = seq.next_element::<T>()? {
+                    items.push(Rc::new(elem))
+                }
+                Ok(items)
+            }
+        }
+        let items = dz.deserialize_seq(VMS {
+            data: PhantomData::<T>,
+        })?;
+        Ok(items)
     }
 }

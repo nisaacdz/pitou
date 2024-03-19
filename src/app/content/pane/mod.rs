@@ -7,9 +7,15 @@ use yew::prelude::*;
 use crate::app::{content::pane::menu_views::*, reusables::NoArg, ApplicationContext};
 mod menu_views;
 
-#[derive(PartialEq, Properties)]
+#[derive(Properties)]
 pub struct PaneProps {
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
+}
+
+impl PartialEq for PaneProps {
+    fn eq(&self, other: &Self) -> bool {
+        false
+    }
 }
 
 #[function_component]

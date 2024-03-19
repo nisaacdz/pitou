@@ -3,8 +3,9 @@ use std::rc::Rc;
 use pitou_core::{frontend::GeneralFolder, PitouDrive};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
+use yew_hooks::use_interval;
 
-use crate::app::reusables::{GeneralFolderElems, NoArg};
+use crate::app::reusables::{DiskIcon, DriveItems, GeneralFolderElems, NoArg};
 /*
 place for drives,
 place for connected devices
@@ -29,17 +30,82 @@ pub fn DrivesSection() -> Html {
     let drives = use_state(|| None);
     {
         let drives = drives.clone();
-        use_effect_with((), move |()| {
-            spawn_local(async move {
-                let res: Vec<PitouDrive> =
-                    tauri_sys::tauri::invoke("drives", &NoArg).await.unwrap();
-                drives.set(Some(res))
-            })
-        })
+        use_interval(
+            move || {
+                let drives = drives.clone();
+                spawn_local(async move {
+                    let new_drives =
+                        tauri_sys::tauri::invoke::<NoArg, DriveItems>("drives", &NoArg)
+                            .await
+                            .ok();
+                    drives.set(new_drives.map(|d| d.items))
+                })
+            },
+            5000,
+        );
     }
+
+    let content = drives
+        .as_ref()
+        .map(|v| v.iter())
+        .into_iter()
+        .flatten()
+        .map(|drive| {
+            html! {
+                <DrivesSectionItem {drive}/>
+            }
+        })
+        .collect::<Html>();
     html! {
         <div id="drives-section" class="home-section">
             <div class="home-section-dsc-text">{ "Drives & Devices" }</div>
+            { content }
+        </div>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+struct DrivesSectionItemProps {
+    drive: Rc<PitouDrive>,
+}
+
+#[function_component]
+fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
+    let kind = props.drive.kind;
+    let port = props.drive.mount_point.name();
+    let name = {
+        let val = if props.drive.name.is_empty() {
+            if props.drive.is_removable {
+                "External Disk"
+            } else {
+                "Local Disk"
+            }
+        } else {
+            &props.drive.name
+        };
+
+        format!("{val} ({port})")
+    };
+    let val = 100f64 * (props.drive.total_space - props.drive.free_space) as f64
+        / props.drive.total_space as f64;
+    let guage_inner_style = format!("width: {:.0}%;", val);
+    let dsc = {
+        let free = props.drive.free_space as f64 / f64::powi(1024f64, 3);
+        let total = props.drive.total_space as f64 / f64::powi(1024f64, 3);
+        format! {"{:.0} GB free of {:.0} GB", free, total}
+    };
+    html! {
+        <div class="drives-section-elem">
+            <div class="drives-section-elem-icon">
+                <DiskIcon {kind} />
+            </div>
+            <div class="drives-section-elem-name">{ name }</div>
+            <div class="drives-section-elem-guage">
+                <div class="drives-section-elem-guage-outer">
+                    <div class="drives-section-elem-guage-inner" style={guage_inner_style}></div>
+                </div>
+            </div>
+            <div class="drives-section-elem-desc">{ dsc }</div>
         </div>
     }
 }

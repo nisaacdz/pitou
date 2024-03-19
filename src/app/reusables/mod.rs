@@ -1,4 +1,4 @@
-use pitou_core::PitouFileKind;
+use pitou_core::{PitouDriveKind, PitouFileKind};
 use yew::prelude::*;
 mod labels;
 mod panes;
@@ -268,5 +268,22 @@ pub fn FileTypeIcon(props: &FileTypeIconProps) -> Html {
         None => {
             html! { <UnknownFileIcon id="" class="unknown-file-icon file-type-icon list-type-icon"/> }
         }
+    }
+}
+#[derive(PartialEq, Properties)]
+pub struct DiskIconProps {
+    pub kind: PitouDriveKind,
+}
+
+#[function_component]
+pub fn DiskIcon(props: &DiskIconProps) -> Html {
+    let src = match props.kind {
+        PitouDriveKind::HDD => "./public/hdd.png",
+        PitouDriveKind::SSD => "./public/sdd.png",
+        PitouDriveKind::Unknown => "todo!()",
+    };
+
+    html! {
+        <img {src} class="drives-section-item-icon-img"/>
     }
 }

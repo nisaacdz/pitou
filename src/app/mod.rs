@@ -27,6 +27,7 @@ impl PartialEq for AllTabsCtx {
 pub struct ApplicationContext {
     pub gen_ctx: Rc<GenCtx>,
     pub active_tab: Rc<TabCtx>,
+    pub static_data: Rc<StaticData>,
 }
 
 impl PartialEq for ApplicationContext {
@@ -37,10 +38,11 @@ impl PartialEq for ApplicationContext {
 }
 
 impl ApplicationContext {
-    fn new(gen_ctx: Rc<GenCtx>, active_tab: Rc<TabCtx>) -> Self {
+    fn new(gen_ctx: Rc<GenCtx>, active_tab: Rc<TabCtx>, static_data: Rc<StaticData>) -> Self {
         Self {
             gen_ctx,
             active_tab,
+            static_data,
         }
     }
 }
@@ -101,6 +103,8 @@ pub fn App() -> Html {
 
     let genr_ctx = use_state(|| Rc::new(GenCtx::default()));
 
+    let static_data = use_state(|| Rc::new(StaticData::new()));
+
     let add_tab = {
         let tabs_ctx = tabs_ctx.clone();
         move |()| {
@@ -130,8 +134,10 @@ pub fn App() -> Html {
 
     let onupdatedir = {
         let tabs_ctx = tabs_ctx.clone();
+        let static_data = static_data.clone();
         move |file| {
             let new_tabs = (*tabs_ctx).clone();
+            static_data.clear_all_selections();
             tabs_ctx.current_tab().update_children(None);
             tabs_ctx.current_tab().update_siblings(None);
             new_tabs.current_tab().update_cur_dir(file);
@@ -188,7 +194,7 @@ pub fn App() -> Html {
 
     html! {
         <main {style}>
-            <ContextProvider<ApplicationContext> context={ApplicationContext::new((*genr_ctx).clone(), active_tab)}>
+            <ContextProvider<ApplicationContext> context={ApplicationContext::new((*genr_ctx).clone(), active_tab, (*static_data).clone())}>
                 <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
                 <Content {onswitchmenu} {onupdatedir}/>
             </ContextProvider<ApplicationContext>>
