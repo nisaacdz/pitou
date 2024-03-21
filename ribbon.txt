@@ -10,10 +10,10 @@ Cut
 Copy
 Paste
 
-
 New
 New Folder
 Compress
+Extract
 New file
 
 Share

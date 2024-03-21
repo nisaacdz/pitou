@@ -43,6 +43,138 @@ body {
   left: 10px;
   right: 10px;
   background-color: var(--secondary-background-color);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 5px;
+  overflow: hidden;
+  padding-left: 5px;
+  padding-right: 5px;
+  align-items: center;
+}
+
+.ribbon-group {
+  background-color: var(--primary-background-color);
+}
+
+#ribbon-nav {
+  height: 50px;
+  width: 30px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.ribbon-nav-ico {
+  height: 23px;
+  width: 23px;
+}
+
+.ribbon-nav-item {
+  height: 25px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid var(--primary-background-color);
+}
+
+.ribbon-nav-item:hover {
+  border-color: var(--primary-foreground-color);
+}
+
+.ribbon-nav-item:active {
+  background-color: var(--secondary-background-color);
+}
+
+#ribbon-clipboard {
+  width: 166px;
+  height: 56px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.ribbon-clipboard-copy-cut {
+  width: 30px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.ribbon-clipboard-large {
+  height: 56px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ribbon-clipboard-large.pasteable:active .ribbon-clipboard-large-ico {
+  background-color: var(--secondary-spare-color);
+}
+
+.ribbon-clipboard-large-ico {
+  height: 44px;
+  width: 44px;
+}
+
+.ribbon-clipboard-large:hover .ribbon-clipboard-large-ico {
+  background-color: var(--secondary-background-color);
+}
+
+.ribbon-clipboard-medium-ico {
+  height: 20px;
+  width: 20px;
+}
+
+.ribbon-clipboard-medium {
+  width: 28px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: content-box;
+  border: 1px solid var(--primary-spare-color);
+}
+
+.ribbon-clipboard-medium:hover, .ribbon-clipboard-small:hover {
+  border-color: var(--primary-foreground-color);
+}
+
+.ribbon-clipboard-medium:active, .ribbon-clipboard-small:active {
+  background-color: var(--secondary-background-color);
+}
+
+.ribbon-clipboard-textgroup {
+  display: flex;
+  height: 56px;
+  width: 77px;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  color: var(--primary-foreground-color);
+  font-size: 12px;
+}
+
+.ribbon-clipboard-small {
+  width: 74px;
+  height: 17px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding-left: 1px;
+  border: 1px solid var(--primary-spare-color);
 }
 
 #status-bar {
@@ -157,7 +289,7 @@ body {
 }
 
 .drives-section-elem:active {
-  border: 1px solid var(--secondary-spare-color);
+  border-color: var(--primary-foreground-color);
 }
 
 .drives-section-elem:hover {
@@ -244,7 +376,7 @@ body {
 }
 
 .folders-section-elem:active {
-  background-color: var(--primary-foreground-color);
+  border-color: var(--primary-foreground-color);
 }
 
 .folders-section-elem {
@@ -257,7 +389,8 @@ body {
   padding-left: 5px;
   flex-grow: 0;
   flex-shrink: 0;
-  box-sizing: border-box;
+  box-sizing: content-box;
+  border: 1px solid var(--primary-background-color);
 }
 
 .folders-section-elem-name {
