@@ -59,7 +59,7 @@ body {
 
 #ribbon-nav {
   height: 50px;
-  width: 30px;
+  width: 32px;
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
@@ -69,12 +69,12 @@ body {
 
 .ribbon-nav-ico {
   height: 23px;
-  width: 23px;
+  width: 25px;
 }
 
 .ribbon-nav-item {
   height: 25px;
-  width: 30px;
+  width: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
