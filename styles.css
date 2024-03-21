@@ -91,7 +91,7 @@ body {
 }
 
 #ribbon-clipboard {
-  width: 166px;
+  width: 170px;
   height: 56px;
   display: flex;
   flex-wrap: nowrap;
@@ -99,7 +99,7 @@ body {
   justify-content: space-evenly;
 }
 
-.ribbon-clipboard-copy-cut {
+.ribbon-clipboard-medium-group {
   width: 30px;
   height: 56px;
   display: flex;
@@ -109,33 +109,32 @@ body {
   box-sizing: border-box;
 }
 
-.ribbon-clipboard-large {
-  height: 56px;
+.ribbon-large {
+  height: 48px;
   width: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.ribbon-clipboard-large.pasteable:active .ribbon-clipboard-large-ico {
+.ribbon-large:hover img {
+  background-color: var(--secondary-background-color);
+}
+
+.ribbon-large:active img {
   background-color: var(--secondary-spare-color);
 }
 
-.ribbon-clipboard-large-ico {
+.ribbon-large:active {
+  background-color: var(--secondary-spare-color);
+}
+
+.ribbon-large img {
   height: 44px;
   width: 44px;
 }
 
-.ribbon-clipboard-large:hover .ribbon-clipboard-large-ico {
-  background-color: var(--secondary-background-color);
-}
-
-.ribbon-clipboard-medium-ico {
-  height: 20px;
-  width: 20px;
-}
-
-.ribbon-clipboard-medium {
+.ribbon-medium {
   width: 28px;
   height: 25px;
   display: flex;
@@ -145,36 +144,73 @@ body {
   border: 1px solid var(--primary-spare-color);
 }
 
-.ribbon-clipboard-medium:hover, .ribbon-clipboard-small:hover {
+.ribbon-medium img {
+  width: 20px;
+  height: 20px;
+}
+
+.ribbon-medium:hover, .ribbon-small:hover {
   border-color: var(--primary-foreground-color);
 }
 
-.ribbon-clipboard-medium:active, .ribbon-clipboard-small:active {
+.ribbon-medium:active, .ribbon-small:active {
   background-color: var(--secondary-background-color);
 }
 
-.ribbon-clipboard-textgroup {
+.ribbon-textgroup {
   display: flex;
   height: 56px;
-  width: 77px;
   flex-direction: column;
   justify-content: space-evenly;
-  align-items: center;
+  align-items: start;
   color: var(--primary-foreground-color);
   font-size: 12px;
 }
 
-.ribbon-clipboard-small {
-  width: 74px;
+.ribbon-small img {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+}
+
+.ribbon-small {
+  width: 72px;
   height: 17px;
   overflow: hidden;
   flex-wrap: nowrap;
   white-space: nowrap;
   display: flex;
   align-items: center;
-  justify-content: left;
-  padding-left: 1px;
+  justify-content: start;
+  padding-left: 2px;
+  padding-right: 2px;
   border: 1px solid var(--primary-spare-color);
+}
+
+#ribbon-creations {
+  width: 184px;
+  height: 56px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+#ribbon-trash {
+  height: 50px;
+  width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#ribbon-actions {
+  height: 56px;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #status-bar {
@@ -737,22 +773,40 @@ body {
   height: 32px;
   display: flex;
   align-items: center;
-  padding-left: 0px;
 }
 
 #app-logo-img {
-  width: 26px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 #app-logo-name {
-  width: 58px;
-  height: 32px;
+  width: 30px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: left;
   color: var(--primary-foreground-color);
-  font-size: small;
+  font-size: 11px;
+}
+
+.app-logo-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid var(--secondary-background-color);
+}
+
+.app-logo-btn:hover {
+  border-color: var(--primary-spare-color);
+}
+
+.app-logo-btn img {
+  width: 14px;
+  height: 14px;
 }
 
 #tabs-container {

@@ -5,16 +5,6 @@ properties
 Show extentions
 show thumbnails
 
-Clipboard
-Cut
-Copy
-Paste
-
-New
-New Folder
-Compress
-Extract
-New file
 
 Share
 email
@@ -23,31 +13,19 @@ usb
 bluetooth
 wifi
 
-Trash
-Delete
-
-Actions
-undo
-redo
-
-View
-grid
-list
-tiles
+Arrange
+sort
+view
 
 Custom
-Add to Favorites
-Remove from Favorites
-lock
-unlock
-
-Cloud
+Favorites
+locked
 Upload to cloud
-update to cloud
-update from cloud
+Update from cloud
 
-Search
-Sort
+Share
+email
+open
 
 Trash
 Sort,

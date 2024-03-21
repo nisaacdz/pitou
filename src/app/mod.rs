@@ -19,7 +19,7 @@ pub struct AllTabsCtx {
 
 impl PartialEq for AllTabsCtx {
     fn eq(&self, other: &Self) -> bool {
-        self.active_tab == other.active_tab
+        false
     }
 }
 

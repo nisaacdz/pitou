@@ -276,6 +276,12 @@ fn AppLogo() -> Html {
         <div id="app-logo" data-tauri-drag-region = "true">
             <img id="app-logo-img" src = "./public/pitou_logo.png" />
             <div id="app-logo-name">{ "pitou" }</div>
+            <div class="app-logo-btn">
+                <img src="./public/undo.png"/>
+            </div>
+            <div class="app-logo-btn">
+                <img src="./public/redo.png"/>
+            </div>
         </div>
     }
 }
