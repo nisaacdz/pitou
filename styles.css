@@ -147,9 +147,17 @@ body {
   font-size: small;
   color: var(--primary-foreground-color);
   box-sizing: content-box;
-  border: 1px solid var(--secondary-spare-color);
+  border: 1px solid var(--primary-background-color);
   flex-shrink: 0;
   flex-grow: 0;
+}
+
+.drives-section-elem.selected {
+  background-color: var(--secondary-background-color);
+}
+
+.drives-section-elem:active {
+  border: 1px solid var(--secondary-spare-color);
 }
 
 .drives-section-elem:hover {
@@ -308,18 +316,17 @@ body {
   flex-direction: column;
   row-gap: 5px;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 #pane-list-view-dsc {
   position: absolute;
   width: 770px;
   top: 0px;
-  left: 0px;
   height: 25px;
-  margin-left: 5px;
   display: flex;
   gap: 0;
+  margin-left: 5px;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
@@ -327,6 +334,49 @@ body {
   font-size: small;
   color: var(--secondary-foreground-color);
 }
+
+.pane-list-view-dsc-checkbox-container {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pane-list-view-dsc-checkbox {
+  width: 10px;
+  height: 10px;
+}
+
+.pane-list-view-dsc-filetype {
+  width: 40px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pane-list-view-dsc-filename {
+  width: 350px;
+  height: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  padding-left: 5px;
+}
+
+#pane-list-view-bottom-space {
+  display: flex;
+  height: 200px;
+  width: 770px;
+}
+
+#pane-list-view-bottom-space-i {
+  height: 200px;
+  width: 770px;
+}
+
 
 .list-item {
   height: 30px;
@@ -350,7 +400,7 @@ body {
 }
 
 .list-item.selected .folder-file-icon.list-type-icon {
-  fill: var(--primary-background-color);;
+  fill: var(--primary-background-color);
 }
 
 .list-item:hover .folder-file-icon.list-type-icon {
@@ -449,7 +499,7 @@ body {
   top: 25px;
   right: 0px;
   border: 1px solid var(--secondary-background-color);
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
 }
 

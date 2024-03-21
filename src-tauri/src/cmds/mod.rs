@@ -1,7 +1,4 @@
-use pitou_core::{
-    frontend::{GeneralFolder, PitouFileFilter, PitouFileSort},
-    PitouDrive, PitouFile, PitouFilePath,
-};
+use pitou_core::*;
 
 #[tauri::command]
 pub fn general_folders() -> Vec<GeneralFolder> {

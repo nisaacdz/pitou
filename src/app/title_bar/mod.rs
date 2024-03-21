@@ -1,4 +1,4 @@
-use pitou_core::frontend::*;
+use pitou_core::{frontend::*, *};
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -80,12 +80,19 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
     }
 }
 
-#[derive(PartialEq, Properties)]
+#[derive(Properties)]
 struct TabProps {
     idx: usize,
     ctx: Rc<TabCtx>,
     rem_tab: Callback<usize>,
     change_tab: Callback<usize>,
+}
+
+impl PartialEq for TabProps {
+    fn eq(&self, other: &Self) -> bool {
+        (self.ctx.current_dir() == other.ctx.current_dir())
+            && (self.ctx.current_menu == other.ctx.current_menu)
+    }
 }
 
 #[function_component]
@@ -104,8 +111,8 @@ fn InactiveTab(props: &TabProps) -> Html {
         let idx = props.idx;
         move |_| change_tab.emit(idx)
     };
-    let dir_borrow = props.ctx.current_dir.borrow();
-    let name = dir_borrow.as_ref().map(|v| v.name()).unwrap_or_default();
+    let dir = props.ctx.current_dir();
+    let name = dir.as_ref().map(|v| v.name()).unwrap_or_default();
 
     html! {
         <div class = "tab inactive" onclick = {onchange}>
@@ -134,9 +141,8 @@ fn ActiveTab(props: &TabProps) -> Html {
             rem_tab.emit(idx)
         }
     };
-
-    let dir_borrow = props.ctx.current_dir.borrow();
-    let name = dir_borrow.as_ref().map(|v| v.name()).unwrap_or_default();
+    let dir = props.ctx.current_dir();
+    let name = dir.as_ref().map(|v| v.name()).unwrap_or_default();
 
     html! {
         <div class = "tab active">

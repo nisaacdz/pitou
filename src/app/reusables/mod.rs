@@ -1,4 +1,4 @@
-use pitou_core::{PitouDriveKind, PitouFileKind};
+use pitou_core::*;
 use yew::prelude::*;
 mod labels;
 mod panes;
@@ -280,7 +280,7 @@ pub fn DiskIcon(props: &DiskIconProps) -> Html {
     let src = match props.kind {
         PitouDriveKind::HDD => "./public/hdd.png",
         PitouDriveKind::SSD => "./public/sdd.png",
-        PitouDriveKind::Unknown => "todo!()",
+        PitouDriveKind::Unknown => "./public/sdd.png",
     };
 
     html! {

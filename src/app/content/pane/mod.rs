@@ -1,28 +1,22 @@
 use std::rc::Rc;
 
-use pitou_core::PitouFile;
+use pitou_core::*;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
 use crate::app::{content::pane::menu_views::*, reusables::NoArg, ApplicationContext};
 mod menu_views;
 
-#[derive(Properties)]
+#[derive(Properties, PartialEq)]
 pub struct PaneProps {
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
-}
-
-impl PartialEq for PaneProps {
-    fn eq(&self, other: &Self) -> bool {
-        false
-    }
 }
 
 #[function_component]
 pub fn Pane(props: &PaneProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
 
-    if ctx.active_tab.current_dir.borrow().is_none() {
+    if ctx.active_tab.current_dir().is_none() {
         let onupdatedir = props.onupdatedir.clone();
         spawn_local(async move {
             let res = tauri_sys::tauri::invoke("default_folder", &NoArg)
@@ -47,14 +41,14 @@ pub fn Pane(props: &PaneProps) -> Html {
 
     let menu = *ctx.active_tab.current_menu.borrow();
     match menu {
-        pitou_core::frontend::AppMenu::Home => html! { <HomeView /> },
-        pitou_core::frontend::AppMenu::Explorer => html! { <ExplorerView {onopen} /> },
-        pitou_core::frontend::AppMenu::Trash => html! { <TrashView /> },
-        pitou_core::frontend::AppMenu::Favorites => html! {},
-        pitou_core::frontend::AppMenu::Search => html! {},
-        pitou_core::frontend::AppMenu::Locked => html! {},
-        pitou_core::frontend::AppMenu::Recents => html! {},
-        pitou_core::frontend::AppMenu::Cloud => html! {},
-        pitou_core::frontend::AppMenu::Settings => html! {},
+        AppMenu::Home => html! { <HomeView /> },
+        AppMenu::Explorer => html! { <ExplorerView {onopen} /> },
+        AppMenu::Trash => html! { <TrashView /> },
+        AppMenu::Favorites => html! {},
+        AppMenu::Search => html! {},
+        AppMenu::Locked => html! {},
+        AppMenu::Recents => html! {},
+        AppMenu::Cloud => html! {},
+        AppMenu::Settings => html! {},
     }
 }

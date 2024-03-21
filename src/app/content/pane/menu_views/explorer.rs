@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::{PitouFile, PitouFilePath};
+use pitou_core::{frontend::*, *};
 use tauri_sys::tauri::invoke;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
@@ -76,7 +76,7 @@ fn Ancestry(props: &AncestryProps) -> Html {
         let onclickchevron = { move |e: MouseEvent| e.stop_propagation() };
 
         let onclickancestor = { move |e: MouseEvent| e.stop_propagation() };
-        let db = gen_ctx.active_tab.current_dir.borrow();
+        let db = gen_ctx.active_tab.current_dir();
         let items = db
             .as_ref()
             .into_iter()
@@ -114,8 +114,7 @@ fn Ancestry(props: &AncestryProps) -> Html {
     } else {
         let value = gen_ctx
             .active_tab
-            .current_dir
-            .borrow()
+            .current_dir()
             .as_ref()
             .map(|v| v.path.path.display().to_string())
             .unwrap_or_default();
@@ -151,51 +150,63 @@ struct ExplorerProps {
     onopen: Callback<Rc<PitouFile>>,
 }
 
+pub async fn update_children(tab: Rc<TabCtx>, after: impl Fn()) {
+    let file = tab.current_dir();
+    if let Some(file) = file {
+        let new_children = invoke::<DirChildrenArgs, DirChildren>(
+            "children",
+            &DirChildrenArgs::new_default(&file.path),
+        )
+        .await
+        .ok()
+        .map(|v| Rc::new(v.children));
+
+        let current_dir = tab.current_dir();
+        if matches!(current_dir, Some(v) if v.path == file.path) {
+            *tab.dir_children.borrow_mut() = new_children;
+            web_sys::console::log_1(&serde_wasm_bindgen::to_value("hit").unwrap());
+            after()
+        } else {
+            web_sys::console::log_1(&serde_wasm_bindgen::to_value("mishit").unwrap())
+        }
+    }
+}
+
 #[function_component]
 fn Explorer(props: &ExplorerProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let children = use_state(|| ctx.active_tab.dir_children.borrow().clone());
+    let refresher = use_force_update();
+
+    {
+        let tab = ctx.active_tab.clone();
+        let refresher = refresher.clone();
+        let current_dir = tab.current_dir();
+        use_effect_with(current_dir, move |_| {
+            spawn_local(async move {
+                update_children(tab, move || refresher.force_update()).await;
+            })
+        })
+    }
 
     {
         let ctx = ctx.clone();
-        let children = children.clone();
+        let refresher = refresher.clone();
         use_interval(
             move || {
                 let ctx = ctx.clone();
-                let children = children.clone();
+                let refresher = refresher.clone();
+                let tab = ctx.active_tab.clone();
                 spawn_local(async move {
-                    if let Some(file) = &*ctx.active_tab.current_dir.borrow() {
-                        let new_children = invoke::<DirChildrenArgs, DirChildren>(
-                            "children",
-                            &DirChildrenArgs::new_default(&file.path),
-                        )
-                        .await
-                        .ok()
-                        .map(|v| Rc::new(v.children));
-
-                        *ctx.active_tab.dir_children.borrow_mut() = new_children;
-                        let items = ctx.active_tab.dir_children.borrow().clone();
-                        children.set(items)
-                    }
+                    update_children(tab, move || refresher.force_update()).await;
                 })
             },
             5000,
         )
     }
 
-    let onopen = {
-        let children = children.clone();
-        let onopen = props.onopen.clone();
-        move |pf: Rc<PitouFile>| {
-            let can_be_dir = !(pf.is_file() || pf.is_dir());
-            onopen.emit(pf);
-            if can_be_dir {
-                children.set(None);
-            }
-        }
-    };
+    let onopen = props.onopen.clone();
 
-    let content = if let Some(items) = &*children {
+    let content = if let Some(items) = &*ctx.active_tab.dir_children.borrow() {
         let items = items.clone();
         let view = ctx.gen_ctx.app_settings.items_view;
         html! { <MainPane {view} {items} {onopen} />}

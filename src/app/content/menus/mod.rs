@@ -1,4 +1,4 @@
-use pitou_core::frontend::AppMenu;
+use pitou_core::*;
 use yew::prelude::*;
 
 use crate::app::{reusables::*, ApplicationContext};

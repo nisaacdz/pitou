@@ -1,9 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::{
-    frontend::{extra::VWrapper, ItemsView},
-    PitouFile,
-};
+use pitou_core::{frontend::*, *};
 use yew::prelude::*;
 
 use crate::app::{reusables::FileTypeIcon, ApplicationContext};
@@ -58,15 +55,22 @@ impl PartialEq for ViewProps {
 
 #[function_component]
 fn ListView(props: &ViewProps) -> Html {
+    let free_space = html! {
+        <div id="pane-list-view-bottom-space">
+            <div id="pane-list-view-bottom-space-i"></div>
+        </div>
+    };
+
     let content = props
         .items
         .iter()
         .map(|v| html! { <ListItem item = {v.clone()} onopen = {props.onopen.clone()} /> })
+        .chain(Some(free_space))
         .collect::<Html>();
 
     html! {
         <>
-            <ListDsc />
+        <ListDsc />
             <div id="pane-list-view">
                 { content }
             </div>
@@ -78,13 +82,13 @@ fn ListView(props: &ViewProps) -> Html {
 fn ListDsc() -> Html {
     html! {
         <div id="pane-list-view-dsc">
-            <div class="list-checkbox-container">
-                <input class="list-checkbox" type="checkbox" />
+            <div class="pane-list-view-dsc-checkbox-container">
+                <input class="pane-list-view-dsc-checkbox" type="checkbox" />
             </div>
-            <div class="list-filetypeicon-container">
+            <div class="pane-list-view-dsc-filetype">
                 { "ico" }
             </div>
-            <div class="list-filename-container">
+            <div class="pane-list-view-dsc-filename">
                 { "filename" }
             </div>
             <div class="list-modifieddate-container">

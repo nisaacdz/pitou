@@ -11,7 +11,7 @@ serde-wasm-bindgen = "0.6"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 js-sys = "0.3"
-pitou-core = { git = "https://github.com/nisaacdz/pitou-core" }
+pitou-core = { git = "https://github.com/nisaacdz/pitou-core", features = ["frontend"] }
 web-sys = "0.3.69"
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = ["window", "tauri", "event"] }
 yew-hooks = "0.3.1"

@@ -1,11 +1,14 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::GeneralFolder, PitouDrive};
+use pitou_core::{frontend::*, *};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::app::reusables::{DiskIcon, DriveItems, GeneralFolderElems, NoArg};
+use crate::app::{
+    reusables::{DiskIcon, DriveItems, GeneralFolderElems, NoArg},
+    ApplicationContext,
+};
 /*
 place for drives,
 place for connected devices
@@ -25,31 +28,47 @@ pub fn HomeView() -> Html {
     }
 }
 
+pub async fn obtain_drives(data: Rc<StaticData>, after: impl Fn()) {
+    let drives = tauri_sys::tauri::invoke::<NoArg, DriveItems>("drives", &NoArg)
+        .await
+        .unwrap_or_default();
+    data.update_drives(drives.items);
+    after()
+}
+
 #[function_component]
 pub fn DrivesSection() -> Html {
-    let drives = use_state(|| None);
+    let ctx: ApplicationContext = use_context::<ApplicationContext>().unwrap();
+    let refresher = use_force_update();
     {
-        let drives = drives.clone();
+        let data = ctx.static_data.clone();
+        let refresher = refresher.clone();
+        use_effect_with((), move |()| {
+            let data = data.clone();
+            spawn_local(async move {
+                obtain_drives(data, move || refresher.force_update()).await;
+            })
+        })
+    }
+    {
+        let data = ctx.static_data.clone();
+        let refresher = refresher.clone();
         use_interval(
             move || {
-                let drives = drives.clone();
+                let data = data.clone();
+                let refresher = refresher.clone();
                 spawn_local(async move {
-                    let new_drives =
-                        tauri_sys::tauri::invoke::<NoArg, DriveItems>("drives", &NoArg)
-                            .await
-                            .ok();
-                    drives.set(new_drives.map(|d| d.items))
+                    obtain_drives(data, move || refresher.force_update()).await;
                 })
             },
             5000,
         );
     }
 
+    let drives = ctx.static_data.drives.borrow().clone();
+
     let content = drives
-        .as_ref()
-        .map(|v| v.iter())
-        .into_iter()
-        .flatten()
+        .iter()
         .map(|drive| {
             html! {
                 <DrivesSectionItem {drive}/>
@@ -71,6 +90,33 @@ struct DrivesSectionItemProps {
 
 #[function_component]
 fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let highlighted = use_state_eq(|| {
+        ctx.static_data
+            .is_selected(VWrapper::Drive(props.drive.clone()))
+    });
+    let class = format!(
+        "drives-section-elem{}",
+        if *highlighted { " selected" } else { "" }
+    );
+
+    let onclick = {
+        let ctx = ctx.clone();
+        let drive = props.drive.clone();
+        let highlighted = highlighted.clone();
+        move |_| {
+            if ctx.static_data.is_selected(VWrapper::Drive(drive.clone())) {
+                ctx.static_data
+                    .clear_selection(VWrapper::Drive(drive.clone()));
+                highlighted.set(false);
+            } else {
+                ctx.static_data
+                    .add_selection(VWrapper::Drive(drive.clone()));
+                highlighted.set(true);
+            }
+        }
+    };
+
     let kind = props.drive.kind;
     let port = props.drive.mount_point.name();
     let name = {
@@ -95,7 +141,7 @@ fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
         format! {"{:.0} GB free of {:.0} GB", free, total}
     };
     html! {
-        <div class="drives-section-elem">
+        <div {class} {onclick}>
             <div class="drives-section-elem-icon">
                 <DiskIcon {kind} />
             </div>

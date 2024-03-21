@@ -1,9 +1,6 @@
 use std::{marker::PhantomData, rc::Rc};
 
-use pitou_core::{
-    frontend::{GeneralFolder, PitouFileFilter, PitouFileSort},
-    PitouDrive, PitouFile, PitouFilePath,
-};
+use pitou_core::*;
 use serde::{
     de::{SeqAccess, Visitor},
     Deserialize, Deserializer, Serialize,
@@ -60,6 +57,14 @@ pub struct GeneralFolderElems {
 
 pub struct DriveItems {
     pub items: Rc<Vec<Rc<PitouDrive>>>,
+}
+
+impl Default for DriveItems {
+    fn default() -> Self {
+        Self {
+            items: Rc::new(Vec::new()),
+        }
+    }
 }
 
 impl<'d> Deserialize<'d> for DriveItems {

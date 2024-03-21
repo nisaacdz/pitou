@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::*, PitouFile};
+use pitou_core::*;
 use yew::prelude::*;
 
 mod menus;
@@ -13,16 +13,10 @@ use pane::*;
 use ribbon::*;
 use status::*;
 
-#[derive(Properties)]
+#[derive(Properties, PartialEq)]
 pub struct ContentProps {
     pub onswitchmenu: Callback<AppMenu>,
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
-}
-
-impl PartialEq for ContentProps {
-    fn eq(&self, other: &Self) -> bool {
-        false
-    }
 }
 
 #[function_component]
