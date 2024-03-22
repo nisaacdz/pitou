@@ -17,12 +17,6 @@ Arrange
 sort
 view
 
-Custom
-Favorites
-locked
-Upload to cloud
-Update from cloud
-
 Share
 email
 open

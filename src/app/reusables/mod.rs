@@ -279,8 +279,8 @@ pub struct DiskIconProps {
 pub fn DiskIcon(props: &DiskIconProps) -> Html {
     let src = match props.kind {
         PitouDriveKind::HDD => "./public/hdd.png",
-        PitouDriveKind::SSD => "./public/sdd.png",
-        PitouDriveKind::Unknown => "./public/sdd.png",
+        PitouDriveKind::SSD => "./public/ssd.png",
+        PitouDriveKind::Unknown => "./public/ssd.png",
     };
 
     html! {

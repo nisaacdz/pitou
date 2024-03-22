@@ -9,13 +9,25 @@ pub fn Ribbon() -> Html {
             <RibbonCreations />
             <RibbonTrash />
             <RibbonActions />
-            <RibbonRemote />
+            <RibbonProperties />
+            <RibbonArrange />
         </div>
     }
 }
 
 #[function_component]
-pub fn RibbonTrash() -> Html {
+fn RibbonProperties() -> Html {
+    html! {
+        <div id="ribbon-properties" class="ribbon-group">
+            <div class="ribbon-large" title="properties">
+                <img src="./public/properties.png"/>
+            </div>
+        </div>
+    }
+}
+
+#[function_component]
+fn RibbonTrash() -> Html {
     html! {
         <div id="ribbon-trash" class="ribbon-group">
             <div class="ribbon-large" title="delete">
@@ -26,10 +38,10 @@ pub fn RibbonTrash() -> Html {
 }
 
 #[function_component]
-pub fn RibbonActions() -> Html {
+fn RibbonActions() -> Html {
     html! {
         <div id="ribbon-actions" class="ribbon-group">
-            <div class="ribbon-clipboard-medium-group">
+            <div class="ribbon-medium-group">
                 <div class="ribbon-medium" title="share">
                     <img src="./public/share.png"/>
                 </div>
@@ -37,14 +49,40 @@ pub fn RibbonActions() -> Html {
                     <img src="./public/email.png" />
                 </div>
             </div>
+            <div class="ribbon-textgroup">
+                <div class="ribbon-small">{"open"}</div>
+                <div class="ribbon-small">{"open with"}</div>
+            </div>
+            <div class="ribbon-medium-group">
+                <div class="ribbon-medium" title="pin">
+                    <img src="./public/pin.png"/>
+                </div>
+                <div class="ribbon-medium" title="lock">
+                    <img src="./public/locked.png" />
+                </div>
+            </div>
+            <div class="ribbon-medium-group">
+                <div class="ribbon-medium" title="upload">
+                    <img src="./public/cloud_upload.png"/>
+                </div>
+                <div class="ribbon-medium" title="download">
+                    <img src="./public/cloud_download.png" />
+                </div>
+            </div>
         </div>
     }
 }
 
 #[function_component]
-pub fn RibbonRemote() -> Html {
+fn RibbonArrange() -> Html {
     html! {
-        <div id="ribbon-remote" class="ribbon-group">
+        <div id="ribbon-arrange" class="ribbon-group">
+            <div class="ribbon-large" title="sort">
+                <img src="./public/sort.png"/>
+            </div>
+            <div class="ribbon-textgroup">
+                <div class="ribbon-small">{"files view"}</div>
+            </div>
         </div>
     }
 }
@@ -78,7 +116,7 @@ fn RibbonCreations() -> Html {
 }
 
 #[function_component]
-pub fn RibbonNav() -> Html {
+fn RibbonNav() -> Html {
     html! {
         <div id="ribbon-nav" class="ribbon-group">
             <div class="ribbon-nav-item" title="backward">
@@ -92,15 +130,15 @@ pub fn RibbonNav() -> Html {
 }
 
 #[function_component]
-pub fn RibbonClipboard() -> Html {
+fn RibbonClipboard() -> Html {
     html! {
         <div id="ribbon-clipboard" class="ribbon-group">
             <div class="ribbon-large pasteable" title="paste">
                 <img src="./public/paste.png"/>
             </div>
-            <div class="ribbon-clipboard-medium-group">
+            <div class="ribbon-medium-group">
                 <div class="ribbon-medium" title="copy">
-                    <img class="ribbon-clipboard-medium-ico" src="./public/copy3.png"/>
+                    <img class="ribbon-clipboard-medium-ico" src="./public/copy.png"/>
                 </div>
                 <div class="ribbon-medium" title="cut">
                     <img class="ribbon-medium-ico" src="./public/cut.png"/>

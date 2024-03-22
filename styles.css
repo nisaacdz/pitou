@@ -99,7 +99,7 @@ body {
   justify-content: space-evenly;
 }
 
-.ribbon-clipboard-medium-group {
+.ribbon-medium-group {
   width: 30px;
   height: 56px;
   display: flex;
@@ -148,6 +148,7 @@ body {
   width: 20px;
   height: 20px;
 }
+
 
 .ribbon-medium:hover, .ribbon-small:hover {
   border-color: var(--primary-foreground-color);
@@ -205,12 +206,29 @@ body {
   justify-content: center;
 }
 
-#ribbon-actions {
+#ribbon-arrange {
+  width: 135px;
   height: 56px;
-  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-wrap: nowrap;
+}
+
+#ribbon-properties {
+  height: 50px;
+  width: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+#ribbon-actions {
+  height: 56px;
+  width: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 #status-bar {
