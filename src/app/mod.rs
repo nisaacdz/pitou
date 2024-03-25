@@ -17,12 +17,6 @@ pub struct AllTabsCtx {
     pub active_tab: usize,
 }
 
-impl PartialEq for AllTabsCtx {
-    fn eq(&self, other: &Self) -> bool {
-        false
-    }
-}
-
 #[derive(Clone)]
 pub struct ApplicationContext {
     pub gen_ctx: Rc<GenCtx>,
@@ -50,6 +44,7 @@ impl ApplicationContext {
 impl AllTabsCtx {
     pub fn default() -> Self {
         let active_tab = Rc::new(TabCtx::default());
+        active_tab.update_cur_menu(AppMenu::Explorer);
         let all_tabs = Rc::new(RefCell::new(vec![active_tab]));
         Self {
             all_tabs,
@@ -101,7 +96,11 @@ impl AllTabsCtx {
 pub fn App() -> Html {
     let tabs_ctx = use_state(|| AllTabsCtx::default());
 
-    let genr_ctx = use_state(|| Rc::new(GenCtx::default()));
+    let genr_ctx = use_state(|| {
+        let mut res = GenCtx::default();
+        res.app_settings.items_view = ItemsView::Tiles;
+        Rc::new(res)
+    });
 
     let static_data = use_state(|| Rc::new(StaticData::new()));
 

@@ -3,7 +3,7 @@ use std::rc::Rc;
 use pitou_core::{frontend::*, *};
 use yew::prelude::*;
 
-use crate::app::{reusables::FileTypeIcon, ApplicationContext};
+use crate::app::{reusables::{ListFileTypeIcon, TileFileTypeIcon}, ApplicationContext};
 
 #[derive(Properties)]
 pub struct PaneViewProps {
@@ -162,15 +162,6 @@ fn ListItem(props: &ItemProps) -> Html {
         }
     );
 
-    let checkbox_class = format!(
-        "list-checkbox {}",
-        if *highlighted {
-            "checked"
-        } else {
-            "not-checked"
-        }
-    );
-
     let filetype = props.item.metadata.as_ref().map(|v| v.kind);
     let accessed = props
         .item
@@ -196,10 +187,10 @@ fn ListItem(props: &ItemProps) -> Html {
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
-                <input class={checkbox_class} type="checkbox" checked={*highlighted} {ontoggle} />
+                <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {ontoggle} />
             </div>
             <div class="list-filetypeicon-container">
-                <FileTypeIcon {filetype}/>
+                <ListFileTypeIcon {filetype}/>
             </div>
             <div class="list-filename-container">
                 <div class="list-filename">{ props.item.name() }</div>
@@ -223,6 +214,114 @@ fn GridView(_props: &ViewProps) -> Html {
 }
 
 #[function_component]
-fn TileView(_props: &ViewProps) -> Html {
-    todo!()
+fn TileView(props: &ViewProps) -> Html {
+    let content = props
+        .items
+        .iter()
+        .map(|v| html! { <TileItem item = {v.clone()} onopen = {props.onopen.clone()} /> })
+        .collect::<Html>();
+
+    html! {
+        <div id="pane-tile-view">
+            { content }
+        </div>
+    }
+}
+
+#[function_component]
+fn TileItem(props: &ItemProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+
+    let highlighted = use_state_eq(|| {
+        ctx.static_data
+            .is_selected(VWrapper::FirstAncestor(props.item.clone()))
+    });
+
+    let ondblclick = {
+        let item = props.item.clone();
+        let onopen = props.onopen.clone();
+        move |_| onopen.emit(item.clone())
+    };
+
+    let onclick = {
+        let highlighted = highlighted.clone();
+        let item = props.item.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            if !*highlighted {
+                ctx.static_data
+                    .add_selection(VWrapper::FirstAncestor(item.clone()));
+                highlighted.set(true)
+            } else {
+                ctx.static_data
+                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
+                highlighted.set(false)
+            }
+        }
+    };
+
+    let tile_item_class = format!(
+        "tile-item {}",
+        if *highlighted {
+            "selected"
+        } else {
+            "not-selected"
+        }
+    );
+
+    let ontoggle = {
+        let highlighted = highlighted.clone();
+        let ctx = ctx.clone();
+        let item = props.item.clone();
+        move |e: Event| {
+            e.stop_propagation();
+            if !*highlighted {
+                ctx.static_data
+                    .add_selection(VWrapper::FirstAncestor(item.clone()));
+                highlighted.set(true)
+            } else {
+                ctx.static_data
+                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
+                highlighted.set(false)
+            }
+        }
+    };
+
+    let filesize = props.item.metadata.as_ref().map(|v| {
+        if v.is_dir() {
+            v.size.format_as_dir_entries()
+        } else {
+            v.size.format()
+        }
+    });
+
+    let filetype = props.item.metadata.as_ref().map(|v| v.kind);
+
+    let optional = props.item.metadata.as_ref().map(|v| v.accessed.datetime.format("%Y-%m-%d %H:%M:%S").to_string());
+
+    let description = html! {
+        <div class="tile-description">
+            <div class="tile-filename">
+            { props.item.name() }
+            </div>
+            <div class="tile-filesize">
+                { filesize }
+            </div>
+            <div class="tile-optional">
+                { optional }
+            </div>
+        </div>
+    };
+
+    html! {
+        <div class={tile_item_class} {ondblclick} {onclick}>
+            <div class="tile-checkbox-container">
+                <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {ontoggle} />
+            </div>
+            <div class="tile-filetypeicon-container">
+                <TileFileTypeIcon {filetype}/>
+            </div>
+            {description}
+        </div>
+    }
 }

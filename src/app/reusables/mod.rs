@@ -2,9 +2,11 @@ use pitou_core::*;
 use yew::prelude::*;
 mod labels;
 mod panes;
+mod svg;
 
 pub use labels::*;
 pub use panes::*;
+pub use svg::*;
 
 #[derive(PartialEq, Properties)]
 pub struct ReusableItemProps {
@@ -252,7 +254,7 @@ pub struct FileTypeIconProps {
 }
 
 #[function_component]
-pub fn FileTypeIcon(props: &FileTypeIconProps) -> Html {
+pub fn ListFileTypeIcon(props: &FileTypeIconProps) -> Html {
     match props.filetype {
         Some(filetype) => match filetype {
             PitouFileKind::Directory => {
@@ -270,6 +272,27 @@ pub fn FileTypeIcon(props: &FileTypeIconProps) -> Html {
         }
     }
 }
+
+#[function_component]
+pub fn TileFileTypeIcon(props: &FileTypeIconProps) -> Html {
+    match props.filetype {
+        Some(filetype) => match filetype {
+            PitouFileKind::Directory => {
+                html! { <img src="./public/stacked_folder.png" /> }
+            }
+            PitouFileKind::File => {
+                html! { <img src="./public/file.png" /> }
+            }
+            PitouFileKind::Link => {
+                html! { <img src="./public/link.png" /> }
+            }
+        },
+        None => {
+            html! { <img src="./public/unknown_file.png" /> }
+        }
+    }
+}
+
 #[derive(PartialEq, Properties)]
 pub struct DiskIconProps {
     pub kind: PitouDriveKind,

@@ -6,7 +6,7 @@ use yew_hooks::prelude::*;
 
 use super::{reusables::*, AllTabsCtx};
 
-#[derive(PartialEq, Properties)]
+#[derive(Properties)]
 pub struct TitleBarProps {
     pub tabs_ctx: AllTabsCtx,
     pub onclose: Callback<()>,
@@ -15,6 +15,12 @@ pub struct TitleBarProps {
     pub add_tab: Callback<()>,
     pub rem_tab: Callback<usize>,
     pub change_tab: Callback<usize>,
+}
+
+impl PartialEq for TitleBarProps {
+    fn eq(&self, other: &Self) -> bool {
+        false
+    }
 }
 
 #[function_component]
@@ -40,12 +46,18 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     }
 }
 
-#[derive(PartialEq, Properties)]
+#[derive(Properties)]
 struct TabbedInterfaceProps {
     tabs_ctx: AllTabsCtx,
     add_tab: Callback<()>,
     rem_tab: Callback<usize>,
     change_tab: Callback<usize>,
+}
+
+impl PartialEq for TabbedInterfaceProps {
+    fn eq(&self, other: &Self) -> bool {
+        false
+    }
 }
 
 #[function_component]
@@ -277,10 +289,10 @@ fn AppLogo() -> Html {
             <img id="app-logo-img" src = "./public/pitou_logo.png" />
             <div id="app-logo-name">{ "pitou" }</div>
             <div class="app-logo-btn">
-                <img src="./public/undo.png"/>
+                <img src="./public/undo2.png"/>
             </div>
             <div class="app-logo-btn">
-                <img src="./public/redo.png"/>
+                <img src="./public/redo2.png"/>
             </div>
         </div>
     }

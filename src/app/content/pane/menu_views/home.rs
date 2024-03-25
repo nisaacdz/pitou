@@ -6,7 +6,7 @@ use yew::prelude::*;
 use yew_hooks::use_interval;
 
 use crate::app::{
-    reusables::{DiskIcon, DriveItems, GeneralFolderElems, NoArg},
+    reusables::{DiskIcon, DriveItems, GenFolderIco, GeneralFolderElems, NoArg},
     ApplicationContext,
 };
 /*
@@ -190,20 +190,11 @@ struct FoldersSectionItemProps {
 }
 
 #[function_component]
-fn FoldersSectionItem(prop: &FoldersSectionItemProps) -> Html {
-    let src = match prop.folder.as_ref() {
-        GeneralFolder::DocumentsFolder(_) => "./public/documents_folder.png",
-        GeneralFolder::AudiosFolder(_) => "./public/audios_folder.png",
-        GeneralFolder::PicturesFolder(_) => "./public/pictures_folder.png",
-        GeneralFolder::VideosFolder(_) => "./public/videos_folder.png",
-        GeneralFolder::DesktopFolder(_) => "./public/desktop_folder.png",
-        GeneralFolder::DownloadsFolder(_) => "./public/downloads_folder.png",
-    };
-
+fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
     html! {
         <div class="folders-section-elem">
-            <img class="folders-section-elem-img" {src}/>
-            <div class="folders-section-elem-name"> { prop.folder.name() } </div>
+            <GenFolderIco folder={props.folder.clone()}/>
+            <div class="folders-section-elem-name"> { props.folder.name() } </div>
         </div>
     }
 }

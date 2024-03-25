@@ -96,11 +96,11 @@ fn Ancestry(props: &AncestryProps) -> Html {
                 };
                 html! {
                     <>
-                        <div class="ancestry-chevron-container" onclick={onclickchevron}>
-                            <ChevronRightIcon id="" class="ancestry-chevron"/>
-                        </div>
                         <div class="ancestry-ancestor" onclick={onclickancestor.clone()} {onclick}>
                         { v.name() }
+                        </div>
+                        <div class="ancestry-chevron-container" onclick={onclickchevron}>
+                            <ChevronRightIcon id="" class="ancestry-chevron"/>
                         </div>
                     </>
                 }
@@ -163,8 +163,11 @@ pub async fn update_children(tab: Rc<TabCtx>, after: impl Fn()) {
 
         let current_dir = tab.current_dir();
         if matches!(current_dir, Some(v) if v.path == file.path) {
+            {
+                let to_print = new_children.as_ref().map(|v| v.len());
+                web_sys::console::log_1(&serde_wasm_bindgen::to_value(&format!("obtained {:?} files", to_print)).unwrap());
+            }
             *tab.dir_children.borrow_mut() = new_children;
-            web_sys::console::log_1(&serde_wasm_bindgen::to_value("hit").unwrap());
             after()
         } else {
             web_sys::console::log_1(&serde_wasm_bindgen::to_value("mishit").unwrap())
