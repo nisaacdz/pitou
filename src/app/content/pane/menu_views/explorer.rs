@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::*, *};
+use pitou_core::{frontend::{*, extra::DirChildren}, *};
 use tauri_sys::tauri::invoke;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
@@ -8,7 +8,7 @@ use yew::prelude::*;
 use yew_hooks::use_interval;
 
 use crate::app::{
-    reusables::{ChevronRightIcon, DirChildren, DirChildrenArgs, MainPane},
+    reusables::{ChevronRightIcon, DirChildrenArgs, MainPane},
     ApplicationContext,
 };
 
@@ -163,14 +163,8 @@ pub async fn update_children(tab: Rc<TabCtx>, after: impl Fn()) {
 
         let current_dir = tab.current_dir();
         if matches!(current_dir, Some(v) if v.path == file.path) {
-            {
-                let to_print = new_children.as_ref().map(|v| v.len());
-                web_sys::console::log_1(&serde_wasm_bindgen::to_value(&format!("obtained {:?} files", to_print)).unwrap());
-            }
             *tab.dir_children.borrow_mut() = new_children;
             after()
-        } else {
-            web_sys::console::log_1(&serde_wasm_bindgen::to_value("mishit").unwrap())
         }
     }
 }

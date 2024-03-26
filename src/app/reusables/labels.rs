@@ -26,31 +26,6 @@ impl<'a> DirChildrenArgs<'a> {
     }
 }
 
-pub struct DirChildren {
-    pub children: Vec<Rc<PitouFile>>,
-}
-
-impl<'d> Deserialize<'d> for DirChildren {
-    fn deserialize<D: Deserializer<'d>>(dz: D) -> Result<Self, D::Error> {
-        struct VMS;
-        impl<'v> Visitor<'v> for VMS {
-            type Value = Vec<Rc<PitouFile>>;
-            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "expecting a list of items")
-            }
-            fn visit_seq<A: SeqAccess<'v>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
-                let mut res = Vec::new();
-                while let Some(val) = seq.next_element()? {
-                    res.push(Rc::new(val))
-                }
-                Ok(res)
-            }
-        }
-        let children = dz.deserialize_seq(VMS)?;
-        Ok(Self { children })
-    }
-}
-
 pub struct GeneralFolderElems {
     pub items: Vec<Rc<GeneralFolder>>,
 }

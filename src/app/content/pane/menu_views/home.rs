@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{path::PathBuf, rc::Rc};
 
 use pitou_core::{frontend::*, *};
 use wasm_bindgen_futures::spawn_local;
@@ -16,14 +16,31 @@ place for default folders
 place for favorites
 place for recents
 */
+
+#[derive(PartialEq, Properties)]
+pub struct HomeViewProps {
+    pub onopen: Callback<Rc<PitouFile>>,
+}
+
 #[function_component]
-pub fn HomeView() -> Html {
+pub fn HomeView(props: &HomeViewProps) -> Html {
+    let onopen = {
+        let onopen = props.onopen.clone();
+        Callback::from(move |pb: PathBuf| {
+            let pf = PitouFile {
+                path: pb.into(),
+                metadata: None,
+            };
+            onopen.emit(Rc::new(pf))
+        })
+    };
+
     html! {
         <div id="home-pane" class="fullpane">
-            <DrivesSection />
-            <FoldersSection />
-            <FavoritesSection />
-            <RecentsSection />
+            <DrivesSection onopen={onopen.clone()}/>
+            <FoldersSection onopen={onopen.clone()}/>
+            <FavoritesSection onopen={onopen.clone()}/>
+            <RecentsSection {onopen}/>
         </div>
     }
 }
@@ -36,8 +53,13 @@ pub async fn obtain_drives(data: Rc<StaticData>, after: impl Fn()) {
     after()
 }
 
+#[derive(PartialEq, Properties)]
+struct DrivesSectionProps {
+    onopen: Callback<PathBuf>,
+}
+
 #[function_component]
-pub fn DrivesSection() -> Html {
+fn DrivesSection(props: &DrivesSectionProps) -> Html {
     let ctx: ApplicationContext = use_context::<ApplicationContext>().unwrap();
     let refresher = use_force_update();
     {
@@ -71,7 +93,7 @@ pub fn DrivesSection() -> Html {
         .iter()
         .map(|drive| {
             html! {
-                <DrivesSectionItem {drive}/>
+                <DrivesSectionItem {drive} onopen={props.onopen.clone()}/>
             }
         })
         .collect::<Html>();
@@ -86,6 +108,7 @@ pub fn DrivesSection() -> Html {
 #[derive(PartialEq, Properties)]
 struct DrivesSectionItemProps {
     drive: Rc<PitouDrive>,
+    onopen: Callback<PathBuf>,
 }
 
 #[function_component]
@@ -117,6 +140,12 @@ fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
         }
     };
 
+    let ondblclick = {
+        let onopen = props.onopen.clone();
+        let drive = props.drive.clone();
+        move |_| onopen.emit(drive.mount_point.path.clone())
+    };
+
     let kind = props.drive.kind;
     let port = props.drive.mount_point.name();
     let name = {
@@ -140,8 +169,9 @@ fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
         let total = props.drive.total_space as f64 / f64::powi(1024f64, 3);
         format! {"{:.0} GB free of {:.0} GB", free, total}
     };
+
     html! {
-        <div {class} {onclick}>
+        <div {class} {onclick} {ondblclick}>
             <div class="drives-section-elem-icon">
                 <DiskIcon {kind} />
             </div>
@@ -156,8 +186,13 @@ fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct FoldersSectionProps {
+    onopen: Callback<PathBuf>,
+}
+
 #[function_component]
-pub fn FoldersSection() -> Html {
+fn FoldersSection(props: &FoldersSectionProps) -> Html {
     let folders = use_state(|| None);
     {
         let folders = folders.clone();
@@ -174,7 +209,7 @@ pub fn FoldersSection() -> Html {
     let elems = folders
         .iter()
         .flatten()
-        .map(|v| html! { <FoldersSectionItem folder = { v.clone() }/> })
+        .map(|v| html! { <FoldersSectionItem folder = { v.clone() } onopen={props.onopen.clone()}/> })
         .collect::<Html>();
     html! {
         <div id="folders-section" class="home-section">
@@ -186,21 +221,65 @@ pub fn FoldersSection() -> Html {
 
 #[derive(PartialEq, Properties)]
 struct FoldersSectionItemProps {
+    onopen: Callback<PathBuf>,
     folder: Rc<GeneralFolder>,
 }
 
 #[function_component]
 fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+
+    let highlighted = use_state_eq(|| {
+        ctx.static_data
+            .is_selected(VWrapper::GenFolder(props.folder.clone()))
+    });
+
+    let onclick = {
+        let ctx = ctx.clone();
+        let highlighted = highlighted.clone();
+        let folder = props.folder.clone();
+        move |_| {
+            if ctx
+                .static_data
+                .is_selected(VWrapper::GenFolder(folder.clone()))
+            {
+                ctx.static_data
+                    .clear_selection(VWrapper::GenFolder(folder.clone()));
+                highlighted.set(false);
+            } else {
+                ctx.static_data
+                    .add_selection(VWrapper::GenFolder(folder.clone()));
+                highlighted.set(true);
+            }
+        }
+    };
+
+    let ondblclick = {
+        let onopen = props.onopen.clone();
+        let folder = props.folder.clone();
+        move |_| onopen.emit(folder.path().path.clone())
+    };
+
+    let class = format!(
+        "folders-section-elem{}",
+        if *highlighted { " selected" } else { "" }
+    );
+
     html! {
-        <div class="folders-section-elem">
+        <div {class} {onclick} {ondblclick}>
             <GenFolderIco folder={props.folder.clone()}/>
             <div class="folders-section-elem-name"> { props.folder.name() } </div>
         </div>
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct FavoritesSectionProps {
+    onopen: Callback<PathBuf>,
+}
+
 #[function_component]
-pub fn FavoritesSection() -> Html {
+fn FavoritesSection(props: &FavoritesSectionProps) -> Html {
     html! {
         <div id="favorites-section" class="home-section">
             <div class="home-section-dsc-text">{ "Favorites" }</div>
@@ -208,8 +287,13 @@ pub fn FavoritesSection() -> Html {
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct RecentsSectionProps {
+    onopen: Callback<PathBuf>,
+}
+
 #[function_component]
-pub fn RecentsSection() -> Html {
+fn RecentsSection(props: &RecentsSectionProps) -> Html {
     html! {
         <div id="recents-section" class="home-section">
             <div class="home-section-dsc-text">{ "Recents" }</div>

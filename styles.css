@@ -346,7 +346,7 @@ body {
   flex-grow: 0;
 }
 
-.drives-section-elem.selected {
+.home-section .selected {
   background-color: var(--secondary-background-color);
 }
 

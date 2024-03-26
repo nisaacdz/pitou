@@ -30,7 +30,9 @@ pub fn Pane(props: &PaneProps) -> Html {
 
     let onopen = {
         let onupdatedir = props.onupdatedir.clone();
+        let ctx = ctx.clone();
         move |pf: Rc<PitouFile>| {
+            ctx.active_tab.update_cur_menu(AppMenu::Explorer);
             if pf.is_file() {
             } else if pf.is_link() {
             } else {
@@ -41,7 +43,7 @@ pub fn Pane(props: &PaneProps) -> Html {
 
     let menu = *ctx.active_tab.current_menu.borrow();
     match menu {
-        AppMenu::Home => html! { <HomeView /> },
+        AppMenu::Home => html! { <HomeView {onopen} /> },
         AppMenu::Explorer => html! { <ExplorerView {onopen} /> },
         AppMenu::Trash => html! { <TrashView /> },
         AppMenu::Favorites => html! {},
