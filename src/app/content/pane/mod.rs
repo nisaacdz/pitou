@@ -1,15 +1,16 @@
 use std::rc::Rc;
 
-use pitou_core::*;
+use pitou_core::{*, frontend::*};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
-use crate::app::{content::pane::menu_views::*, reusables::NoArg, ApplicationContext};
+use crate::app::{content::pane::menu_views::*, reusables::NoArg};
 mod menu_views;
 
 #[derive(Properties, PartialEq)]
 pub struct PaneProps {
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
+    pub onupdatetheme: Callback<ColorTheme>,
 }
 
 #[function_component]
@@ -51,6 +52,6 @@ pub fn Pane(props: &PaneProps) -> Html {
         AppMenu::Locked => html! {},
         AppMenu::Recents => html! {},
         AppMenu::Cloud => html! {},
-        AppMenu::Settings => html! {},
+        AppMenu::Settings => html! { <SettingsView onupdatetheme={props.onupdatetheme.clone()}/> },
     }
 }

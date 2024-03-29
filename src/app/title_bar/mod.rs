@@ -3,12 +3,11 @@ use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
-
-use super::{reusables::*, AllTabsCtx};
+use crate::app::reusables::*;
 
 #[derive(Properties)]
 pub struct TitleBarProps {
-    pub tabs_ctx: AllTabsCtx,
+    pub tabs_ctx: Rc<AllTabsCtx>,
     pub onclose: Callback<()>,
     pub ontogglemaximize: Callback<()>,
     pub onminimize: Callback<()>,
@@ -34,13 +33,11 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     let change_tab = props.change_tab.clone();
     let tabs_ctx = props.tabs_ctx.clone();
 
-    let tabbed_interface =
-        html! { <TabbedInterface tabs_ctx = { tabs_ctx } {add_tab} {rem_tab} {change_tab} /> };
 
     html! {
         <div id="title-bar" data-tauri-drag-region = "true">
             <AppLogo />
-            { tabbed_interface }
+            <TabbedInterface tabs_ctx = { tabs_ctx } {add_tab} {rem_tab} {change_tab} />
             <ControlBox {onclose} {onminimize} {ontogglemaximize} />
         </div>
     }
@@ -48,7 +45,7 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
 
 #[derive(Properties)]
 struct TabbedInterfaceProps {
-    tabs_ctx: AllTabsCtx,
+    tabs_ctx: Rc<AllTabsCtx>,
     add_tab: Callback<()>,
     rem_tab: Callback<usize>,
     change_tab: Callback<usize>,
@@ -65,19 +62,26 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
     let AllTabsCtx {
         all_tabs,
         active_tab,
-    } = props.tabs_ctx.clone();
+    } = &*props.tabs_ctx;
     let tabs_disp = all_tabs
         .borrow()
         .iter()
         .enumerate()
         .map(|(idx, ctx)| {
             let ctx = ctx.clone();
-            let rem_tab = props.rem_tab.clone();
-            let change_tab = props.change_tab.clone();
-            if idx == active_tab {
-                html! { <ActiveTab {idx} {ctx} {rem_tab} {change_tab} /> }
+            let rem = {
+                let rem_tab = props.rem_tab.clone();
+                move |()| rem_tab.emit(idx)
+            };
+            let set = {
+                let change_tab = props.change_tab.clone();
+                move |()| change_tab.emit(idx)
+            };
+
+            if idx == *active_tab {
+                html! { <ActiveTab {ctx} {rem} {set} /> }
             } else {
-                html! { <InactiveTab {idx} {ctx} {rem_tab} {change_tab} /> }
+                html! { <InactiveTab {ctx} {rem} {set} /> }
             }
         })
         .chain(Some(html! { <AddTab add_tab = {props.add_tab.clone()} /> }))
@@ -94,35 +98,32 @@ fn TabbedInterface(props: &TabbedInterfaceProps) -> Html {
 
 #[derive(Properties)]
 struct TabProps {
-    idx: usize,
     ctx: Rc<TabCtx>,
-    rem_tab: Callback<usize>,
-    change_tab: Callback<usize>,
+    rem: Callback<()>,
+    set: Callback<()>,
 }
 
 impl PartialEq for TabProps {
     fn eq(&self, other: &Self) -> bool {
-        (self.ctx.current_dir() == other.ctx.current_dir())
-            && (self.ctx.current_menu == other.ctx.current_menu)
+        false
     }
 }
 
 #[function_component]
 fn InactiveTab(props: &TabProps) -> Html {
     let onclose = {
-        let rem_tab = props.rem_tab.clone();
-        let idx = props.idx;
+        let rem = props.rem.clone();
         move |e: MouseEvent| {
             e.stop_propagation();
-            rem_tab.emit(idx)
+            rem.emit(())
         }
     };
 
     let onchange = {
-        let change_tab = props.change_tab.clone();
-        let idx = props.idx;
-        move |_| change_tab.emit(idx)
+        let set = props.set.clone();
+        move |_| set.emit(())
     };
+
     let dir = props.ctx.current_dir();
     let name = dir.as_ref().map(|v| v.name()).unwrap_or_default();
 
@@ -146,11 +147,10 @@ fn InactiveTab(props: &TabProps) -> Html {
 #[function_component]
 fn ActiveTab(props: &TabProps) -> Html {
     let onclose = {
-        let rem_tab = props.rem_tab.clone();
-        let idx = props.idx;
+        let rem = props.rem.clone();
         move |e: MouseEvent| {
             e.stop_propagation();
-            rem_tab.emit(idx)
+            rem.emit(())
         }
     };
     let dir = props.ctx.current_dir();

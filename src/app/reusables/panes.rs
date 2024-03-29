@@ -3,7 +3,7 @@ use std::rc::Rc;
 use pitou_core::{frontend::*, *};
 use yew::prelude::*;
 
-use crate::app::{reusables::{ListFileTypeIcon, TileFileTypeIcon}, ApplicationContext};
+use crate::app::{reusables::{ListFileTypeIcon, TileFileTypeIcon}};
 
 #[derive(Properties)]
 pub struct PaneViewProps {

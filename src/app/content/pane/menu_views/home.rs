@@ -5,17 +5,7 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::app::{
-    reusables::{DiskIcon, DriveItems, GenFolderIco, GeneralFolderElems, NoArg},
-    ApplicationContext,
-};
-/*
-place for drives,
-place for connected devices
-place for default folders
-place for favorites
-place for recents
-*/
+use crate::app::reusables::{DiskIcon, DriveItems, GenFolderIco, GeneralFolderElems, NoArg};
 
 #[derive(PartialEq, Properties)]
 pub struct HomeViewProps {

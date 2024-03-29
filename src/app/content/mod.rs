@@ -17,6 +17,7 @@ use status::*;
 pub struct ContentProps {
     pub onswitchmenu: Callback<AppMenu>,
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
+    pub onupdatetheme: Callback<ColorTheme>,
 }
 
 #[function_component]
@@ -26,7 +27,7 @@ pub fn Content(props: &ContentProps) -> Html {
             <Ribbon />
             <Menus onswitchmenu = { props.onswitchmenu.clone() } />
             <Status />
-            <Pane onupdatedir = { props.onupdatedir.clone() } />
+            <Pane onupdatedir = { props.onupdatedir.clone() } onupdatetheme={ props.onupdatetheme.clone() }/>
         </div>
     }
 }

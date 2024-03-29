@@ -11,123 +11,47 @@ use title_bar::TitleBar;
 
 pub mod reusables;
 
-#[derive(Clone)]
-pub struct AllTabsCtx {
-    pub all_tabs: Rc<RefCell<Vec<Rc<TabCtx>>>>,
-    pub active_tab: usize,
-}
-
-#[derive(Clone)]
-pub struct ApplicationContext {
-    pub gen_ctx: Rc<GenCtx>,
-    pub active_tab: Rc<TabCtx>,
-    pub static_data: Rc<StaticData>,
-}
-
-impl PartialEq for ApplicationContext {
-    fn eq(&self, _other: &Self) -> bool {
-        // TODO to change this to correct implementation
-        false
-    }
-}
-
-impl ApplicationContext {
-    fn new(gen_ctx: Rc<GenCtx>, active_tab: Rc<TabCtx>, static_data: Rc<StaticData>) -> Self {
-        Self {
-            gen_ctx,
-            active_tab,
-            static_data,
-        }
-    }
-}
-
-impl AllTabsCtx {
-    pub fn default() -> Self {
-        let active_tab = Rc::new(TabCtx::default());
-        active_tab.update_cur_menu(AppMenu::Explorer);
-        let all_tabs = Rc::new(RefCell::new(vec![active_tab]));
-        Self {
-            all_tabs,
-            active_tab: 0,
-        }
-    }
-
-    pub fn add_tab(mut self) -> Self {
-        let mut all_tabs = self.all_tabs.borrow_mut();
-        let next_idx = all_tabs.len();
-        all_tabs.push(Rc::new(TabCtx::default()));
-        std::mem::drop(all_tabs);
-        self.active_tab = next_idx;
-        self
-    }
-
-    pub fn change_tab(mut self, idx: usize) -> Self {
-        self.active_tab = idx;
-        self
-    }
-
-    pub fn remove_tab(mut self, idx: usize) -> Option<Self> {
-        let mut all_tabs = self.all_tabs.borrow_mut();
-        if all_tabs.len() <= 1 {
-            return None;
-        }
-        all_tabs.remove(idx);
-        std::mem::drop(all_tabs);
-        if idx <= self.active_tab {
-            if self.active_tab != 0 {
-                self.active_tab -= 1;
-            }
-        }
-        Some(self)
-    }
-
-    fn current_tab(&self) -> Rc<TabCtx> {
-        self.all_tabs.borrow()[self.active_tab].clone()
-    }
-
-    fn change_menu(self, menu: AppMenu) -> Self {
-        let current_tab = self.current_tab();
-        *current_tab.current_menu.borrow_mut() = menu;
-        self
-    }
-}
 
 #[function_component]
 pub fn App() -> Html {
-    let tabs_ctx = use_state(|| AllTabsCtx::default());
+    let tabs_ctx = use_state(|| Rc::new(AllTabsCtx::default()));
 
     let genr_ctx = use_state(|| {
-        let mut res = GenCtx::default();
-        res.app_settings.items_view = ItemsView::Tiles;
-        Rc::new(res)
+        let res = GenCtx::default();
+        Rc::new(RefCell::new(res))
     });
 
     let static_data = use_state(|| Rc::new(StaticData::new()));
 
+    let ctx = {
+        let active_tab = tabs_ctx.current_tab();
+        ApplicationContext::new((*genr_ctx).clone(), active_tab, (*static_data).clone())
+    };
+
     let add_tab = {
         let tabs_ctx = tabs_ctx.clone();
         move |()| {
-            let new_tabs = (*tabs_ctx).clone().add_tab();
-            tabs_ctx.set(new_tabs)
+            let new_tabs = (**tabs_ctx).clone().add_tab();
+            tabs_ctx.set(Rc::new(new_tabs))
         }
     };
 
     let rem_tab = {
         let tabs_ctx = tabs_ctx.clone();
         move |idx| {
-            let new_tabs = (*tabs_ctx)
+            let new_tabs = (**tabs_ctx)
                 .clone()
                 .remove_tab(idx)
                 .unwrap_or(AllTabsCtx::default());
-            tabs_ctx.set(new_tabs);
+            tabs_ctx.set(Rc::new(new_tabs));
         }
     };
 
     let change_tab = {
         let tabs_ctx = tabs_ctx.clone();
         move |idx| {
-            let new_tabs = (*tabs_ctx).clone().change_tab(idx);
-            tabs_ctx.set(new_tabs)
+            let new_tabs = (**tabs_ctx).clone().change_tab(idx);
+            tabs_ctx.set(Rc::new(new_tabs))
         }
     };
 
@@ -135,12 +59,13 @@ pub fn App() -> Html {
         let tabs_ctx = tabs_ctx.clone();
         let static_data = static_data.clone();
         move |file| {
-            let new_tabs = (*tabs_ctx).clone();
+            let new_tabs = (**tabs_ctx).clone();
             static_data.clear_all_selections();
-            tabs_ctx.current_tab().update_children(None);
-            tabs_ctx.current_tab().update_siblings(None);
-            new_tabs.current_tab().update_cur_dir(file);
-            tabs_ctx.set(new_tabs)
+            let cur_tab = new_tabs.current_tab();
+            cur_tab.update_children(None);
+            cur_tab.update_siblings(None);
+            cur_tab.update_cur_dir(file);
+            tabs_ctx.set(Rc::new(new_tabs))
         }
     };
 
@@ -151,7 +76,7 @@ pub fn App() -> Html {
         foreground2,
         spare1,
         spare2,
-    } = (*genr_ctx).color_theme;
+    } = (*genr_ctx).borrow().color_theme;
 
     let style = format! {r"
     --primary-background-color: {background1};
@@ -184,18 +109,25 @@ pub fn App() -> Html {
     let onswitchmenu = {
         let tabs_ctx = tabs_ctx.clone();
         move |menu| {
-            let new_tabs = (*tabs_ctx).clone().change_menu(menu);
-            tabs_ctx.set(new_tabs)
+            let new_tabs = (**tabs_ctx).clone().change_menu(menu);
+            tabs_ctx.set(Rc::new(new_tabs))
         }
     };
 
-    let active_tab = tabs_ctx.all_tabs.borrow()[tabs_ctx.active_tab].clone();
+    let onupdatetheme = {
+        let genr_ctx = genr_ctx.clone();
+        let ctx = ctx.clone();
+        move |newtheme| {
+            ctx.update_color_theme(newtheme);
+            genr_ctx.set((*genr_ctx).clone())
+        }
+    };
 
     html! {
         <main {style}>
-            <ContextProvider<ApplicationContext> context={ApplicationContext::new((*genr_ctx).clone(), active_tab, (*static_data).clone())}>
+            <ContextProvider<ApplicationContext> context={ctx}>
                 <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
-                <Content {onswitchmenu} {onupdatedir}/>
+                <Content {onswitchmenu} {onupdatedir} {onupdatetheme}/>
             </ContextProvider<ApplicationContext>>
         </main>
     }

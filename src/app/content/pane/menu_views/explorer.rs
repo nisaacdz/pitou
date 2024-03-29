@@ -7,10 +7,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::app::{
-    reusables::{ChevronRightIcon, DirChildrenArgs, MainPane},
-    ApplicationContext,
-};
+use crate::app::reusables::{ChevronRightIcon, DirChildrenArgs, MainPane};
 
 #[derive(PartialEq, Properties)]
 struct AncestryProps {
@@ -138,7 +135,7 @@ pub struct ExplorerViewProps {
 #[function_component]
 pub fn ExplorerView(props: &ExplorerViewProps) -> Html {
     html! {
-        <div id="explorer-view-pane" class="fullpane">
+        <div id="explorer-pane" class="fullpane">
             <Ancestry onopen={props.onopen.clone()}/>
             <Explorer onopen={props.onopen.clone()}/>
         </div>
@@ -205,7 +202,7 @@ fn Explorer(props: &ExplorerProps) -> Html {
 
     let content = if let Some(items) = &*ctx.active_tab.dir_children.borrow() {
         let items = items.clone();
-        let view = ctx.gen_ctx.app_settings.items_view;
+        let view = ctx.items_view();
         html! { <MainPane {view} {items} {onopen} />}
     } else {
         html! {}

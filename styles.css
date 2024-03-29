@@ -251,15 +251,18 @@ body {
 #side-menus {
   position: absolute;
   display: flex;
+  overflow: hidden;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  flex-wrap: nowrap;
   left: 5px;
-  width: 50px;
+  width: 44px;
   top: 70px;
   bottom: 35px;
-  gap: 5px;
+  gap: 10px;
   background-color: var(--secondary-background-color);
+  padding-top: 10px;
 }
 
 .menu-item-elem {
@@ -267,12 +270,16 @@ body {
 }
 
 .menu-item {
-  width: 30px;
+  width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+}
+
+.menu-item svg {
+  width: 30px;
+  height: 30px;
 }
 
 .menu-item:hover {
@@ -540,7 +547,7 @@ body {
   position: absolute;
   top: 70px;
   right: 5px;
-  left: 60px;
+  left: 54px;
   bottom: 35px;
 }
 
@@ -781,9 +788,6 @@ body {
 }
 
 .explorer-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
   position: relative;
   width: 12px;
   height: 12px;
@@ -791,20 +795,6 @@ body {
   border: 1px solid var(--primary-spare-color);
   background-color: var(--primary-foreground-color);
   visibility: hidden;
-}
-
-.explorer-checkbox:checked::before {
-  content: "\2713";
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  left: 0;
-  top: 0;
-  font-size: 11px;
-  font-weight: 30px;
-  text-align: center;
-  line-height: 11px;
-  color: var(--primary-spare-color);
 }
 
 .explorer-checkbox:checked {
@@ -873,7 +863,7 @@ body {
   height: 24px;
 }
 
-#explorer-view-pane {
+#explorer-pane {
   overflow: hidden;
 }
 
@@ -987,7 +977,7 @@ body {
 #app-logo {
   position: absolute;
   left: 0;
-  width: 90px;
+  width: 98px;
   height: 32px;
   display: flex;
   align-items: center;
@@ -1009,8 +999,8 @@ body {
 }
 
 .app-logo-btn {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1027,13 +1017,13 @@ body {
 }
 
 .app-logo-btn img {
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
 }
 
 #tabs-container {
   position: absolute;
-  left: 90px;
+  left: 98px;
   right: 135px;
   height: 32px;
 }
@@ -1053,7 +1043,7 @@ body {
 #tabs-shower {
   position: absolute;
   left: 0px;
-  width: 30px;
+  width: 22px;
   height: 32px;
   box-sizing: border-box;
   border: 1px solid var(--secondary-spare-color);
@@ -1068,8 +1058,8 @@ body {
 }
 
 #tabs-shower-chevron {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 30px;
   fill: var(--primary-foreground-color);
 }
 
@@ -1078,7 +1068,7 @@ body {
   display: flex;
   overflow: hidden;
   right: 30px;
-  left: 30px;
+  left: 22px;
   height: 32px;
   justify-content: flex-end;
   align-items: center;
@@ -1267,4 +1257,40 @@ body {
 
 .folder-file-icon.list-type-icon {
   fill: var(--secondary-background-color);
+}
+
+#settings-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--primary-foreground-color);
+  font-size: 12px;
+}
+
+#settings-pane .selectable {
+  height: 20px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+  box-sizing: content-box;
+  border-bottom: 1px dashed var(--secondary-background-color);
+}
+
+#settings-pane .label {
+  width: auto;
+  height: 20px;
+  padding-left: 5px;
+  padding-right: 5px;
+  display: flex;
+  align-items: center;
+}
+
+#settings-pane .selector {
+  width: auto;
+  height: 18px;
+  font-size: 13px;
+  box-sizing: border-box;
+  background-color: var(--secondary-spare-color);
+  color: var(--primary-spare-color);
 }
