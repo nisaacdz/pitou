@@ -557,6 +557,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: larger;
+  overflow: hidden;
 }
 
 #pane-list-view {
@@ -871,6 +872,10 @@ body {
   height: 24px;
 }
 
+#trash-pane {
+  overflow: hidden;
+}
+
 #explorer-pane {
   overflow: hidden;
 }
@@ -1012,8 +1017,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
-  border: 1px solid var(--secondary-background-color);
+}
+
+.app-logo-btn-img {
+  width: 20px;
+  height: 20px;
+  fill: var(--secondary-spare-color);
 }
 
 .app-logo-btn:hover {
@@ -1021,7 +1030,7 @@ body {
 }
 
 .app-logo-btn:active {
-  border-color: var(--primary-foreground-color);
+  background-color: var(--primary-foreground-color);
 }
 
 .app-logo-btn img {

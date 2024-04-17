@@ -62,9 +62,11 @@ pub fn App() -> Html {
             let new_tabs = (**tabs_ctx).clone();
             static_data.clear_all_selections();
             let cur_tab = new_tabs.current_tab();
-            cur_tab.update_children(None);
-            cur_tab.update_siblings(None);
-            cur_tab.update_cur_dir(file);
+            if file != cur_tab.current_dir() {
+                cur_tab.update_children(None);
+                cur_tab.update_siblings(None);
+                cur_tab.update_cur_dir(file);
+            }
             tabs_ctx.set(Rc::new(new_tabs))
         }
     };

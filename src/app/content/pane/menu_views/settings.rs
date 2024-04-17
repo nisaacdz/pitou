@@ -41,7 +41,6 @@ pub fn Themes(props: &ThemesProps) -> Html {
         let onupdatetheme = props.onupdatetheme.clone();
         move |e: Event| {
             let val = e.target_dyn_into::<HtmlSelectElement>().unwrap().value();
-            web_sys::console::log_1(&serde_wasm_bindgen::to_value(&val).unwrap());
             let theme = match val.parse::<u8>().unwrap() {
                 0 => ColorTheme::GEM_DARK,
                 1 => ColorTheme::DEFAULT_DARK,
