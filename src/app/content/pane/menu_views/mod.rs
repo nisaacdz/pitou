@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 mod cloud;
 mod explorer;
 mod favorites;

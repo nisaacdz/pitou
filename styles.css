@@ -314,7 +314,7 @@ body {
 
 .home-section-dsc-text {
   position: absolute;
-  color: var(--secondary-spare-color);
+  color: var(--primary-foreground-color);
   height: 20px;
   top: 0px;
   left: 0px;
@@ -410,7 +410,7 @@ body {
   height: 14px;
   width: 170px;
   box-sizing: content-box;
-  border: 1px solid var(--primary-spare-color);
+  border: 2px solid var(--primary-spare-color);
 }
 
 .drives-section-elem-guage-inner {
@@ -549,6 +549,14 @@ body {
   right: 5px;
   left: 54px;
   bottom: 35px;
+}
+
+#unimplementedpane {
+  color: var(--secondary-background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: larger;
 }
 
 #pane-list-view {

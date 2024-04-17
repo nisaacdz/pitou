@@ -4,7 +4,7 @@ use pitou_core::{*, frontend::*};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
-use crate::app::{content::pane::menu_views::*, reusables::NoArg};
+use crate::app::{content::pane::menu_views::*, reusables::{NoArg, NotYetImplementedPane}};
 mod menu_views;
 
 #[derive(Properties, PartialEq)]
@@ -47,11 +47,11 @@ pub fn Pane(props: &PaneProps) -> Html {
         AppMenu::Home => html! { <HomeView {onopen} /> },
         AppMenu::Explorer => html! { <ExplorerView {onopen} /> },
         AppMenu::Trash => html! { <TrashView /> },
-        AppMenu::Favorites => html! {},
-        AppMenu::Search => html! {},
-        AppMenu::Locked => html! {},
-        AppMenu::Recents => html! {},
-        AppMenu::Cloud => html! {},
+        AppMenu::Favorites => html! { <NotYetImplementedPane/> },
+        AppMenu::Search => html! { <NotYetImplementedPane/> },
+        AppMenu::Locked => html! { <NotYetImplementedPane/> },
+        AppMenu::Recents => html! { <NotYetImplementedPane/> },
+        AppMenu::Cloud => html! { <NotYetImplementedPane/> },
         AppMenu::Settings => html! { <SettingsView onupdatetheme={props.onupdatetheme.clone()}/> },
     }
 }

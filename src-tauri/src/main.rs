@@ -10,6 +10,7 @@ fn main() {
             default_folder,
             drives,
             children,
+            thrash_items,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

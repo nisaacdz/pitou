@@ -2,3 +2,8 @@ default light: ingenium
 default dark: polish
 others: 
 editors choice
+
+
+ingenium - secondary spare - some light green
+editors choice - tone it down a bit (slightly less black)
+polish - tone up the black a bit

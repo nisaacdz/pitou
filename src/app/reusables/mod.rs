@@ -1,12 +1,15 @@
 use pitou_core::*;
 use yew::prelude::*;
+
 mod labels;
 mod panes;
 mod svg;
+mod wrappers;
 
 pub use labels::*;
 pub use panes::*;
 pub use svg::*;
+pub use wrappers::*;
 
 #[derive(PartialEq, Properties)]
 pub struct ReusableItemProps {
@@ -250,7 +253,7 @@ pub fn FileIcon(props: &ReusableItemProps) -> Html {
 
 #[derive(PartialEq, Properties)]
 pub struct FileTypeIconProps {
-    filetype: Option<PitouFileKind>,
+    pub filetype: Option<PitouFileKind>,
 }
 
 #[function_component]

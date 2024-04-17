@@ -3,6 +3,7 @@ target = "./index.html"
 
 [watch]
 ignore = ["./src-tauri"]
+watch = ["../pitou-core"]
 
 [serve]
 address = "127.0.0.1"

@@ -17,7 +17,7 @@ pub struct TitleBarProps {
 }
 
 impl PartialEq for TitleBarProps {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         false
     }
 }
@@ -52,7 +52,7 @@ struct TabbedInterfaceProps {
 }
 
 impl PartialEq for TabbedInterfaceProps {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         false
     }
 }
@@ -104,7 +104,7 @@ struct TabProps {
 }
 
 impl PartialEq for TabProps {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         false
     }
 }
@@ -123,9 +123,8 @@ fn InactiveTab(props: &TabProps) -> Html {
         let set = props.set.clone();
         move |_| set.emit(())
     };
-
-    let dir = props.ctx.current_dir();
-    let name = dir.as_ref().map(|v| v.name()).unwrap_or_default();
+    
+    let name = props.ctx.display_name();
 
     html! {
         <div class = "tab inactive" onclick = {onchange}>
@@ -153,8 +152,8 @@ fn ActiveTab(props: &TabProps) -> Html {
             rem.emit(())
         }
     };
-    let dir = props.ctx.current_dir();
-    let name = dir.as_ref().map(|v| v.name()).unwrap_or_default();
+    
+    let name = props.ctx.display_name();
 
     html! {
         <div class = "tab active">

@@ -30,6 +30,20 @@ pub struct GeneralFolderElems {
     pub items: Vec<Rc<GeneralFolder>>,
 }
 
+pub struct PitouTrashItemsVec {
+    pub items: Rc<Vec<Rc<PitouTrashItem>>>,
+}
+
+
+impl<'d> Deserialize<'d> for PitouTrashItemsVec {
+    fn deserialize<D: Deserializer<'d>>(dz: D) -> Result<Self, D::Error> {
+        let items = rc_serde::deserialize(dz)?;
+        Ok(Self {
+            items: Rc::new(items),
+        })
+    }
+}
+
 pub struct DriveItems {
     pub items: Rc<Vec<Rc<PitouDrive>>>,
 }

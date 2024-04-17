@@ -3,7 +3,7 @@ use std::rc::Rc;
 use pitou_core::{frontend::*, *};
 use yew::prelude::*;
 
-use crate::app::{reusables::{ListFileTypeIcon, TileFileTypeIcon}};
+use crate::app::reusables::{ListFileTypeIcon, TileFileTypeIcon};
 
 #[derive(Properties)]
 pub struct PaneViewProps {
@@ -322,6 +322,16 @@ fn TileItem(props: &ItemProps) -> Html {
                 <TileFileTypeIcon {filetype}/>
             </div>
             {description}
+        </div>
+    }
+}
+
+
+#[function_component]
+pub fn NotYetImplementedPane() -> Html {
+    html! {
+        <div id="unimplementedpane" class="fullpane">
+            <h1>{"Not Yet Implemented"}</h1>
         </div>
     }
 }

@@ -269,7 +269,7 @@ struct FavoritesSectionProps {
 }
 
 #[function_component]
-fn FavoritesSection(props: &FavoritesSectionProps) -> Html {
+fn FavoritesSection(_props: &FavoritesSectionProps) -> Html {
     html! {
         <div id="favorites-section" class="home-section">
             <div class="home-section-dsc-text">{ "Favorites" }</div>
@@ -283,7 +283,7 @@ struct RecentsSectionProps {
 }
 
 #[function_component]
-fn RecentsSection(props: &RecentsSectionProps) -> Html {
+fn RecentsSection(_props: &RecentsSectionProps) -> Html {
     html! {
         <div id="recents-section" class="home-section">
             <div class="home-section-dsc-text">{ "Recents" }</div>
