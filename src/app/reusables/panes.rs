@@ -299,10 +299,12 @@ fn TileItem(props: &ItemProps) -> Html {
 
     let optional = props.item.metadata.as_ref().map(|v| v.accessed.datetime.format("%Y-%m-%d %H:%M:%S").to_string());
 
+    let name = if ctx.show_extensions() { props.item.name() } else { props.item.name_without_extension() };
+
     let description = html! {
         <div class="tile-description">
             <div class="tile-filename">
-            { props.item.name() }
+            { name }
             </div>
             <div class="tile-filesize">
                 { filesize }

@@ -71,6 +71,18 @@ pub fn App() -> Html {
         }
     };
 
+    let navigate_folder = {
+        let tabs_ctx = tabs_ctx.clone();
+        move |forward| {
+            if forward {
+                tabs_ctx.current_tab().navigate_forward()
+            } else {
+                tabs_ctx.current_tab().navigate_backward()
+            }
+            tabs_ctx.set((*tabs_ctx).clone());
+        }
+    };
+
     let ColorTheme {
         background1,
         background2,
@@ -129,7 +141,7 @@ pub fn App() -> Html {
         <main {style}>
             <ContextProvider<ApplicationContext> context={ctx}>
                 <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
-                <Content {onswitchmenu} {onupdatedir} {onupdatetheme}/>
+                <Content {onswitchmenu} {onupdatedir} {onupdatetheme} {navigate_folder} />
             </ContextProvider<ApplicationContext>>
         </main>
     }

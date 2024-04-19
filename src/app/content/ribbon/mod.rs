@@ -1,10 +1,17 @@
+use pitou_core::{frontend::ApplicationContext, AppMenu};
 use yew::prelude::*;
+use yew_hooks::use_interval;
+
+#[derive(Properties, PartialEq)]
+pub struct RibbonProps {
+    pub navigate_folder: Callback<bool>,
+}
 
 #[function_component]
-pub fn Ribbon() -> Html {
+pub fn Ribbon(prop: &RibbonProps) -> Html {
     html! {
         <div id="ribbon">
-            <RibbonNav />
+            <RibbonNav navigate={ prop.navigate_folder.clone() }/>
             <RibbonClipboard />
             <RibbonCreations />
             <RibbonTrash />
@@ -18,9 +25,53 @@ pub fn Ribbon() -> Html {
 
 #[function_component]
 fn RibbonRefresh() -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let refreshing = use_state(|| {
+        
+        false
+    });
+    {
+        let refreshing = refreshing.clone();
+        let ctx = ctx.clone();
+        use_interval(move || {
+            let cond = match ctx.current_menu() {
+                AppMenu::Home => ctx.static_data.drives.borrow().is_none(),
+                AppMenu::Explorer => ctx.active_tab.dir_children.borrow().is_none(),
+                AppMenu::Trash => false,
+                AppMenu::Favorites => false,
+                AppMenu::Search => false,
+                AppMenu::Locked => false,
+                AppMenu::Recents => false,
+                AppMenu::Cloud => false,
+                AppMenu::Settings => false,
+            };
+            refreshing.set(cond);
+        }, 500);
+    }
+
+    let onclick = {
+        let refreshing = refreshing.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            ctx.static_data.clear_all_selections();
+            match ctx.current_menu() {
+                AppMenu::Home => ctx.static_data.reset_drives(),
+                AppMenu::Explorer => ctx.active_tab.reset_current_files(),
+                AppMenu::Trash => (),
+                AppMenu::Favorites => (),
+                AppMenu::Search => (),
+                AppMenu::Locked => (),
+                AppMenu::Recents => (),
+                AppMenu::Cloud => (),
+                AppMenu::Settings => (),
+            }
+            refreshing.set(true)
+        }
+    };
+
     html! {
         <div id="ribbon-refresh" class="ribbon-group">
-            <div class="ribbon-large" title="refresh">
+            <div class="ribbon-large" title="refresh" {onclick}>
                 <img src="./public/refresh.png"/>
             </div>
         </div>
@@ -127,14 +178,44 @@ fn RibbonCreations() -> Html {
     }
 }
 
+#[derive(Properties, PartialEq)]
+struct RibbonNavProps {
+    navigate: Callback<bool>,
+}
+
 #[function_component]
-fn RibbonNav() -> Html {
+fn RibbonNav(props: &RibbonNavProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    
+    let onclick_forward = {
+        let navigate = props.navigate.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            if ctx.current_menu() == AppMenu::Explorer {
+                navigate.emit(true)
+            }
+        }
+    };
+
+    let onclick_backward = {
+        let navigate = props.navigate.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            if ctx.current_menu() == AppMenu::Explorer {
+                navigate.emit(false)
+            }
+        }
+    };
+
+    let forward_class = format!{"ribbon-nav-item {}", if ctx.active_tab.can_navigate_forward() { "active" } else { "inactive" }};
+    let backward_class = format!{"ribbon-nav-item {}", if ctx.active_tab.can_navigate_backward() { "active" } else { "inactive" }};
+
     html! {
         <div id="ribbon-nav" class="ribbon-group">
-            <div class="ribbon-nav-item" title="forward">
+            <div class={forward_class} title="forward" onclick={onclick_forward} >
                 <img src="./public/arrow_right.png" class="ribbon-nav-ico" />
             </div>
-            <div class="ribbon-nav-item" title="backward">
+            <div class={backward_class} title="backward" onclick={onclick_backward}>
                 <img src="./public/arrow_left.png" class="ribbon-nav-ico" />
             </div>
         </div>

@@ -79,14 +79,18 @@ fn DrivesSection(props: &DrivesSectionProps) -> Html {
 
     let drives = ctx.static_data.drives.borrow().clone();
 
-    let content = drives
+    let content = if let Some(drives) = drives {
+        drives
         .iter()
         .map(|drive| {
             html! {
                 <DrivesSectionItem {drive} onopen={props.onopen.clone()}/>
             }
         })
-        .collect::<Html>();
+        .collect::<Html>()
+    } else {
+        html! {}
+    };
     html! {
         <div id="drives-section" class="home-section">
             <div class="home-section-dsc-text">{ "Drives & Devices" }</div>

@@ -33,7 +33,7 @@ pub fn Menus(props: &MenuProps) -> Html {
 #[function_component]
 pub fn ExplorerMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Explorer) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Explorer) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -43,7 +43,7 @@ pub fn ExplorerMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Explorer)
     };
     html! {
-        <div id="explorer-menu" {class} {onclick}>
+        <div id="explorer-menu" {class} {onclick} title="explorer">
             <ExplorerIcon id="explorer-menu-elem" class="menu-item-elem" />
         </div>
     }
@@ -52,7 +52,7 @@ pub fn ExplorerMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 pub fn SettingsMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Settings) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Settings) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -62,7 +62,7 @@ pub fn SettingsMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Settings)
     };
     html! {
-        <div id="settings-menu" {class} {onclick}>
+        <div id="settings-menu" {class} {onclick} title="settings">
             <SettingsIcon id="settings-menu-elem" class="menu-item-elem" />
         </div>
     }
@@ -71,7 +71,7 @@ pub fn SettingsMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 pub fn FavoritesMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Favorites) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Favorites) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -81,7 +81,7 @@ pub fn FavoritesMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Favorites)
     };
     html! {
-        <div id="favorites-menu" {class} {onclick}>
+        <div id="favorites-menu" {class} {onclick} title="pinned files">
             <FavoritesIcon id="favorites-menu-elem" class="menu-item-elem" />
         </div>
     }
@@ -90,7 +90,7 @@ pub fn FavoritesMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn RecentsMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Recents) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Recents) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -100,7 +100,7 @@ fn RecentsMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Recents)
     };
     html! {
-        <div id="recents-menu" {class} {onclick}>
+        <div id="recents-menu" {class} {onclick} title="recent files">
             <RecentsIcon id="recents-menu-elem" class="menu-item-elem" />
         </div>
     }
@@ -109,7 +109,7 @@ fn RecentsMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn TrashMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Trash) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Trash) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -119,7 +119,7 @@ fn TrashMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Trash)
     };
     html! {
-        <div id="trash-menu" {class} {onclick}>
+        <div id="trash-menu" {class} {onclick} title="recycle bin">
             <TrashIcon id="recycle-menu-elem" class="menu-item-elem"/>
         </div>
     }
@@ -128,7 +128,7 @@ fn TrashMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn LockedMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Locked) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Locked) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -138,7 +138,7 @@ fn LockedMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Locked)
     };
     html! {
-        <div id="locked-menu" {class} {onclick}>
+        <div id="locked-menu" {class} {onclick} title="locked files">
             <LockedIcon id="locked-menu-elem" class="menu-item-elem"/>
         </div>
     }
@@ -147,7 +147,7 @@ fn LockedMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn SearchMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Search) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Search) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -157,7 +157,7 @@ fn SearchMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Search)
     };
     html! {
-        <div id="search-menu" {class} {onclick}>
+        <div id="search-menu" {class} {onclick} title="advanced search">
             <SearchIcon id="search-menu-elem" class="menu-item-elem"/>
         </div>
     }
@@ -166,7 +166,7 @@ fn SearchMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn CloudMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Cloud) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Cloud) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -176,7 +176,7 @@ fn CloudMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Cloud)
     };
     html! {
-        <div id="cloud-menu" {class} {onclick}>
+        <div id="cloud-menu" {class} {onclick} title="cloud storage">
             <CloudIcon id="cloud-menu-elem" class="menu-item-elem"/>
         </div>
     }
@@ -185,7 +185,7 @@ fn CloudMenu(props: &EachMenuProps) -> Html {
 #[function_component]
 fn HomeMenu(props: &EachMenuProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let class = if matches!(*ctx.active_tab.current_menu.borrow(), AppMenu::Home) {
+    let class = if matches!(ctx.current_menu(), AppMenu::Home) {
         "menu-item active-menu"
     } else {
         "menu-item"
@@ -195,7 +195,7 @@ fn HomeMenu(props: &EachMenuProps) -> Html {
         move |_| onactivate.emit(AppMenu::Home)
     };
     html! {
-        <div id="home-menu" {class} {onclick}>
+        <div id="home-menu" {class} {onclick} title="home">
             <HomeIcon id="home-menu-elem" class="menu-item-elem" />
         </div>
     }

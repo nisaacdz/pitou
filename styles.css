@@ -82,11 +82,11 @@ body {
   border: 1px solid var(--primary-background-color);
 }
 
-.ribbon-nav-item:hover {
+.ribbon-nav-item.active:hover {
   border-color: var(--primary-foreground-color);
 }
 
-.ribbon-nav-item:active {
+.ribbon-nav-item.active:active {
   background-color: var(--secondary-background-color);
 }
 
@@ -275,6 +275,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid var(--secondary-background-color);
 }
 
 .menu-item svg {
@@ -283,20 +284,21 @@ body {
 }
 
 .menu-item:hover {
-  background-color: var(--primary-background-color);
+  border-color: var(--secondary-spare-color);
 }
 
-.menu-item:hover .menu-item-elem {
+.menu-item.active-menu {
+  background-color: var(--primary-background-color);
+  border-color: var(--secondary-spare-color);
+}
+
+.menu-item.active-menu .menu-item-elem {
   fill: var(--secondary-background-color);
 }
 
 .menu-item:active .menu-item-elem {
   transition: transform 0.1s ease-in-out;
   transform: scale(1.3);
-}
-
-.menu-item.active-menu {
-  border: 2px solid var(--secondary-spare-color);
 }
 
 #home-pane {
@@ -512,6 +514,10 @@ body {
 
 .fill-secondary-spare {
   fill: var(--secondary-spare-color);
+}
+
+.fill-secondary-foreground {
+  fill: var(--secondary-foreground-color)
 }
 
 .fill-none {

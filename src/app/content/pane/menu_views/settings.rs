@@ -37,18 +37,17 @@ pub struct ThemesProps {
 
 #[function_component]
 pub fn Themes(props: &ThemesProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let cur_theme = ctx.color_theme();
     let onchange = {
         let onupdatetheme = props.onupdatetheme.clone();
         move |e: Event| {
             let val = e.target_dyn_into::<HtmlSelectElement>().unwrap().value();
             let theme = match val.parse::<u8>().unwrap() {
-                0 => ColorTheme::GEM_DARK,
-                1 => ColorTheme::DEFAULT_DARK,
-                2 => ColorTheme::GEM_LIGHT,
-                3 => ColorTheme::POLISH,
-                4 => ColorTheme::OCEAN_BLUE,
-                5 => ColorTheme::RAMBO,
-                6 => ColorTheme::GPT_DARK,
+                0 => ColorTheme::DEFAULT_DARK,
+                1 => ColorTheme::DEFAULT_LIGHT,
+                2 => ColorTheme::GEM_DARK,
+                3 => ColorTheme::POLISH_DARK,
                 _ => unimplemented!()
             };
             onupdatetheme.emit(theme)
@@ -59,13 +58,10 @@ pub fn Themes(props: &ThemesProps) -> Html {
         <div class="selectable">
             <label class="label">{ "Themes" }</label>
             <select class="selector" {onchange} value="1">
-                <option value="0">{ "Gem Dark" }</option>
-                <option value="1">{ "Default Dark" }</option>
-                <option value="2">{ "Default Light" }</option>
-                <option value="3">{ "Polish" }</option>
-                <option value="4">{ "Expresso" }</option>
-                <option value="5">{ "Ingenium" }</option>
-                <option value="6" selected={true}>{ "Editor's choice" }</option>
+                <option value="0" selected={cur_theme == ColorTheme::DEFAULT_DARK}>{ "Default Dark" }</option>
+                <option value="1" selected={cur_theme == ColorTheme::DEFAULT_LIGHT}>{ "Default Light" }</option>
+                <option value="2" selected={cur_theme == ColorTheme::GEM_DARK}>{ "Gem Dark" }</option>
+                <option value="3" selected={cur_theme == ColorTheme::POLISH_DARK}>{ "Polish Dark" }</option>
             </select>
         </div>
     }
