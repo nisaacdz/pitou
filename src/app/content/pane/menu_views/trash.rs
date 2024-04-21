@@ -16,34 +16,42 @@ async fn retrieve_trash_items() -> Option<Rc<Vec<Rc<PitouTrashItem>>>> {
 
 #[function_component]
 pub fn TrashView() -> Html {
-    let _ctx = use_context::<ApplicationContext>().unwrap();
-    let items = use_state(|| None);
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let force_update = use_force_update();
     let selections = use_mut_ref(|| HashSet::new());
     {
-        let items = items.clone();
-        use_effect_with((), move |()| {
-            let items = items.clone();
-            spawn_local(async move {
-                let new_items = retrieve_trash_items().await;
-                items.set(new_items);
-            })
+        let ctx = ctx.clone();
+        let force_update = force_update.clone();
+        use_effect_with(ctx.refresher_state(), move |_| {
+            if ctx.static_data.no_trash_items() {
+                let ctx = ctx.clone();
+                let force_update = force_update.clone();
+                spawn_local(async move {
+                    let trash_items = retrieve_trash_items().await;
+                    ctx.static_data.update_trash_items(trash_items);
+                    force_update.force_update();
+                })
+            }
         });
     }
     {
-        let items = items.clone();
+        let ctx = ctx.clone();
+        let force_update = force_update.clone();
         use_interval(
             move || {
-                let items = items.clone();
+                let ctx = ctx.clone();
+                let force_update = force_update.clone();
                 spawn_local(async move {
-                    let new_items = retrieve_trash_items().await;
-                    items.set(new_items);
+                    let trash_items = retrieve_trash_items().await;
+                    ctx.static_data.update_trash_items(trash_items);
+                    force_update.force_update()
                 })
             },
-            5000,
+            10000,
         );
     }
 
-    let content = if let Some(val) = &*items {
+    let content = if let Some(val) = ctx.static_data.trash_items() {
         html! { <TrashListView items= { val.clone() } {selections}/> }
     } else {
         html! {}

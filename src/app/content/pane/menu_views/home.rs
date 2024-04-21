@@ -55,7 +55,7 @@ fn DrivesSection(props: &DrivesSectionProps) -> Html {
     {
         let data = ctx.static_data.clone();
         let refresher = refresher.clone();
-        use_effect_with((), move |()| {
+        use_effect_with(ctx.refresher_state(), move |_| {
             let data = data.clone();
             spawn_local(async move {
                 obtain_drives(data, move || refresher.force_update()).await;

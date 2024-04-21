@@ -175,7 +175,7 @@ fn Explorer(props: &ExplorerProps) -> Html {
         let tab = ctx.active_tab.clone();
         let refresher = refresher.clone();
         let current_dir = tab.current_dir();
-        use_effect_with(current_dir, move |_| {
+        use_effect_with((current_dir, ctx.refresher_state()), move |_| {
             spawn_local(async move {
                 update_children(tab, move || refresher.force_update()).await;
             })
@@ -194,7 +194,7 @@ fn Explorer(props: &ExplorerProps) -> Html {
                     update_children(tab, move || refresher.force_update()).await;
                 })
             },
-            5000,
+            15000,
         )
     }
 

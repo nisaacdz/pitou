@@ -1036,7 +1036,12 @@ body {
 }
 
 .app-logo-btn:active {
-  background-color: var(--primary-foreground-color);
+  border-color: var(--primary-spare-color);
+}
+
+.app-logo-btn:active .app-logo-btn-img {
+  transform: scale(1.3);
+  transition: scale 1s ease-in-out;
 }
 
 .app-logo-btn img {
@@ -1148,7 +1153,7 @@ body {
   gap: 0px;
   box-sizing: border-box;
   border-left: 1px solid var(--primary-spare-color);
-  color: var(--secondary-foreground-color);
+  color: var(--primary-foreground-color);
   font-size: small;
   flex-grow: 0;
   flex-shrink: 0;

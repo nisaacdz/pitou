@@ -5,39 +5,43 @@ use yew_hooks::use_interval;
 #[derive(Properties, PartialEq)]
 pub struct RibbonProps {
     pub navigate_folder: Callback<bool>,
+    pub reload: Callback<()>,
 }
 
 #[function_component]
-pub fn Ribbon(prop: &RibbonProps) -> Html {
+pub fn Ribbon(props: &RibbonProps) -> Html {
     html! {
         <div id="ribbon">
-            <RibbonNav navigate={ prop.navigate_folder.clone() }/>
+            <RibbonNav navigate={ props.navigate_folder.clone() }/>
             <RibbonClipboard />
             <RibbonCreations />
             <RibbonTrash />
             <RibbonActions />
-            <RibbonRefresh />
+            <RibbonRefresh reload={ props.reload.clone() }/>
             <RibbonProperties />
             <RibbonArrange />
         </div>
     }
 }
 
+#[derive(Properties, PartialEq)]
+struct RibbonRefreshProps {
+    reload: Callback<()>,
+}
+
+
 #[function_component]
-fn RibbonRefresh() -> Html {
+fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let refreshing = use_state(|| {
-        
-        false
-    });
+    let refreshing = use_state_eq(|| false);
     {
         let refreshing = refreshing.clone();
         let ctx = ctx.clone();
         use_interval(move || {
-            let cond = match ctx.current_menu() {
+            let still_refreshing = match ctx.current_menu() {
                 AppMenu::Home => ctx.static_data.drives.borrow().is_none(),
                 AppMenu::Explorer => ctx.active_tab.dir_children.borrow().is_none(),
-                AppMenu::Trash => false,
+                AppMenu::Trash => ctx.static_data.no_trash_items(),
                 AppMenu::Favorites => false,
                 AppMenu::Search => false,
                 AppMenu::Locked => false,
@@ -45,19 +49,20 @@ fn RibbonRefresh() -> Html {
                 AppMenu::Cloud => false,
                 AppMenu::Settings => false,
             };
-            refreshing.set(cond);
+            refreshing.set(still_refreshing);
         }, 500);
     }
 
     let onclick = {
         let refreshing = refreshing.clone();
         let ctx = ctx.clone();
+        let reload = props.reload.clone();
         move |_| {
             ctx.static_data.clear_all_selections();
             match ctx.current_menu() {
                 AppMenu::Home => ctx.static_data.reset_drives(),
                 AppMenu::Explorer => ctx.active_tab.reset_current_files(),
-                AppMenu::Trash => (),
+                AppMenu::Trash => ctx.static_data.reset_trash_items(),
                 AppMenu::Favorites => (),
                 AppMenu::Search => (),
                 AppMenu::Locked => (),
@@ -65,14 +70,21 @@ fn RibbonRefresh() -> Html {
                 AppMenu::Cloud => (),
                 AppMenu::Settings => (),
             }
-            refreshing.set(true)
+            refreshing.set(true);
+            reload.emit(())
         }
+    };
+
+    let img = if *refreshing {
+        html! { <img src="./public/refresh_anim.gif"/> }
+    } else {
+        html! { <img src="./public/refresh.png"/> }
     };
 
     html! {
         <div id="ribbon-refresh" class="ribbon-group">
             <div class="ribbon-large" title="refresh" {onclick}>
-                <img src="./public/refresh.png"/>
+                { img }
             </div>
         </div>
     }
@@ -207,8 +219,12 @@ fn RibbonNav(props: &RibbonNavProps) -> Html {
         }
     };
 
-    let forward_class = format!{"ribbon-nav-item {}", if ctx.active_tab.can_navigate_forward() { "active" } else { "inactive" }};
-    let backward_class = format!{"ribbon-nav-item {}", if ctx.active_tab.can_navigate_backward() { "active" } else { "inactive" }};
+    let cur_theme = ctx.current_menu();
+    let can_nav_forward = cur_theme == AppMenu::Explorer && ctx.active_tab.can_navigate_forward();
+    let can_nav_backward = cur_theme == AppMenu::Explorer && ctx.active_tab.can_navigate_backward(); 
+
+    let forward_class = format!{"ribbon-nav-item {}", if can_nav_forward { "active" } else { "inactive" }};
+    let backward_class = format!{"ribbon-nav-item {}", if can_nav_backward { "active" } else { "inactive" }};
 
     html! {
         <div id="ribbon-nav" class="ribbon-group">

@@ -23,6 +23,8 @@ pub fn App() -> Html {
 
     let static_data = use_state(|| Rc::new(StaticData::new()));
 
+    let refresh_state = use_state(|| false);
+
     let ctx = {
         let active_tab = tabs_ctx.current_tab();
         ApplicationContext::new((*genr_ctx).clone(), active_tab, (*static_data).clone())
@@ -137,11 +139,20 @@ pub fn App() -> Html {
         }
     };
 
+    let reload = {
+        let genr_ctx = genr_ctx.clone();
+        let ctx = ctx.clone();
+        move |()| {
+            ctx.toggle_refresher_state();
+            genr_ctx.set((*genr_ctx).clone())
+        }
+    };
+
     html! {
         <main {style}>
             <ContextProvider<ApplicationContext> context={ctx}>
                 <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
-                <Content {onswitchmenu} {onupdatedir} {onupdatetheme} {navigate_folder} />
+                <Content {onswitchmenu} {onupdatedir} {onupdatetheme} {navigate_folder} {reload} />
             </ContextProvider<ApplicationContext>>
         </main>
     }
