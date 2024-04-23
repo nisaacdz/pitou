@@ -281,7 +281,7 @@ pub fn TileFileTypeIcon(props: &FileTypeIconProps) -> Html {
     match props.filetype {
         Some(filetype) => match filetype {
             PitouFileKind::Directory => {
-                html! { 
+                html! {
                     <svg viewBox="0 0 1024 1024">
                         <path d="M242.3 743.4h603.4c27.8 0 50.3-22.5 50.3-50.3V192H192v501.1c0 27.8 22.5 50.3 50.3 50.3z" class="fill-secondary-spare" />
                         <path d="M178.3 807.4h603.4c27.8 0 50.3-22.5 50.3-50.3V256H128v501.1c0 27.8 22.5 50.3 50.3 50.3z" class="fill-secondary-foreground" />

@@ -19,9 +19,7 @@ impl PartialEq for TrashItem {
     }
 }
 
-impl Eq for TrashItem {
-
-}
+impl Eq for TrashItem {}
 
 impl std::hash::Hash for TrashItem {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {

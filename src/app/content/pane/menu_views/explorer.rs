@@ -1,6 +1,9 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::{*, extra::DirChildren}, *};
+use pitou_core::{
+    frontend::{extra::DirChildren, *},
+    *,
+};
 use tauri_sys::tauri::invoke;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;

@@ -35,7 +35,7 @@ pub async fn clipboard_empty() -> bool {
 }
 
 #[tauri::command]
-pub fn delete(items: Vec<PitouFile>) {
+pub async fn delete(items: Vec<PitouFile>) {
     pitou_core::backend::delete(items)
 }
 
@@ -57,4 +57,9 @@ pub async fn cut(items: Vec<PitouFile>) {
 #[tauri::command]
 pub async fn open(pitou: PitouFile) {
     pitou_core::backend::open(pitou.path).ok();
+}
+
+#[tauri::command]
+pub async fn open_with(pitou: PitouFile) {
+    pitou_core::backend::open_with(pitou.path).ok();
 }

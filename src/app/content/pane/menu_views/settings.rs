@@ -2,7 +2,6 @@ use pitou_core::{frontend::*, *};
 use web_sys::*;
 use yew::prelude::*;
 
-
 #[derive(PartialEq, Properties)]
 pub struct SettingsViewProps {
     pub onupdatetheme: Callback<ColorTheme>,
@@ -10,9 +9,7 @@ pub struct SettingsViewProps {
 
 #[function_component]
 pub fn SettingsView(props: &SettingsViewProps) -> Html {
-    let ontoggleextensions = {
-        move |()| ()
-    };
+    let ontoggleextensions = { move |()| () };
 
     html! {
         <div id="settings-pane" class="fullpane">
@@ -48,7 +45,7 @@ pub fn Themes(props: &ThemesProps) -> Html {
                 1 => ColorTheme::DEFAULT_LIGHT,
                 2 => ColorTheme::GEM_DARK,
                 3 => ColorTheme::POLISH_DARK,
-                _ => unimplemented!()
+                _ => unimplemented!(),
             };
             onupdatetheme.emit(theme)
         }
@@ -76,12 +73,10 @@ pub struct ExtensionsProps {
 pub fn Extensions(props: &ExtensionsProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let checked = ctx.show_extensions();
-    
+
     let ontoggle = {
         let ontoggle = props.ontoggle.clone();
-        move |_| {
-            ontoggle.emit(())
-        }
+        move |_| ontoggle.emit(())
     };
 
     html! {
@@ -94,9 +89,7 @@ pub fn Extensions(props: &ExtensionsProps) -> Html {
 
 #[function_component]
 pub fn SystemFiles() -> Html {
-    let ontoggle = {
-        move |_| ()
-    };
+    let ontoggle = { move |_| () };
     html! {
         <div class="selectable">
             <label class="label">{ "Hide System Files" }</label>
@@ -110,7 +103,12 @@ pub fn RefreshRate() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let onchange = {
         move |e: Event| {
-            let val = e.target_dyn_into::<HtmlInputElement>().unwrap().value().parse().unwrap();
+            let val = e
+                .target_dyn_into::<HtmlInputElement>()
+                .unwrap()
+                .value()
+                .parse()
+                .unwrap();
             ctx.update_refresh_rate(val)
         }
     };
@@ -161,7 +159,12 @@ pub fn Zoom() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let onchange = {
         move |e: Event| {
-            let val = e.target_dyn_into::<HtmlInputElement>().unwrap().value().parse().unwrap();
+            let val = e
+                .target_dyn_into::<HtmlInputElement>()
+                .unwrap()
+                .value()
+                .parse()
+                .unwrap();
             ctx.update_zoom_value(val);
         }
     };
@@ -184,7 +187,7 @@ pub fn FilesView() -> Html {
                 0 => ItemsView::Tiles,
                 1 => ItemsView::Grid,
                 2 => ItemsView::Rows,
-                _ => unreachable!()
+                _ => unreachable!(),
             };
             ctx.update_items_view(view);
         }
@@ -204,9 +207,7 @@ pub fn FilesView() -> Html {
 
 #[function_component]
 pub fn LoadSettings() -> Html {
-    let oninput = {
-        move |_| ()
-    };
+    let oninput = { move |_| () };
 
     html! {
         <div class="selectable">
@@ -218,9 +219,7 @@ pub fn LoadSettings() -> Html {
 
 #[function_component]
 pub fn ResetSettings() -> Html {
-    let onclick = {
-        move |_| ()
-    };
+    let onclick = { move |_| () };
 
     html! {
         <div class="selectable">

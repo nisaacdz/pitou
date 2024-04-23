@@ -1,9 +1,9 @@
+use crate::app::reusables::*;
 use pitou_core::{frontend::*, *};
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
-use crate::app::reusables::*;
 
 #[derive(Properties)]
 pub struct TitleBarProps {
@@ -32,7 +32,6 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     let rem_tab = props.rem_tab.clone();
     let change_tab = props.change_tab.clone();
     let tabs_ctx = props.tabs_ctx.clone();
-
 
     html! {
         <div id="title-bar" data-tauri-drag-region = "true">
@@ -123,7 +122,7 @@ fn InactiveTab(props: &TabProps) -> Html {
         let set = props.set.clone();
         move |_| set.emit(())
     };
-    
+
     let name = props.ctx.display_name();
 
     html! {
@@ -152,7 +151,7 @@ fn ActiveTab(props: &TabProps) -> Html {
             rem.emit(())
         }
     };
-    
+
     let name = props.ctx.display_name();
 
     html! {

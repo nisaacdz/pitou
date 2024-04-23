@@ -81,13 +81,13 @@ fn DrivesSection(props: &DrivesSectionProps) -> Html {
 
     let content = if let Some(drives) = drives {
         drives
-        .iter()
-        .map(|drive| {
-            html! {
-                <DrivesSectionItem {drive} onopen={props.onopen.clone()}/>
-            }
-        })
-        .collect::<Html>()
+            .iter()
+            .map(|drive| {
+                html! {
+                    <DrivesSectionItem {drive} onopen={props.onopen.clone()}/>
+                }
+            })
+            .collect::<Html>()
     } else {
         html! {}
     };
@@ -108,9 +108,7 @@ struct DrivesSectionItemProps {
 #[function_component]
 fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let highlighted = use_state_eq(|| {
-        ctx.static_data.is_selected_drive(props.drive.clone())
-    });
+    let highlighted = use_state_eq(|| ctx.static_data.is_selected_drive(props.drive.clone()));
     let class = format!(
         "drives-section-elem{}",
         if *highlighted { " selected" } else { "" }
@@ -193,10 +191,14 @@ fn FoldersSection(props: &FoldersSectionProps) -> Html {
             let ctx = ctx.clone();
             let force_update = force_update.clone();
             spawn_local(async move {
-                let val = tauri_sys::tauri::invoke::<NoArg, GeneralFolderElems>("general_folders", &NoArg)
-                    .await
-                    .ok();
-                ctx.static_data.update_gen_dirs(val.map(|v| Rc::new(v.items)));
+                let val = tauri_sys::tauri::invoke::<NoArg, GeneralFolderElems>(
+                    "general_folders",
+                    &NoArg,
+                )
+                .await
+                .ok();
+                ctx.static_data
+                    .update_gen_dirs(val.map(|v| Rc::new(v.items)));
                 force_update.force_update();
             })
         });
@@ -226,9 +228,7 @@ struct FoldersSectionItemProps {
 fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
 
-    let highlighted = use_state_eq(|| {
-        ctx.static_data.is_selected_gen_folder(props.folder.clone())
-    });
+    let highlighted = use_state_eq(|| ctx.static_data.is_selected_gen_folder(props.folder.clone()));
 
     let onclick = {
         let ctx = ctx.clone();

@@ -26,7 +26,7 @@ pub struct ContentProps {
 pub fn Content(props: &ContentProps) -> Html {
     html! {
         <div id = "content">
-            <Ribbon navigate_folder = { props.navigate_folder.clone() } reload = { props.reload.clone() } />
+            <Ribbon navigate_folder={ props.navigate_folder.clone() } reload={ props.reload.clone() } onupdatedir={ props.onupdatedir.clone() }/>
             <Menus onswitchmenu = { props.onswitchmenu.clone() } />
             <Status />
             <Pane onupdatedir = { props.onupdatedir.clone() } onupdatetheme={ props.onupdatetheme.clone() }/>

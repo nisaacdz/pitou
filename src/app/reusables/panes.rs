@@ -107,9 +107,7 @@ fn ListDsc() -> Html {
 #[function_component]
 fn ListItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let highlighted = use_state_eq(|| {
-        ctx.static_data.is_selected_dir_entry(props.item.clone())
-    });
+    let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
 
     let onclick = {
         let highlighted = highlighted.clone();
@@ -227,10 +225,7 @@ fn TileView(props: &ViewProps) -> Html {
 fn TileItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
 
-    let highlighted = use_state_eq(|| {
-        ctx.static_data
-            .is_selected_dir_entry(props.item.clone())
-    });
+    let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
 
     let ondblclick = {
         let item = props.item.clone();
@@ -276,7 +271,6 @@ fn TileItem(props: &ItemProps) -> Html {
                 highlighted.set(false)
             }
         }
-        
     };
 
     let filesize = props.item.metadata.as_ref().map(|v| {
@@ -289,9 +283,17 @@ fn TileItem(props: &ItemProps) -> Html {
 
     let filetype = props.item.metadata.as_ref().map(|v| v.kind);
 
-    let optional = props.item.metadata.as_ref().map(|v| v.accessed.datetime.format("%Y-%m-%d %H:%M:%S").to_string());
+    let optional = props
+        .item
+        .metadata
+        .as_ref()
+        .map(|v| v.accessed.datetime.format("%Y-%m-%d %H:%M:%S").to_string());
 
-    let name = if ctx.show_extensions() { props.item.name() } else { props.item.name_without_extension() };
+    let name = if ctx.show_extensions() {
+        props.item.name()
+    } else {
+        props.item.name_without_extension()
+    };
 
     let description = html! {
         <div class="tile-description">
@@ -319,7 +321,6 @@ fn TileItem(props: &ItemProps) -> Html {
         </div>
     }
 }
-
 
 #[function_component]
 pub fn NotYetImplementedPane() -> Html {

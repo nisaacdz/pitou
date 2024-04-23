@@ -1,10 +1,13 @@
 use std::rc::Rc;
 
-use pitou_core::{*, frontend::*};
+use pitou_core::{frontend::*, *};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
-use crate::app::{content::pane::menu_views::*, reusables::{NoArg, NotYetImplementedPane}};
+use crate::app::{
+    content::pane::menu_views::*,
+    reusables::{NoArg, NotYetImplementedPane},
+};
 mod menu_views;
 
 #[derive(Properties, PartialEq)]
@@ -34,9 +37,10 @@ pub fn Pane(props: &PaneProps) -> Html {
         let ctx = ctx.clone();
         move |pf: Rc<PitouFile>| {
             if pf.is_file() {
-                spawn_local(async move { crate::app::cmds::open(pf).await.ok(); })
+                spawn_local(async move {
+                    crate::app::cmds::open(pf).await.ok();
+                })
             } else if pf.is_link() {
-
             } else {
                 ctx.active_tab.update_cur_menu(AppMenu::Explorer);
                 onupdatedir.emit(Some(pf))

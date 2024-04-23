@@ -3,15 +3,14 @@ use std::{cell::RefCell, rc::Rc};
 use pitou_core::{frontend::*, *};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
+mod cmds;
 mod content;
 mod title_bar;
-mod cmds;
 
 use content::*;
 use title_bar::TitleBar;
 
 pub mod reusables;
-
 
 #[function_component]
 pub fn App() -> Html {
@@ -74,12 +73,14 @@ pub fn App() -> Html {
 
     let navigate_folder = {
         let tabs_ctx = tabs_ctx.clone();
+        let ctx = ctx.clone();
         move |forward| {
             if forward {
                 tabs_ctx.current_tab().navigate_forward()
             } else {
                 tabs_ctx.current_tab().navigate_backward()
             }
+            ctx.toggle_refresher_state();
             tabs_ctx.set((*tabs_ctx).clone());
         }
     };

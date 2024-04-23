@@ -16,6 +16,8 @@ fn main() {
             cut,
             paste,
             delete,
+            open,
+            open_with,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

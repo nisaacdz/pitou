@@ -11,15 +11,14 @@ pub struct NoArg;
 
 #[derive(Serialize)]
 pub struct PitouArg {
-    #[serde(with="rc_serde")]
+    #[serde(with = "rc_serde")]
     pub pitou: Rc<PitouFile>,
 }
 
-
 #[derive(Serialize)]
 pub struct ItemsArg<'a> {
-    #[serde(with="items_serde")]
-    pub items: &'a Vec<Rc<PitouFile>>
+    #[serde(with = "items_serde")]
+    pub items: &'a Vec<Rc<PitouFile>>,
 }
 
 #[derive(Serialize)]
@@ -101,8 +100,11 @@ impl<'d> Deserialize<'d> for GeneralFolderElems {
 mod items_serde {
     use std::rc::Rc;
 
-    use serde::{Serialize, Serializer, ser::SerializeSeq};
-    pub fn serialize<S: Serializer, T: Serialize>(items: &Vec<Rc<T>>, sz: S) -> Result<S::Ok, S::Error> {
+    use serde::{ser::SerializeSeq, Serialize, Serializer};
+    pub fn serialize<S: Serializer, T: Serialize>(
+        items: &Vec<Rc<T>>,
+        sz: S,
+    ) -> Result<S::Ok, S::Error> {
         let mut seq_sz = sz.serialize_seq(Some(items.len()))?;
         for item in items {
             seq_sz.serialize_element(&**item)?;

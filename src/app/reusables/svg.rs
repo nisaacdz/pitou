@@ -1,11 +1,10 @@
 use pitou_core::GeneralFolder;
-use yew::prelude::*;
 use std::rc::Rc;
-
+use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct GenFolderProps {
-    pub folder: Rc<GeneralFolder>
+    pub folder: Rc<GeneralFolder>,
 }
 
 #[function_component]
@@ -26,7 +25,6 @@ pub fn GenFolderIcoOuter() -> Html {
         </svg>
     }
 }
-
 
 #[function_component]
 fn GenFolderIcoInner(props: &GenFolderProps) -> Html {
@@ -101,8 +99,8 @@ pub fn DesktopFolder() -> Html {
 pub fn DownloadsFolder() -> Html {
     html! {
         <svg class="folders-section-elem-img-inner fill-secondary-spare" viewBox="0 0 48 48">
-            <path class="stroke-primary-spare" fill-rule="evenodd" clip-rule="evenodd" d="M23.9999 29L12 17L19.9999 17L19.9999 5.99999L27.9999 5.99999L27.9999 17L35.9999 17L23.9999 29Z" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/> 
-            <path class="stroke-primary-spare" d="M42 37L6 37" stroke-width="4" stroke-linecap="round"/> 
+            <path class="stroke-primary-spare" fill-rule="evenodd" clip-rule="evenodd" d="M23.9999 29L12 17L19.9999 17L19.9999 5.99999L27.9999 5.99999L27.9999 17L35.9999 17L23.9999 29Z" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="stroke-primary-spare" d="M42 37L6 37" stroke-width="4" stroke-linecap="round"/>
             <path class="stroke-primary-spare" d="M34 44H14" stroke-width="4" stroke-linecap="round"/>
         </svg>
     }
@@ -112,13 +110,13 @@ pub fn DownloadsFolder() -> Html {
 pub fn PicturesFolder() -> Html {
     html! {
         <svg class="folders-section-elem-img-inner" viewBox="0 0 512 512">
-            <rect class="stroke-primary-spare" height="259" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="35" width="394" x="59" y="126.5"/> 
-            <polyline points=" 59,385.5 230,269.5 294,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/> 
-            <polyline points=" 262,327.5 345,269.5 453,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/> 
-            <circle cx="245.5" cy="197.166" fill="none" r="25.5" class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/> 
-            <rect class="fill-secondary-spare stroke-primary-spare" height="259" class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20" width="394" x="59" y="126.5"/> 
-            <polyline class="fill-primary-spare" points=" 294,385.5 230,269.5 59,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/> 
-            <polygon class="fill-primary-spare" points=" 262,327.5 345,269.5 453,385.5 294,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/> 
+            <rect class="stroke-primary-spare" height="259" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="35" width="394" x="59" y="126.5"/>
+            <polyline points=" 59,385.5 230,269.5 294,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/>
+            <polyline points=" 262,327.5 345,269.5 453,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/>
+            <circle cx="245.5" cy="197.166" fill="none" r="25.5" class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/>
+            <rect class="fill-secondary-spare stroke-primary-spare" height="259" class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20" width="394" x="59" y="126.5"/>
+            <polyline class="fill-primary-spare" points=" 294,385.5 230,269.5 59,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/>
+            <polygon class="fill-primary-spare" points=" 262,327.5 345,269.5 453,385.5 294,385.5 " class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/>
             <circle cx="245.5" cy="197.166" class="fill-primary-spare stroke-primary-spare" r="25.5" class="stroke-primary-spare" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="20"/>
         </svg>
     }
