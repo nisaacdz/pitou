@@ -10,6 +10,19 @@ use serde::{
 pub struct NoArg;
 
 #[derive(Serialize)]
+pub struct PitouArg {
+    #[serde(with="rc_serde")]
+    pub pitou: Rc<PitouFile>,
+}
+
+
+#[derive(Serialize)]
+pub struct ItemsArg<'a> {
+    #[serde(with="items_serde")]
+    pub items: &'a Vec<Rc<PitouFile>>
+}
+
+#[derive(Serialize)]
 pub struct DirChildrenArgs<'a> {
     pub dir: &'a PitouFilePath,
     pub filter: PitouFileFilter,
@@ -33,7 +46,6 @@ pub struct GeneralFolderElems {
 pub struct PitouTrashItemsVec {
     pub items: Rc<Vec<Rc<PitouTrashItem>>>,
 }
-
 
 impl<'d> Deserialize<'d> for PitouTrashItemsVec {
     fn deserialize<D: Deserializer<'d>>(dz: D) -> Result<Self, D::Error> {
@@ -86,8 +98,27 @@ impl<'d> Deserialize<'d> for GeneralFolderElems {
     }
 }
 
+mod items_serde {
+    use std::rc::Rc;
+
+    use serde::{Serialize, Serializer, ser::SerializeSeq};
+    pub fn serialize<S: Serializer, T: Serialize>(items: &Vec<Rc<T>>, sz: S) -> Result<S::Ok, S::Error> {
+        let mut seq_sz = sz.serialize_seq(Some(items.len()))?;
+        for item in items {
+            seq_sz.serialize_element(&**item)?;
+        }
+        seq_sz.end()
+    }
+}
+
 mod rc_serde {
+    use serde::Serializer;
+
     use super::*;
+    pub fn serialize<S: Serializer, T: Serialize>(val: &Rc<T>, sz: S) -> Result<S::Ok, S::Error> {
+        (&**val).serialize(sz)
+    }
+
     pub fn deserialize<'d, D: Deserializer<'d>, T: Deserialize<'d>>(
         dz: D,
     ) -> Result<Vec<Rc<T>>, D::Error> {
@@ -98,7 +129,7 @@ mod rc_serde {
         impl<'d, T: Deserialize<'d>> Visitor<'d> for VMS<T> {
             type Value = Vec<Rc<T>>;
             fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "expecting a GeneralFolder instance")
+                write!(f, "expecting a {} instance", stringify!(T))
             }
             fn visit_seq<A: SeqAccess<'d>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
                 let mut items = Vec::new();

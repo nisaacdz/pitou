@@ -1,4 +1,6 @@
 use pitou_core::{frontend::ApplicationContext, AppMenu};
+use serde_wasm_bindgen::to_value;
+use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
@@ -15,7 +17,7 @@ pub fn Ribbon(props: &RibbonProps) -> Html {
             <RibbonNav navigate={ props.navigate_folder.clone() }/>
             <RibbonClipboard />
             <RibbonCreations />
-            <RibbonTrash />
+            <RibbonTrash reload={ props.reload.clone() }/>
             <RibbonActions />
             <RibbonRefresh reload={ props.reload.clone() }/>
             <RibbonProperties />
@@ -60,7 +62,10 @@ fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
         move |_| {
             ctx.static_data.clear_all_selections();
             match ctx.current_menu() {
-                AppMenu::Home => ctx.static_data.reset_drives(),
+                AppMenu::Home => {
+                    ctx.static_data.reset_drives();
+                    ctx.static_data.reset_gen_dirs();
+                },
                 AppMenu::Explorer => ctx.active_tab.reset_current_files(),
                 AppMenu::Trash => ctx.static_data.reset_trash_items(),
                 AppMenu::Favorites => (),
@@ -75,6 +80,8 @@ fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
         }
     };
 
+    let refresh_class = format! {"ribbon-large {}", "active"};
+
     let img = if *refreshing {
         html! { <img src="./public/refresh_anim.gif"/> }
     } else {
@@ -83,7 +90,7 @@ fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
 
     html! {
         <div id="ribbon-refresh" class="ribbon-group">
-            <div class="ribbon-large" title="refresh" {onclick}>
+            <div class={ refresh_class } title="refresh" {onclick}>
                 { img }
             </div>
         </div>
@@ -101,11 +108,41 @@ fn RibbonProperties() -> Html {
     }
 }
 
+#[derive(Properties, PartialEq)]
+struct RibbonTrashProps {
+    reload: Callback<()>,
+}
+
 #[function_component]
-fn RibbonTrash() -> Html {
+fn RibbonTrash(props: &RibbonTrashProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let can_delete = use_state_eq(|| false);
+    {
+        let ctx = ctx.clone();
+        let can_delete = can_delete.clone();
+        use_interval(move || {
+            can_delete.set(ctx.static_data.can_attempt_delete())
+        }, 500)
+    }
+
+    let ondelete = {
+        let ctx = ctx.clone();
+        let reload = props.reload.clone();
+        move |_| {
+            if let Some(items) = ctx.static_data.all_selections() {
+                let reload = reload.clone();
+                spawn_local(async move {
+                    crate::app::cmds::delete(&items).await.ok();
+                    reload.emit(())
+                })
+            }
+        }
+    };
+    let delete_class = format! {"ribbon-large {}", if *can_delete { "active" } else { "inactive" }};
+    
     html! {
         <div id="ribbon-trash" class="ribbon-group">
-            <div class="ribbon-large" title="delete">
+            <div class={delete_class} title="delete" onclick={ondelete}>
                 <img src="./public/delete.png"/>
             </div>
         </div>
@@ -240,16 +277,69 @@ fn RibbonNav(props: &RibbonNavProps) -> Html {
 
 #[function_component]
 fn RibbonClipboard() -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let can_paste = use_state_eq(|| false);
+    {
+        let can_paste = can_paste.clone();
+        use_interval(move || {
+            let can_paste = can_paste.clone();
+            spawn_local(async move {
+                let res = crate::app::cmds::clipboard_empty().await.ok();
+                can_paste.set(!res.unwrap_or(true));
+            })
+        }, 500)
+    }
+
+    web_sys::console::log_1(&to_value(&format!("{}", *can_paste)).unwrap());
+
+    let oncopy = {
+        let ctx = ctx.clone();
+        move |_| {
+            let ctx = ctx.clone();
+            spawn_local(async move {
+                if let Some(items) = &ctx.static_data.all_selections() {
+                    let _res = crate::app::cmds::copy(items).await.ok();
+                }
+            });
+        }
+    };
+
+    let oncut = {
+        let ctx = ctx.clone();
+        move |_| {
+            let ctx = ctx.clone();
+            spawn_local(async move {
+                if let Some(items) = &ctx.static_data.all_selections() {
+                    let _res = crate::app::cmds::cut(items).await.ok();
+                }
+            });
+        }
+    };
+
+    let onpaste = {
+        let ctx = ctx.clone();
+        move |_| {
+            if let Some(pitou) = ctx.active_tab.current_dir() {
+                let ctx = ctx.clone();
+                spawn_local(async move {
+                    let _res = crate::app::cmds::paste(pitou).await.ok();
+                    ctx.toggle_refresher_state();
+                });
+            }
+        }
+    };
+
+    let paste_class = format!{"ribbon-large pasteable{}", if *can_paste { " active" } else { "" }};
     html! {
         <div id="ribbon-clipboard" class="ribbon-group">
-            <div class="ribbon-large pasteable" title="paste">
+            <div class={paste_class} title="paste" onclick={onpaste}>
                 <img src="./public/paste.png"/>
             </div>
             <div class="ribbon-medium-group">
-                <div class="ribbon-medium" title="copy">
+                <div class="ribbon-medium" title="copy" onclick={oncopy}>
                     <img class="ribbon-clipboard-medium-ico" src="./public/copy.png"/>
                 </div>
-                <div class="ribbon-medium" title="cut">
+                <div class="ribbon-medium" title="cut" onclick={oncut}>
                     <img class="ribbon-medium-ico" src="./public/cut.png"/>
                 </div>
             </div>

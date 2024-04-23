@@ -109,8 +109,7 @@ struct DrivesSectionItemProps {
 fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let highlighted = use_state_eq(|| {
-        ctx.static_data
-            .is_selected(VWrapper::Drive(props.drive.clone()))
+        ctx.static_data.is_selected_drive(props.drive.clone())
     });
     let class = format!(
         "drives-section-elem{}",
@@ -122,13 +121,11 @@ fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
         let drive = props.drive.clone();
         let highlighted = highlighted.clone();
         move |_| {
-            if ctx.static_data.is_selected(VWrapper::Drive(drive.clone())) {
-                ctx.static_data
-                    .clear_selection(VWrapper::Drive(drive.clone()));
+            if ctx.static_data.is_selected_drive(drive.clone()) {
+                ctx.static_data.clear_drive_selection(drive.clone());
                 highlighted.set(false);
             } else {
-                ctx.static_data
-                    .add_selection(VWrapper::Drive(drive.clone()));
+                ctx.static_data.select_drive(drive.clone());
                 highlighted.set(true);
             }
         }
@@ -187,21 +184,27 @@ struct FoldersSectionProps {
 
 #[function_component]
 fn FoldersSection(props: &FoldersSectionProps) -> Html {
-    let folders = use_state(|| None);
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let force_update = use_force_update();
     {
-        let folders = folders.clone();
-        use_effect_with((), move |()| {
+        let ctx = ctx.clone();
+        let force_update = force_update.clone();
+        use_effect_with(ctx.refresher_state(), move |_| {
+            let ctx = ctx.clone();
+            let force_update = force_update.clone();
             spawn_local(async move {
-                let val: GeneralFolderElems = tauri_sys::tauri::invoke("general_folders", &NoArg)
+                let val = tauri_sys::tauri::invoke::<NoArg, GeneralFolderElems>("general_folders", &NoArg)
                     .await
-                    .unwrap();
-                folders.set(Some(val.items))
+                    .ok();
+                ctx.static_data.update_gen_dirs(val.map(|v| Rc::new(v.items)));
+                force_update.force_update();
             })
         });
     }
 
-    let elems = folders
+    let elems = ctx.static_data.gen_dirs()
         .iter()
+        .map(|v| v.iter())
         .flatten()
         .map(|v| html! { <FoldersSectionItem folder = { v.clone() } onopen={props.onopen.clone()}/> })
         .collect::<Html>();
@@ -224,8 +227,7 @@ fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
 
     let highlighted = use_state_eq(|| {
-        ctx.static_data
-            .is_selected(VWrapper::GenFolder(props.folder.clone()))
+        ctx.static_data.is_selected_gen_folder(props.folder.clone())
     });
 
     let onclick = {
@@ -233,16 +235,11 @@ fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
         let highlighted = highlighted.clone();
         let folder = props.folder.clone();
         move |_| {
-            if ctx
-                .static_data
-                .is_selected(VWrapper::GenFolder(folder.clone()))
-            {
-                ctx.static_data
-                    .clear_selection(VWrapper::GenFolder(folder.clone()));
+            if ctx.static_data.is_selected_gen_folder(folder.clone()) {
+                ctx.static_data.clear_gen_folder_selection(folder.clone());
                 highlighted.set(false);
             } else {
-                ctx.static_data
-                    .add_selection(VWrapper::GenFolder(folder.clone()));
+                ctx.static_data.select_gen_folder(folder.clone());
                 highlighted.set(true);
             }
         }

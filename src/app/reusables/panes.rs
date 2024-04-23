@@ -108,8 +108,7 @@ fn ListDsc() -> Html {
 fn ListItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let highlighted = use_state_eq(|| {
-        ctx.static_data
-            .is_selected(VWrapper::FirstAncestor(props.item.clone()))
+        ctx.static_data.is_selected_dir_entry(props.item.clone())
     });
 
     let onclick = {
@@ -118,12 +117,10 @@ fn ListItem(props: &ItemProps) -> Html {
         let ctx = ctx.clone();
         move |_| {
             if !*highlighted {
-                ctx.static_data
-                    .add_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.select_folder_entry(item.clone());
                 highlighted.set(true)
             } else {
-                ctx.static_data
-                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.clear_dir_entry_selection(item.clone());
                 highlighted.set(false)
             }
         }
@@ -136,12 +133,10 @@ fn ListItem(props: &ItemProps) -> Html {
         move |e: Event| {
             e.stop_propagation();
             if !*highlighted {
-                ctx.static_data
-                    .add_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.select_folder_entry(item.clone());
                 highlighted.set(true)
             } else {
-                ctx.static_data
-                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.clear_dir_entry_selection(item.clone());
                 highlighted.set(false)
             }
         }
@@ -234,7 +229,7 @@ fn TileItem(props: &ItemProps) -> Html {
 
     let highlighted = use_state_eq(|| {
         ctx.static_data
-            .is_selected(VWrapper::FirstAncestor(props.item.clone()))
+            .is_selected_dir_entry(props.item.clone())
     });
 
     let ondblclick = {
@@ -249,12 +244,10 @@ fn TileItem(props: &ItemProps) -> Html {
         let ctx = ctx.clone();
         move |_| {
             if !*highlighted {
-                ctx.static_data
-                    .add_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.select_folder_entry(item.clone());
                 highlighted.set(true)
             } else {
-                ctx.static_data
-                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.clear_dir_entry_selection(item.clone());
                 highlighted.set(false)
             }
         }
@@ -276,15 +269,14 @@ fn TileItem(props: &ItemProps) -> Html {
         move |e: Event| {
             e.stop_propagation();
             if !*highlighted {
-                ctx.static_data
-                    .add_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.select_folder_entry(item.clone());
                 highlighted.set(true)
             } else {
-                ctx.static_data
-                    .clear_selection(VWrapper::FirstAncestor(item.clone()));
+                ctx.static_data.clear_dir_entry_selection(item.clone());
                 highlighted.set(false)
             }
         }
+        
     };
 
     let filesize = props.item.metadata.as_ref().map(|v| {

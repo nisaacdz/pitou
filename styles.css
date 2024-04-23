@@ -117,7 +117,11 @@ body {
   justify-content: center;
 }
 
-.ribbon-large:hover img {
+.ribbon-large.active:hover img {
+  border: 1px solid var(--secondary-spare-color); 
+}
+
+.ribbon-large.active img {
   background-color: var(--secondary-background-color);
 }
 
@@ -1041,7 +1045,7 @@ body {
 
 .app-logo-btn:active .app-logo-btn-img {
   transform: scale(1.3);
-  transition: scale 1s ease-in-out;
+  transition: transform 1s ease-in-out;
 }
 
 .app-logo-btn img {

@@ -5,6 +5,7 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 mod content;
 mod title_bar;
+mod cmds;
 
 use content::*;
 use title_bar::TitleBar;
@@ -22,8 +23,6 @@ pub fn App() -> Html {
     });
 
     let static_data = use_state(|| Rc::new(StaticData::new()));
-
-    let refresh_state = use_state(|| false);
 
     let ctx = {
         let active_tab = tabs_ctx.current_tab();
@@ -58,17 +57,17 @@ pub fn App() -> Html {
     };
 
     let onupdatedir = {
+        let ctx = ctx.clone();
         let tabs_ctx = tabs_ctx.clone();
         let static_data = static_data.clone();
         move |file| {
             let new_tabs = (**tabs_ctx).clone();
             static_data.clear_all_selections();
             let cur_tab = new_tabs.current_tab();
-            if file != cur_tab.current_dir() {
-                cur_tab.update_children(None);
-                cur_tab.update_siblings(None);
-                cur_tab.update_cur_dir(file);
-            }
+            cur_tab.update_children(None);
+            cur_tab.update_siblings(None);
+            cur_tab.update_cur_dir(file);
+            ctx.toggle_refresher_state();
             tabs_ctx.set(Rc::new(new_tabs))
         }
     };

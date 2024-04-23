@@ -11,6 +11,11 @@ fn main() {
             drives,
             children,
             thrash_items,
+            clipboard_empty,
+            copy,
+            cut,
+            paste,
+            delete,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

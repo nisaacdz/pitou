@@ -33,10 +33,12 @@ pub fn Pane(props: &PaneProps) -> Html {
         let onupdatedir = props.onupdatedir.clone();
         let ctx = ctx.clone();
         move |pf: Rc<PitouFile>| {
-            ctx.active_tab.update_cur_menu(AppMenu::Explorer);
             if pf.is_file() {
+                spawn_local(async move { crate::app::cmds::open(pf).await.ok(); })
             } else if pf.is_link() {
+
             } else {
+                ctx.active_tab.update_cur_menu(AppMenu::Explorer);
                 onupdatedir.emit(Some(pf))
             }
         }
