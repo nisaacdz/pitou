@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
-use pitou_core::{frontend::ApplicationContext, AppMenu, PitouFile};
+use crate::app::reusables::NewItemPane;
+use pitou_core::{frontend::ApplicationContext, AppMenu, PitouFile, PitouFilePath};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::use_interval;
@@ -18,7 +19,7 @@ pub fn Ribbon(props: &RibbonProps) -> Html {
         <div id="ribbon">
             <RibbonNav navigate={ props.navigate_folder.clone() }/>
             <RibbonClipboard reload={ props.reload.clone() }/>
-            <RibbonCreations />
+            <RibbonCreations reload={ props.reload.clone() }/>
             <RibbonTrash reload={ props.reload.clone() }/>
             <RibbonActions onupdatedir={ props.onupdatedir.clone() }/>
             <RibbonRefresh reload={ props.reload.clone() }/>
@@ -241,18 +242,119 @@ fn RibbonArrange() -> Html {
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct RibbonCreationsProps {
+    reload: Callback<()>,
+}
+
 #[function_component]
-fn RibbonCreations() -> Html {
+fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let can_archive = use_state_eq(|| false);
+    let new_item = use_state_eq(|| None);
+    {
+        let ctx = ctx.clone();
+        let can_archive = can_archive.clone();
+        use_interval(
+            move || can_archive.set(ctx.static_data.has_folder_entry_selections()),
+            500,
+        )
+    }
+
+    let onarchive = {
+        let ctx = ctx.clone();
+        let reload = props.reload.clone();
+        move |_| {
+            if let Some(items) = ctx.static_data.folder_entry_selections() {
+                if items.len() > 0 {
+                    let reload = reload.clone();
+                    spawn_local(async move {
+                        crate::app::cmds::archive(&items).await.ok();
+                        reload.emit(())
+                    })
+                }
+            }
+        }
+    };
+
+    let onclicknewfolder = {
+        let new_item = new_item.clone();
+        move |_| new_item.set(Some(true))
+    };
+
+    let onclicknewfile = {
+        let new_item = new_item.clone();
+        move |_| new_item.set(Some(false))
+    };
+
+    let cnt = if let Some(state) = *new_item {
+        if let Some(dir) = ctx.active_tab.current_dir() {
+            let prompt = if state {
+                "Create new folder"
+            } else {
+                "Create new file"
+            };
+            let placeholder = if state {
+                "Enter folder name..."
+            } else {
+                "Enter file name with extension..."
+            };
+            let oncancel = {
+                let new_item = new_item.clone();
+                move |()| new_item.set(None)
+            };
+
+            let onfinish = {
+                let dir = dir.clone();
+                move |input| {
+                    let new_path = dir.path().path.join(input);
+                    let pf = Rc::new(PitouFile::without_metadata(PitouFilePath::from_pathbuf(
+                        new_path,
+                    )));
+                    spawn_local(async move {
+                        if state {
+                            crate::app::cmds::create_dir(pf).await.ok();
+                        } else {
+                            crate::app::cmds::create_file(pf).await.ok();
+                        }
+                    })
+                }
+            };
+            html! {
+                <NewItemPane {onfinish} {oncancel} {prompt} {placeholder}/>
+            }
+        } else {
+            html! {}
+        }
+    } else {
+        html! {}
+    };
+
+    let new_folder_elem = {
+        if ctx.current_menu() == AppMenu::Explorer {
+            html! {
+                <div class="ribbon-large active" title="new folder" onclick={onclicknewfolder}>
+                    <img src="./public/new_folder.png"/>
+                </div>
+            }
+        } else {
+            html! {
+                <div class="ribbon-large" title="new folder">
+                    <img src="./public/new_folder.png"/>
+                </div>
+            }
+        }
+    };
+
     html! {
         <div id="ribbon-creations" class="ribbon-group">
-            <div class="ribbon-large" title="new folder">
-                <img src="./public/new_folder.png"/>
-            </div>
-            <div class="ribbon-large" title="archive">
+            { cnt }
+            { new_folder_elem }
+            <div class="ribbon-large" title="archive" onclick={onarchive}>
                 <img src="./public/archive.png"/>
             </div>
             <div class="ribbon-textgroup">
-                <div class="ribbon-small">
+                <div class="ribbon-small" onclick={onclicknewfile}>
                     <img src="./public/add.png"/>
                     {"new item"}
                 </div>

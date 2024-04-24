@@ -125,11 +125,11 @@ body {
   background-color: var(--secondary-background-color);
 }
 
-.ribbon-large:active img {
+.ribbon-large.active:active img {
   background-color: var(--secondary-spare-color);
 }
 
-.ribbon-large:active {
+.ribbon-large.active:active {
   background-color: var(--secondary-spare-color);
 }
 
@@ -1325,4 +1325,42 @@ body {
   box-sizing: border-box;
   background-color: var(--secondary-spare-color);
   color: var(--primary-spare-color);
+}
+
+#new-item {
+  left: 360px;
+  top: 240px;
+  position: fixed;
+  width: 300px;
+  height: 200px;
+  background-color: var(--secondary-background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 3;
+  color: var(--primary-foreground-color);
+  border: 2px solid var(--secondary-spare-color);
+}
+
+#new-item .new-item-member {
+  width: 250px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+#new-item .new-item-member .new-item-member-btn {
+  width: 100px;
+  height: 30px;
+  border: 2px solid var(--primary-spare-color);
+  background-color: var(--primary-background-color);
+  color: var(--primary-foreground-color);
+}
+
+#new-item .new-item-member .new-item-member-btn:hover {
+  border-color: var(--secondary-spare-color);
 }

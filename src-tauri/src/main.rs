@@ -18,6 +18,9 @@ fn main() {
             delete,
             open,
             open_with,
+            archive,
+            create_dir,
+            create_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

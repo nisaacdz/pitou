@@ -144,6 +144,7 @@ pub fn App() -> Html {
         let ctx = ctx.clone();
         move |()| {
             ctx.toggle_refresher_state();
+            ctx.static_data.clear_all_selections();
             genr_ctx.set((*genr_ctx).clone())
         }
     };

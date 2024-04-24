@@ -34,9 +34,9 @@ pub fn TitleBar(props: &TitleBarProps) -> Html {
     let tabs_ctx = props.tabs_ctx.clone();
 
     html! {
-        <div id="title-bar" data-tauri-drag-region = "true">
+        <div id="title-bar" data-tauri-drag-region = "true" data-tauri-titlebar="true">
             <AppLogo />
-            <TabbedInterface tabs_ctx = { tabs_ctx } {add_tab} {rem_tab} {change_tab} />
+            <TabbedInterface tabs_ctx = {tabs_ctx} {add_tab} {rem_tab} {change_tab} />
             <ControlBox {onclose} {onminimize} {ontogglemaximize} />
         </div>
     }
@@ -283,7 +283,7 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
 #[function_component]
 fn AppLogo() -> Html {
     html! {
-        <div id="app-logo" data-tauri-drag-region = "true">
+        <div id="app-logo" data-tauri-drag-region = "true" >
             <img id="app-logo-img" src = "./public/pitou_logo.png" />
             <div id="app-logo-name">{ "pitou" }</div>
             <div class="app-logo-btn">

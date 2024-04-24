@@ -1,9 +1,67 @@
 use std::rc::Rc;
 
 use pitou_core::{frontend::*, *};
+use serde_wasm_bindgen::to_value;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 use crate::app::reusables::{ListFileTypeIcon, TileFileTypeIcon};
+
+#[derive(Properties, PartialEq)]
+pub struct NewItemPaneProps {
+    pub prompt: String,
+    pub placeholder: String,
+    pub onfinish: Callback<String>,
+    pub oncancel: Callback<()>,
+}
+
+#[function_component]
+pub fn NewItemPane(props: &NewItemPaneProps) -> Html {
+    let input_ref = use_node_ref();
+
+    let onkeypress = {
+        let finish = props.onfinish.clone();
+        let input_ref = input_ref.clone();
+        move |e: KeyboardEvent| {
+            if e.key_code() == 13 {
+                if let Some(input) = input_ref.cast::<HtmlInputElement>().map(|v| v.value()) {
+                    if input.len() > 0 {
+                        finish.emit(input)
+                    }
+                }
+            }
+        }
+    };
+
+    let oncancel = {
+        let cancel = props.oncancel.clone();
+        move |_| cancel.emit(())
+    };
+
+    let oncreate = {
+        let finish = props.onfinish.clone();
+        let input_ref = input_ref.clone();
+        move |_| {
+            let input = input_ref.cast::<HtmlInputElement>().unwrap().value();
+            finish.emit(input)
+        }
+    };
+
+    html! {
+        <div id="new-item">
+            <label class="new-item-member"> { &props.prompt } </label>
+            <input placeholder={props.placeholder.clone()} class="new-item-member" type="text" {onkeypress} ref={input_ref} class="new-item-member"/>
+            <div class="new-item-member">
+                <input type="checkbox"/>
+                <label>{"Override Existing"}</label>
+            </div>
+            <div class="new-item-member">
+                <button class="new-item-member-btn" onclick={oncancel}> { "Cancel" } </button>
+                <button class="new-item-member-btn" onclick={oncreate}> { "Create" } </button>
+            </div>
+        </div>
+    }
+}
 
 #[derive(Properties)]
 pub struct PaneViewProps {

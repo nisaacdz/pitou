@@ -73,7 +73,7 @@ fn DrivesSection(props: &DrivesSectionProps) -> Html {
                     obtain_drives(data, move || refresher.force_update()).await;
                 })
             },
-            5000,
+            15000,
         );
     }
 
@@ -108,24 +108,30 @@ struct DrivesSectionItemProps {
 #[function_component]
 fn DrivesSectionItem(props: &DrivesSectionItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let highlighted = use_state_eq(|| ctx.static_data.is_selected_drive(props.drive.clone()));
+    let force_update = use_force_update();
+
+    let highlighted = ctx.static_data.is_selected_drive(props.drive.clone());
+
     let class = format!(
-        "drives-section-elem{}",
-        if *highlighted { " selected" } else { "" }
+        "drives-section-elem {}",
+        if highlighted {
+            "selected"
+        } else {
+            "not-selected"
+        }
     );
 
     let onclick = {
         let ctx = ctx.clone();
         let drive = props.drive.clone();
-        let highlighted = highlighted.clone();
+        let force_update = force_update.clone();
         move |_| {
             if ctx.static_data.is_selected_drive(drive.clone()) {
                 ctx.static_data.clear_drive_selection(drive.clone());
-                highlighted.set(false);
             } else {
                 ctx.static_data.select_drive(drive.clone());
-                highlighted.set(true);
             }
+            force_update.force_update();
         }
     };
 
@@ -227,21 +233,21 @@ struct FoldersSectionItemProps {
 #[function_component]
 fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
+    let force_update = use_force_update();
 
-    let highlighted = use_state_eq(|| ctx.static_data.is_selected_gen_folder(props.folder.clone()));
+    let highlighted = ctx.static_data.is_selected_gen_folder(props.folder.clone());
 
     let onclick = {
         let ctx = ctx.clone();
-        let highlighted = highlighted.clone();
         let folder = props.folder.clone();
+        let force_update = force_update.clone();
         move |_| {
             if ctx.static_data.is_selected_gen_folder(folder.clone()) {
                 ctx.static_data.clear_gen_folder_selection(folder.clone());
-                highlighted.set(false);
             } else {
                 ctx.static_data.select_gen_folder(folder.clone());
-                highlighted.set(true);
             }
+            force_update.force_update();
         }
     };
 
@@ -252,8 +258,12 @@ fn FoldersSectionItem(props: &FoldersSectionItemProps) -> Html {
     };
 
     let class = format!(
-        "folders-section-elem{}",
-        if *highlighted { " selected" } else { "" }
+        "folders-section-elem {}",
+        if highlighted {
+            "selected"
+        } else {
+            "not-selected"
+        }
     );
 
     html! {

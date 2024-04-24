@@ -63,3 +63,16 @@ pub async fn open(pitou: PitouFile) {
 pub async fn open_with(pitou: PitouFile) {
     pitou_core::backend::open_with(pitou.path).ok();
 }
+
+#[tauri::command]
+pub async fn archive(items: Vec<PitouFilePath>) {}
+
+#[tauri::command]
+pub async fn create_dir(pitou: PitouFile) {
+    pitou_core::backend::create_dir(pitou.path).await
+}
+
+#[tauri::command]
+pub async fn create_file(pitou: PitouFile) {
+    pitou_core::backend::create_file(pitou.path).await
+}
