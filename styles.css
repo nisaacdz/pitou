@@ -118,7 +118,7 @@ body {
 }
 
 .ribbon-large.active:hover img {
-  border: 1px solid var(--secondary-spare-color); 
+  border: 2px solid var(--secondary-spare-color); 
 }
 
 .ribbon-large.active img {
@@ -1352,6 +1352,13 @@ body {
   align-items: center;
   justify-content: center;
   gap: 15px;
+}
+
+#new-item .new-item-member.prompt {
+  justify-content: left;
+  overflow: hidden;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
 }
 
 #new-item .new-item-member .new-item-member-btn {

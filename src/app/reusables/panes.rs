@@ -48,7 +48,7 @@ pub fn NewItemPane(props: &NewItemPaneProps) -> Html {
 
     html! {
         <div id="new-item">
-            <label class="new-item-member"> { &props.prompt } </label>
+            <label class="new-item-member prompt"> { &props.prompt } </label>
             <input placeholder={props.placeholder.clone()} class="new-item-member" type="text" {onkeypress} ref={input_ref} class="new-item-member"/>
             <div class="new-item-member">
                 <input type="checkbox"/>

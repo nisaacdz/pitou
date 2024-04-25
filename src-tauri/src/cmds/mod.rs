@@ -84,3 +84,8 @@ pub async fn create_file(pitou: PitouFile) {
 pub async fn rename(pitou: PitouFile, name: String) {
     pitou_core::backend::rename(pitou.path, name).await
 }
+
+#[tauri::command]
+pub async fn extract(pitou: PitouFile) {
+    let _ = pitou;
+}

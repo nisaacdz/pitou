@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
 use pitou_core::*;
-use serde_wasm_bindgen::to_value;
 
 use super::reusables::{ItemsArg, NoArg, PitouArg, RenameArg};
 
@@ -39,6 +38,10 @@ pub async fn clipboard_empty() -> Result<bool, tauri_sys::Error> {
 
 pub async fn archive(items: &Vec<Rc<PitouFile>>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("archive", &ItemsArg { items }).await
+}
+
+pub async fn extract(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
+    tauri_sys::tauri::invoke("extract", &PitouArg { pitou }).await
 }
 
 pub async fn create_dir(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {

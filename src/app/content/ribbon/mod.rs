@@ -317,6 +317,19 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
         }
     };
 
+    let onclickextract = {
+        let ctx = ctx.clone();
+        move |_| {
+            if ctx.current_menu() == AppMenu::Explorer {
+                if let Some(file) = ctx.static_data.openable_selection() {
+                    spawn_local(async move {
+                        crate::app::cmds::extract(file).await.ok();
+                    });
+                }
+            }
+        }
+    };
+
     let cnt1 = if let Some(state) = *new_item {
         if let Some(dir) = ctx.active_tab.current_dir() {
             let prompt = if state {
@@ -395,12 +408,13 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
         html! {}
     };
 
-    let new_folder_class = format! {"ribbon-large {}", if matches!(*new_item, Some(v) if v) { "active" } else { "not-active" }};
+    let new_folder_class =
+        format! {"ribbon-large {}", if ctx.new_folder_able() { "active" } else { "not-active" }};
 
-    let archive_class = format!(
+    let archive_class = format! {
         "ribbon-large {}",
         if *can_archive { "active" } else { "inactive" }
-    );
+    };
 
     html! {
         <div id="ribbon-creations" class="ribbon-group">
@@ -421,7 +435,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
                     <img src="./public/rename3.png"/>
                     {"rename"}
                 </div>
-                <div class="ribbon-small">
+                <div class="ribbon-small" onclick={onclickextract}>
                     <img src="./public/extract1.png"/>
                     {"extract"}
                 </div>
