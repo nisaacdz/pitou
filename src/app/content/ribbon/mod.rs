@@ -253,6 +253,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let can_archive = use_state_eq(|| false);
     let new_item = use_state_eq(|| None);
+    let renamer = use_state(|| None);
     {
         let ctx = ctx.clone();
         let can_archive = can_archive.clone();
@@ -280,7 +281,28 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
 
     let onclicknewfolder = {
         let new_item = new_item.clone();
-        move |_| new_item.set(Some(true))
+        let ctx = ctx.clone();
+        move |_| {
+            if ctx.current_menu() == AppMenu::Explorer {
+                if let None = *new_item {
+                    new_item.set(Some(true))
+                }
+            }
+        }
+    };
+
+    let onclickrename = {
+        let renamer = renamer.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            if ctx.current_menu() == AppMenu::Explorer {
+                if let Some(file) = ctx.static_data.openable_selection() {
+                    if let None = *renamer {
+                        renamer.set(Some(file));
+                    }
+                }
+            }
+        }
     };
 
     let onclicknewfile = {
@@ -288,12 +310,14 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
         let ctx = ctx.clone();
         move |_| {
             if ctx.current_menu() == AppMenu::Explorer {
-                new_item.set(Some(false))
+                if let None = *new_item {
+                    new_item.set(Some(false))
+                }
             }
         }
     };
 
-    let cnt = if let Some(state) = *new_item {
+    let cnt1 = if let Some(state) = *new_item {
         if let Some(dir) = ctx.active_tab.current_dir() {
             let prompt = if state {
                 "Create new folder"
@@ -342,21 +366,36 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
         html! {}
     };
 
-    let new_folder_elem = {
-        if ctx.current_menu() == AppMenu::Explorer {
-            html! {
-                <div class="ribbon-large active" title="new folder" onclick={onclicknewfolder}>
-                    <img src="./public/new_folder.png"/>
-                </div>
+    let cnt2 = if let Some(file) = (*renamer).clone() {
+        let prompt = format! {"Renaming item: {}", file.name()};
+        let placeholder = "Enter new name...";
+        let oncancel = {
+            let renamer = renamer.clone();
+            move |()| renamer.set(None)
+        };
+
+        let onfinish = {
+            let file = file.clone();
+            let reload = props.reload.clone();
+            let renamer = renamer.clone();
+            move |name| {
+                let pitou = file.clone();
+                let reload = reload.clone();
+                let renamer = renamer.clone();
+                spawn_local(async move {
+                    crate::app::cmds::rename(pitou, name).await.ok();
+                    renamer.set(None);
+                    reload.emit(());
+                })
             }
-        } else {
-            html! {
-                <div class="ribbon-large" title="new folder">
-                    <img src="./public/new_folder.png"/>
-                </div>
-            }
-        }
+        };
+
+        html! { <NewItemPane {onfinish} {oncancel} {prompt} {placeholder}/> }
+    } else {
+        html! {}
     };
+
+    let new_folder_class = format! {"ribbon-large {}", if matches!(*new_item, Some(v) if v) { "active" } else { "not-active" }};
 
     let archive_class = format!(
         "ribbon-large {}",
@@ -365,8 +404,11 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
 
     html! {
         <div id="ribbon-creations" class="ribbon-group">
-            { cnt }
-            { new_folder_elem }
+            { cnt1 }
+            { cnt2 }
+            <div class={new_folder_class} title="new folder" onclick={onclicknewfolder}>
+                <img src="./public/new_folder.png"/>
+            </div>
             <div class={archive_class} title="archive" onclick={onarchive}>
                 <img src="./public/archive.png"/>
             </div>
@@ -375,7 +417,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
                     <img src="./public/add.png"/>
                     {"new item"}
                 </div>
-                <div class="ribbon-small">
+                <div class="ribbon-small" onclick={onclickrename}>
                     <img src="./public/rename3.png"/>
                     {"rename"}
                 </div>

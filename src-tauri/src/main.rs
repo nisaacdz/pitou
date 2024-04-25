@@ -21,6 +21,7 @@ fn main() {
             archive,
             create_dir,
             create_file,
+            rename,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

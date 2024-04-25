@@ -3,7 +3,7 @@ use std::rc::Rc;
 use pitou_core::*;
 use serde_wasm_bindgen::to_value;
 
-use super::reusables::{ItemsArg, NoArg, PitouArg};
+use super::reusables::{ItemsArg, NoArg, PitouArg, RenameArg};
 
 pub async fn open(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("open", &PitouArg { pitou }).await
@@ -29,6 +29,10 @@ pub async fn delete(items: &Vec<Rc<PitouFile>>) -> Result<(), tauri_sys::Error> 
     tauri_sys::tauri::invoke("delete", &ItemsArg { items }).await
 }
 
+pub async fn rename(pitou: Rc<PitouFile>, name: String) -> Result<(), tauri_sys::Error> {
+    tauri_sys::tauri::invoke("rename", &RenameArg { pitou, name }).await
+}
+
 pub async fn clipboard_empty() -> Result<bool, tauri_sys::Error> {
     tauri_sys::tauri::invoke("clipboard_empty", &NoArg).await
 }
@@ -38,7 +42,6 @@ pub async fn archive(items: &Vec<Rc<PitouFile>>) -> Result<(), tauri_sys::Error>
 }
 
 pub async fn create_dir(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
-    web_sys::console::log_1(&to_value("create dir invoked!").unwrap());
     tauri_sys::tauri::invoke("create_dir", &PitouArg { pitou }).await
 }
 

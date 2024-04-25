@@ -291,7 +291,14 @@ pub fn TileFileTypeIcon(props: &FileTypeIconProps) -> Html {
                 }
             }
             PitouFileKind::File => {
-                html! { <img src="./public/file.png" /> }
+                html! {
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19.71,8.29l-6-6A1,1,0,0,0,13,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V9A1,1,0,0,0,19.71,8.29Z" class="fill-secondary-spare">
+                        </path>
+                        <path d="M13,2a1,1,0,0,1,.71.28l6,6A1,1,0,0,1,20,9H14a1,1,0,0,1-1-1Zm4,15a1,1,0,0,0-1-1H8a1,1,0,0,0,0,2h8A1,1,0,0,0,17,17Zm0-4a1,1,0,0,0-1-1H8a1,1,0,0,0,0,2h8A1,1,0,0,0,17,13Z" class="fill-primary-spare">
+                        </path>
+                    </svg>
+                }
             }
             PitouFileKind::Link => {
                 html! { <img src="./public/link.png" /> }

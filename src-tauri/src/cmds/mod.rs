@@ -1,3 +1,4 @@
+#![allow(unused)]
 use pitou_core::*;
 
 #[tauri::command]
@@ -65,7 +66,9 @@ pub async fn open_with(pitou: PitouFile) {
 }
 
 #[tauri::command]
-pub async fn archive(items: Vec<PitouFilePath>) {}
+pub async fn archive(pitou: Vec<PitouFilePath>) {
+    let len = pitou.len();
+}
 
 #[tauri::command]
 pub async fn create_dir(pitou: PitouFile) {
@@ -75,4 +78,9 @@ pub async fn create_dir(pitou: PitouFile) {
 #[tauri::command]
 pub async fn create_file(pitou: PitouFile) {
     pitou_core::backend::create_file(pitou.path).await
+}
+
+#[tauri::command]
+pub async fn rename(pitou: PitouFile, name: String) {
+    pitou_core::backend::rename(pitou.path, name).await
 }

@@ -16,6 +16,13 @@ pub struct PitouArg {
 }
 
 #[derive(Serialize)]
+pub struct RenameArg {
+    pub name: String,
+    #[serde(with = "rc_serde")]
+    pub pitou: Rc<PitouFile>,
+}
+
+#[derive(Serialize)]
 pub struct ItemsArg<'a> {
     #[serde(with = "items_serde")]
     pub items: &'a Vec<Rc<PitouFile>>,
