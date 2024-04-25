@@ -135,8 +135,8 @@ fn RibbonTrash(props: &RibbonTrashProps) -> Html {
         let ctx = ctx.clone();
         let reload = props.reload.clone();
         move |_| {
+            let reload = reload.clone();
             if let Some(items) = ctx.static_data.folder_entry_selections() {
-                let reload = reload.clone();
                 spawn_local(async move {
                     crate::app::cmds::delete(&items).await.ok();
                     reload.emit(())
@@ -144,6 +144,7 @@ fn RibbonTrash(props: &RibbonTrashProps) -> Html {
             }
         }
     };
+
     let delete_class = format! {"ribbon-large {}", if *can_delete { "active" } else { "inactive" }};
 
     html! {
@@ -284,7 +285,12 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
 
     let onclicknewfile = {
         let new_item = new_item.clone();
-        move |_| new_item.set(Some(false))
+        let ctx = ctx.clone();
+        move |_| {
+            if ctx.current_menu() == AppMenu::Explorer {
+                new_item.set(Some(false))
+            }
+        }
     };
 
     let cnt = if let Some(state) = *new_item {
@@ -306,17 +312,23 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
 
             let onfinish = {
                 let dir = dir.clone();
+                let new_item = new_item.clone();
+                let reload = props.reload.clone();
                 move |input| {
                     let new_path = dir.path().path.join(input);
                     let pf = Rc::new(PitouFile::without_metadata(PitouFilePath::from_pathbuf(
                         new_path,
                     )));
+                    let reload = reload.clone();
+                    let new_item = new_item.clone();
                     spawn_local(async move {
                         if state {
                             crate::app::cmds::create_dir(pf).await.ok();
                         } else {
                             crate::app::cmds::create_file(pf).await.ok();
                         }
+                        new_item.set(None);
+                        reload.emit(());
                     })
                 }
             };
@@ -346,11 +358,16 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
         }
     };
 
+    let archive_class = format!(
+        "ribbon-large {}",
+        if *can_archive { "active" } else { "inactive" }
+    );
+
     html! {
         <div id="ribbon-creations" class="ribbon-group">
             { cnt }
             { new_folder_elem }
-            <div class="ribbon-large" title="archive" onclick={onarchive}>
+            <div class={archive_class} title="archive" onclick={onarchive}>
                 <img src="./public/archive.png"/>
             </div>
             <div class="ribbon-textgroup">

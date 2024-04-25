@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
 use pitou_core::{frontend::*, *};
-use serde_wasm_bindgen::to_value;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
@@ -167,6 +166,13 @@ fn ListItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
 
+    {
+        let highlighted = highlighted.clone();
+        use_effect_with(ctx.refresher_state(), move |_| {
+            highlighted.set(false);
+        })
+    }
+
     let onclick = {
         let highlighted = highlighted.clone();
         let item = props.item.clone();
@@ -282,8 +288,14 @@ fn TileView(props: &ViewProps) -> Html {
 #[function_component]
 fn TileItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-
     let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
+
+    {
+        let highlighted = highlighted.clone();
+        use_effect_with(ctx.refresher_state(), move |_| {
+            highlighted.set(false);
+        })
+    }
 
     let ondblclick = {
         let item = props.item.clone();
