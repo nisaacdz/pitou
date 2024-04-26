@@ -7,7 +7,158 @@ use yew::prelude::*;
 use crate::app::reusables::{ListFileTypeIcon, TileFileTypeIcon};
 
 #[derive(Properties, PartialEq)]
-pub struct NewItemPaneProps {
+pub struct ItemsSortPopProps {
+    pub selected: Option<PitouFileSort>,
+    pub onfinish: Callback<Option<PitouFileSort>>,
+    pub onexit: Callback<()>,
+}
+
+#[function_component]
+pub fn ItemsSortPop(props: &ItemsSortPopProps) -> Html {
+    let onclickfreearea = {
+        let onexit = props.onexit.clone();
+        move |_| onexit.emit(())
+    };
+
+    let onclicknone = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(None)
+        }
+    };
+
+    let onclickcreatedinc = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::DateCreated(
+                PitouFileSortOrder::Increasing,
+            )))
+        }
+    };
+
+    let onclickcreateddec = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::DateCreated(
+                PitouFileSortOrder::Decreasing,
+            )))
+        }
+    };
+
+    let onclickmodifiedinc = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::DateModified(
+                PitouFileSortOrder::Increasing,
+            )))
+        }
+    };
+
+    let onclickmodifieddec = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::DateModified(
+                PitouFileSortOrder::Decreasing,
+            )))
+        }
+    };
+
+    let onclickaccessedinc = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::DateAccessed(
+                PitouFileSortOrder::Increasing,
+            )))
+        }
+    };
+
+    let onclickaccesseddec = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::DateAccessed(
+                PitouFileSortOrder::Decreasing,
+            )))
+        }
+    };
+
+    let onclicknameinc = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::Name(PitouFileSortOrder::Increasing)))
+        }
+    };
+
+    let onclicknamedec = {
+        let onfinish = props.onfinish.clone();
+        move |m: MouseEvent| {
+            m.stop_propagation();
+            onfinish.emit(Some(PitouFileSort::Name(PitouFileSortOrder::Decreasing)))
+        }
+    };
+
+    html! {
+        <ul class="sort-popup" onclick={onclickfreearea}>
+            <li class="sort-popup-item" onclick={onclicknone}>
+                <label>{ "None" }</label>
+            </li>
+            <li class="sort-popup-item" onclick={onclickcreatedinc.clone()}>
+                <label>{ "Date Created" }</label>
+                <ul class="sort-popup-sub">
+                    <li class="sort-popup-sub-item" onclick={onclickcreatedinc}>
+                        <label>{ "Increasing" }</label>
+                    </li>
+                    <li class="sort-popup-sub-item" onclick={onclickcreateddec}>
+                        <label>{ "Decreasing" }</label>
+                    </li>
+                </ul>
+            </li>
+            <li class="sort-popup-item" onclick={onclickmodifiedinc.clone()}>
+                <label>{ "Date Modified" }</label>
+                <ul class="sort-popup-sub">
+                    <li class="sort-popup-sub-item" onclick={onclickmodifiedinc}>
+                        <label>{ "Increasing" }</label>
+                    </li>
+                    <li class="sort-popup-sub-item" onclick={onclickmodifieddec}>
+                        <label>{ "Decreasing" }</label>
+                    </li>
+                </ul>
+            </li>
+            <li class="sort-popup-item" onclick={onclickaccessedinc.clone()}>
+                <label>{ "Date Accessed" }</label>
+                <ul class="sort-popup-sub">
+                    <li class="sort-popup-sub-item" onclick={onclickaccessedinc}>
+                        <label>{ "Increasing" }</label>
+                    </li>
+                    <li class="sort-popup-sub-item" onclick={onclickaccesseddec}>
+                        <label>{ "Decreasing" }</label>
+                    </li>
+                </ul>
+            </li>
+            <li class="sort-popup-item" onclick={onclicknameinc.clone()}>
+                <label>{ "Name" }</label>
+                <ul class="sort-popup-sub">
+                    <li class="sort-popup-sub-item" onclick={onclicknameinc}>
+                        <label>{ "Increasing" }</label>
+                    </li>
+                    <li class="sort-popup-sub-item" onclick={onclicknamedec}>
+                        <label>{ "Decreasing" }</label>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    }
+}
+
+#[derive(Properties, PartialEq)]
+pub struct NewItemPopProps {
     pub prompt: String,
     pub placeholder: String,
     pub onfinish: Callback<String>,
@@ -15,7 +166,7 @@ pub struct NewItemPaneProps {
 }
 
 #[function_component]
-pub fn NewItemPane(props: &NewItemPaneProps) -> Html {
+pub fn NewItemPop(props: &NewItemPopProps) -> Html {
     let input_ref = use_node_ref();
 
     let onkeypress = {
@@ -47,7 +198,7 @@ pub fn NewItemPane(props: &NewItemPaneProps) -> Html {
     };
 
     html! {
-        <div id="new-item">
+        <div class="new-item">
             <label class="new-item-member prompt"> { &props.prompt } </label>
             <input placeholder={props.placeholder.clone()} class="new-item-member" type="text" {onkeypress} ref={input_ref} class="new-item-member"/>
             <div class="new-item-member">

@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::app::reusables::NewItemPane;
+use crate::app::reusables::{ItemsSortPop, NewItemPop};
 use pitou_core::{frontend::ApplicationContext, AppMenu, PitouFile, PitouFilePath};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -24,7 +24,7 @@ pub fn Ribbon(props: &RibbonProps) -> Html {
             <RibbonActions onupdatedir={ props.onupdatedir.clone() }/>
             <RibbonRefresh reload={ props.reload.clone() }/>
             <RibbonProperties />
-            <RibbonArrange />
+            <RibbonArrange reload={ props.reload.clone() }/>
         </div>
     }
 }
@@ -229,11 +229,46 @@ fn RibbonActions(props: &RibbonActionsProps) -> Html {
     }
 }
 
+#[derive(Properties, PartialEq)]
+struct RibbonArrangeProps {
+    reload: Callback<()>,
+}
+
 #[function_component]
-fn RibbonArrange() -> Html {
+fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let sorting = use_state_eq(|| None);
+
+    let onclicksort = {
+        let ctx = ctx.clone();
+        let sorting = sorting.clone();
+        move |_| sorting.set(Some(ctx.items_sort()))
+    };
+
+    let cnt = if let Some(selected) = *sorting {
+        let onexit = {
+            let sorting = sorting.clone();
+            move |()| sorting.set(None)
+        };
+
+        let onfinish = {
+            let ctx = ctx.clone();
+            let reload = props.reload.clone();
+            move |sort| {
+                ctx.update_items_sort(sort);
+                reload.emit(())
+            }
+        };
+        html! { <ItemsSortPop {onfinish} {onexit} {selected} /> }
+    } else {
+        html! {}
+    };
+
+    let sort_class = format! {"ribbon-large {}", if ctx.current_menu() == AppMenu::Explorer { "active" } else { "not-active" }};
     html! {
         <div id="ribbon-arrange" class="ribbon-group">
-            <div class="ribbon-large" title="sort">
+            {cnt}
+            <div class={sort_class} title="sort" onclick={onclicksort}>
                 <img src="./public/sort2.png"/>
             </div>
             <div class="ribbon-textgroup">
@@ -370,7 +405,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
                 }
             };
             html! {
-                <NewItemPane {onfinish} {oncancel} {prompt} {placeholder}/>
+                <NewItemPop {onfinish} {oncancel} {prompt} {placeholder}/>
             }
         } else {
             html! {}
@@ -403,7 +438,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
             }
         };
 
-        html! { <NewItemPane {onfinish} {oncancel} {prompt} {placeholder}/> }
+        html! { <NewItemPop {onfinish} {oncancel} {prompt} {placeholder}/> }
     } else {
         html! {}
     };

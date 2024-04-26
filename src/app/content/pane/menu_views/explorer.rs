@@ -150,20 +150,20 @@ struct ExplorerProps {
     onopen: Callback<Rc<PitouFile>>,
 }
 
-pub async fn update_children(tab: Rc<TabCtx>, after: impl Fn()) {
-    let file = tab.current_dir();
+pub async fn update_children(ctx: ApplicationContext, after: impl Fn()) {
+    let file = ctx.active_tab.current_dir();
     if let Some(file) = file {
         let new_children = invoke::<DirChildrenArgs, DirChildren>(
             "children",
-            &DirChildrenArgs::new_default(&file.path),
+            &DirChildrenArgs::new(&file.path, PitouFileFilter::new(), ctx.items_sort()),
         )
         .await
         .ok()
         .map(|v| Rc::new(v.children));
 
-        let current_dir = tab.current_dir();
+        let current_dir = ctx.active_tab.current_dir();
         if matches!(current_dir, Some(v) if v.path == file.path) {
-            *tab.dir_children.borrow_mut() = new_children;
+            ctx.active_tab.update_children(new_children);
             after()
         }
     }
@@ -175,11 +175,11 @@ fn Explorer(props: &ExplorerProps) -> Html {
     let refresher = use_force_update();
 
     {
-        let tab = ctx.active_tab.clone();
+        let ctx = ctx.clone();
         let refresher = refresher.clone();
         use_effect_with(ctx.refresher_state(), move |_| {
             spawn_local(async move {
-                update_children(tab, move || refresher.force_update()).await;
+                update_children(ctx, move || refresher.force_update()).await;
             })
         })
     }
@@ -191,9 +191,8 @@ fn Explorer(props: &ExplorerProps) -> Html {
             move || {
                 let ctx = ctx.clone();
                 let refresher = refresher.clone();
-                let tab = ctx.active_tab.clone();
                 spawn_local(async move {
-                    update_children(tab, move || refresher.force_update()).await;
+                    update_children(ctx, move || refresher.force_update()).await;
                 })
             },
             10000,

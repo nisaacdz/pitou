@@ -36,12 +36,12 @@ pub struct DirChildrenArgs<'a> {
 }
 
 impl<'a> DirChildrenArgs<'a> {
-    pub fn new_default(dir: &'a PitouFilePath) -> Self {
-        Self {
-            dir,
-            filter: PitouFileFilter::new(),
-            sort: None,
-        }
+    pub fn new(
+        dir: &'a PitouFilePath,
+        filter: PitouFileFilter,
+        sort: Option<PitouFileSort>,
+    ) -> Self {
+        Self { dir, filter, sort }
     }
 }
 

@@ -1328,7 +1328,7 @@ body {
   color: var(--primary-spare-color);
 }
 
-#new-item {
+.new-item {
   left: 360px;
   top: 240px;
   position: fixed;
@@ -1345,7 +1345,7 @@ body {
   border: 2px solid var(--secondary-spare-color);
 }
 
-#new-item .new-item-member {
+.new-item .new-item-member {
   width: 250px;
   height: 30px;
   display: flex;
@@ -1354,14 +1354,14 @@ body {
   gap: 15px;
 }
 
-#new-item .new-item-member.prompt {
+.new-item .new-item-member.prompt {
   justify-content: left;
   overflow: hidden;
   text-wrap: nowrap;
   text-overflow: ellipsis;
 }
 
-#new-item .new-item-member .new-item-member-btn {
+.new-item .new-item-member .new-item-member-btn {
   width: 100px;
   height: 30px;
   border: 2px solid var(--primary-spare-color);
@@ -1369,6 +1369,48 @@ body {
   color: var(--primary-foreground-color);
 }
 
-#new-item .new-item-member .new-item-member-btn:hover {
+.new-item .new-item-member .new-item-member-btn:hover {
   border-color: var(--secondary-spare-color);
+}
+
+.sort-popup {
+  position: fixed;
+  width: 150px;
+  border: 2px solid var(--secondary-spare-color);
+  height: 180px;
+  background-color: var(--secondary-background-color);
+  display: flex;
+  flex-direction: column;
+  color: var(--primary-foreground-color);
+  z-index: 3;
+  top: 65px;
+  list-style-type: none;
+}
+
+.sort-popup ul {
+  list-style-type: none;
+}
+
+.sort-popup li {
+  cursor: pointer;
+}
+
+.sort-popup-item:hover .sort-popup-sub {
+  transition: display 3s ease-in-out;
+}
+
+.sort-popup-item:hover >label {
+  background-color: var(--primary-background-color);
+}
+
+.sort-popup-sub-item:hover label {
+  background-color: var(--primary-background-color);
+}
+
+.sort-popup-item:hover .sort-popup-sub {
+  display: block;
+}
+
+.sort-popup-sub {
+  display: none;
 }
