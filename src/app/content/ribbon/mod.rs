@@ -2,6 +2,7 @@ use std::rc::Rc;
 
 use crate::app::reusables::{ItemsSortPop, NewItemPop};
 use pitou_core::{frontend::ApplicationContext, AppMenu, PitouFile, PitouFilePath};
+use serde_wasm_bindgen::to_value;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::use_interval;
@@ -138,7 +139,9 @@ fn RibbonTrash(props: &RibbonTrashProps) -> Html {
             let reload = reload.clone();
             if let Some(items) = ctx.static_data.folder_entry_selections() {
                 spawn_local(async move {
+                    web_sys::console::log_1(&to_value("starting delete").unwrap());
                     crate::app::cmds::delete(&items).await.ok();
+                    web_sys::console::log_1(&to_value("finished delete").unwrap());
                     reload.emit(())
                 })
             }
@@ -242,7 +245,15 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
     let onclicksort = {
         let ctx = ctx.clone();
         let sorting = sorting.clone();
-        move |_| sorting.set(Some(ctx.items_sort()))
+        move |_| {
+            if let Some(_) = *sorting {
+                sorting.set(None)
+            } else {
+                if ctx.current_menu() == AppMenu::Explorer {
+                    sorting.set(Some(ctx.items_sort()))
+                }
+            }
+        }
     };
 
     let cnt = if let Some(selected) = *sorting {

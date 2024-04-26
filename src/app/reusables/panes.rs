@@ -109,36 +109,36 @@ pub fn ItemsSortPop(props: &ItemsSortPopProps) -> Html {
             <li class="sort-popup-item" onclick={onclicknone}>
                 <label>{ "None" }</label>
             </li>
-            <li class="sort-popup-item" onclick={onclickcreatedinc.clone()}>
+            <li class="sort-popup-item" onclick={onclickcreateddec.clone()}>
                 <label>{ "Date Created" }</label>
                 <ul class="sort-popup-sub">
                     <li class="sort-popup-sub-item" onclick={onclickcreatedinc}>
-                        <label>{ "Increasing" }</label>
+                        <label>{ "Earliest First" }</label>
                     </li>
                     <li class="sort-popup-sub-item" onclick={onclickcreateddec}>
-                        <label>{ "Decreasing" }</label>
+                        <label>{ "Latest First" }</label>
                     </li>
                 </ul>
             </li>
-            <li class="sort-popup-item" onclick={onclickmodifiedinc.clone()}>
+            <li class="sort-popup-item" onclick={onclickmodifieddec.clone()}>
                 <label>{ "Date Modified" }</label>
                 <ul class="sort-popup-sub">
                     <li class="sort-popup-sub-item" onclick={onclickmodifiedinc}>
-                        <label>{ "Increasing" }</label>
+                        <label>{ "Earliest First" }</label>
                     </li>
                     <li class="sort-popup-sub-item" onclick={onclickmodifieddec}>
-                        <label>{ "Decreasing" }</label>
+                        <label>{ "Latest First" }</label>
                     </li>
                 </ul>
             </li>
-            <li class="sort-popup-item" onclick={onclickaccessedinc.clone()}>
+            <li class="sort-popup-item" onclick={onclickaccesseddec.clone()}>
                 <label>{ "Date Accessed" }</label>
                 <ul class="sort-popup-sub">
                     <li class="sort-popup-sub-item" onclick={onclickaccessedinc}>
-                        <label>{ "Increasing" }</label>
+                        <label>{ "Earliest First" }</label>
                     </li>
                     <li class="sort-popup-sub-item" onclick={onclickaccesseddec}>
-                        <label>{ "Decreasing" }</label>
+                        <label>{ "Latest First" }</label>
                     </li>
                 </ul>
             </li>
