@@ -8,6 +8,8 @@
 
 ## Demo
 
+Standalone demo for windows 64bit os at: `./items/standalone_windows_64bit`
+
 !["Polish Color Theme"](items/shot3.png)
 
 | Image 1 | Image 2 |
