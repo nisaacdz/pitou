@@ -14,6 +14,8 @@ mod menu_views;
 pub struct PaneProps {
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
     pub onupdatetheme: Callback<ColorTheme>,
+    pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
 }
 
 #[function_component]
@@ -51,7 +53,9 @@ pub fn Pane(props: &PaneProps) -> Html {
     let menu = *ctx.active_tab.current_menu.borrow();
     match menu {
         AppMenu::Home => html! { <HomeView {onopen} /> },
-        AppMenu::Explorer => html! { <ExplorerView {onopen} /> },
+        AppMenu::Explorer => {
+            html! { <ExplorerView {onopen} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/> }
+        }
         AppMenu::Trash => html! { <TrashView /> },
         AppMenu::Favorites => html! { <NotYetImplementedPane/> },
         AppMenu::Search => html! { <NotYetImplementedPane/> },

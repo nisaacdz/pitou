@@ -4,6 +4,7 @@ use pitou_core::{
     frontend::{extra::DirChildren, *},
     *,
 };
+use serde_wasm_bindgen::to_value;
 use tauri_sys::tauri::invoke;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
@@ -133,6 +134,8 @@ fn Ancestry(props: &AncestryProps) -> Html {
 #[derive(Properties, PartialEq)]
 pub struct ExplorerViewProps {
     pub onopen: Callback<Rc<PitouFile>>,
+    pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
 }
 
 #[function_component]
@@ -140,7 +143,7 @@ pub fn ExplorerView(props: &ExplorerViewProps) -> Html {
     html! {
         <div id="explorer-pane" class="fullpane">
             <Ancestry onopen={props.onopen.clone()}/>
-            <Explorer onopen={props.onopen.clone()}/>
+            <Explorer onopen={props.onopen.clone()} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/>
         </div>
     }
 }
@@ -148,6 +151,8 @@ pub fn ExplorerView(props: &ExplorerViewProps) -> Html {
 #[derive(PartialEq, Properties)]
 struct ExplorerProps {
     onopen: Callback<Rc<PitouFile>>,
+    pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
 }
 
 pub async fn update_children(ctx: ApplicationContext, after: impl Fn()) {
@@ -186,6 +191,7 @@ fn Explorer(props: &ExplorerProps) -> Html {
 
     {
         let ctx = ctx.clone();
+        let millis = ctx.refresh_rate_as_millis();
         let refresher = refresher.clone();
         use_interval(
             move || {
@@ -195,16 +201,19 @@ fn Explorer(props: &ExplorerProps) -> Html {
                     update_children(ctx, move || refresher.force_update()).await;
                 })
             },
-            10000,
+            millis,
         )
     }
 
     let onopen = props.onopen.clone();
 
-    let content = if let Some(items) = &*ctx.active_tab.dir_children.borrow() {
-        let items = items.clone();
+    let reload = props.reload.clone();
+
+    let quietreload = props.quietreload.clone();
+
+    let content = if let Some(items) = ctx.active_tab.dir_children() {
         let view = ctx.items_view();
-        html! { <MainPane {view} {items} {onopen} />}
+        html! { <MainPane {view} {items} {onopen} {reload} {quietreload}/>}
     } else {
         html! {}
     };

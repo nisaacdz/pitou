@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use pitou_core::{frontend::*, *};
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 
 use crate::app::reusables::{ListFileTypeIcon, TileFileTypeIcon};
@@ -160,14 +160,27 @@ pub fn ItemsSortPop(props: &ItemsSortPopProps) -> Html {
 #[derive(Properties, PartialEq)]
 pub struct NewItemPopProps {
     pub prompt: String,
-    pub placeholder: String,
+    pub value: Option<String>,
+    pub placeholder: Option<String>,
     pub onfinish: Callback<String>,
     pub oncancel: Callback<()>,
 }
 
 #[function_component]
 pub fn NewItemPop(props: &NewItemPopProps) -> Html {
+    let entire_ref = use_node_ref();
     let input_ref = use_node_ref();
+
+    {
+        let entire_ref = entire_ref.clone();
+        let input_ref = input_ref.clone();
+        use_effect_with((), move |()| {
+            let elem = entire_ref.cast::<HtmlElement>().unwrap();
+            let input = input_ref.cast::<HtmlElement>().unwrap();
+            elem.set_draggable(true);
+            input.focus().ok();
+        })
+    }
 
     let onkeypress = {
         let finish = props.onfinish.clone();
@@ -198,9 +211,9 @@ pub fn NewItemPop(props: &NewItemPopProps) -> Html {
     };
 
     html! {
-        <div class="new-item">
+        <div class="new-item" ref={entire_ref}>
             <label class="new-item-member prompt"> { &props.prompt } </label>
-            <input placeholder={props.placeholder.clone()} class="new-item-member" type="text" {onkeypress} ref={input_ref} class="new-item-member"/>
+            <input placeholder={props.placeholder.clone()} value={props.value.clone()} class="new-item-member" type="text" {onkeypress} ref={input_ref} class="new-item-member"/>
             <div class="new-item-member">
                 <input type="checkbox"/>
                 <label>{"Override Existing"}</label>
@@ -214,26 +227,30 @@ pub fn NewItemPop(props: &NewItemPopProps) -> Html {
 }
 
 #[derive(Properties)]
-pub struct PaneViewProps {
+pub struct MainPaneProps {
     pub onopen: Callback<Rc<PitouFile>>,
     pub view: ItemsView,
     pub items: Rc<Vec<Rc<PitouFile>>>,
+    pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
 }
 
-impl PartialEq for PaneViewProps {
-    fn eq(&self, other: &Self) -> bool {
-        self.view == other.view && Rc::ptr_eq(&self.items, &other.items)
+impl PartialEq for MainPaneProps {
+    fn eq(&self, _: &Self) -> bool {
+        false
     }
 }
 
 #[function_component]
-pub fn MainPane(props: &PaneViewProps) -> Html {
+pub fn MainPane(props: &MainPaneProps) -> Html {
     let items = props.items.clone();
     let onopen = props.onopen.clone();
+    let reload = props.reload.clone();
+    let quietreload = props.quietreload.clone();
     match props.view {
-        ItemsView::Grid => html! { <GridView {items} {onopen} /> },
-        ItemsView::Rows => html! { <ListView {items} {onopen} /> },
-        ItemsView::Tiles => html! { <TileView {items} {onopen} /> },
+        ItemsView::Grid => html! { <GridView {items} {onopen} {reload} {quietreload}/> },
+        ItemsView::Rows => html! { <ListView {items} {onopen} {reload} {quietreload}/> },
+        ItemsView::Tiles => html! { <TileView {items} {onopen} {reload} {quietreload}/> },
     }
 }
 
@@ -241,44 +258,58 @@ pub fn MainPane(props: &PaneViewProps) -> Html {
 struct ViewProps {
     onopen: Callback<Rc<PitouFile>>,
     items: Rc<Vec<Rc<PitouFile>>>,
+    reload: Callback<()>,
+    quietreload: Callback<()>,
 }
 
-#[derive(Properties)]
+#[derive(Properties, PartialEq)]
 struct ItemProps {
     onopen: Callback<Rc<PitouFile>>,
     item: Rc<PitouFile>,
-}
-
-impl PartialEq for ItemProps {
-    fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.item, &other.item)
-    }
+    reload: Callback<()>,
+    quietreload: Callback<()>,
 }
 
 impl PartialEq for ViewProps {
-    fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.items, &other.items)
+    fn eq(&self, _: &Self) -> bool {
+        false
     }
 }
 
 #[function_component]
 fn ListView(props: &ViewProps) -> Html {
-    let free_space = html! {
-        <div id="pane-list-view-bottom-space">
-            <div id="pane-list-view-bottom-space-i"></div>
-        </div>
-    };
+    let ctx = use_context::<ApplicationContext>().unwrap();
 
     let content = props
         .items
         .iter()
-        .map(|v| html! { <ListItem item = {v.clone()} onopen = {props.onopen.clone()} /> })
-        .chain(Some(free_space))
+        .map(|v| html! { <ListItem item = {v.clone()} onopen = {props.onopen.clone()} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/> })
         .collect::<Html>();
+
+    let ontoggleselectall = {
+        let ctx = ctx.clone();
+        let items = props.items.clone();
+        let quietreload = props.quietreload.clone();
+        move |()| {
+            if ctx
+                .static_data
+                .are_all_selected_folder_entries(items.clone())
+            {
+                items
+                    .iter()
+                    .for_each(|item| ctx.static_data.clear_dir_entry_selection(item.clone()))
+            } else {
+                items
+                    .iter()
+                    .for_each(|item| ctx.static_data.select_folder_entry(item.clone()))
+            }
+            quietreload.emit(())
+        }
+    };
 
     html! {
         <>
-        <ListDsc />
+            <ListDsc ontoggle={ontoggleselectall}/>
             <div id="pane-list-view">
                 { content }
             </div>
@@ -286,12 +317,21 @@ fn ListView(props: &ViewProps) -> Html {
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct ListDscProps {
+    ontoggle: Callback<()>,
+}
+
 #[function_component]
-fn ListDsc() -> Html {
+fn ListDsc(props: &ListDscProps) -> Html {
+    let onchange = {
+        let ontoggle = props.ontoggle.clone();
+        move |_| ontoggle.emit(())
+    };
     html! {
         <div id="pane-list-view-dsc">
             <div class="pane-list-view-dsc-checkbox-container">
-                <input class="pane-list-view-dsc-checkbox" type="checkbox" />
+                <input class="pane-list-view-dsc-checkbox" type="checkbox" {onchange}/>
             </div>
             <div class="pane-list-view-dsc-filetype">
                 { "ico" }
@@ -318,9 +358,11 @@ fn ListItem(props: &ItemProps) -> Html {
     let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
 
     {
+        let ctx = ctx.clone();
+        let item = props.item.clone();
         let highlighted = highlighted.clone();
         use_effect_with(ctx.refresher_state(), move |_| {
-            highlighted.set(false);
+            highlighted.set(ctx.static_data.is_selected_dir_entry(item.clone()));
         })
     }
 
@@ -339,7 +381,7 @@ fn ListItem(props: &ItemProps) -> Html {
         }
     };
 
-    let ontoggle = {
+    let onchange = {
         let highlighted = highlighted.clone();
         let ctx = ctx.clone();
         let item = props.item.clone();
@@ -370,6 +412,11 @@ fn ListItem(props: &ItemProps) -> Html {
         }
     );
 
+    let name = if ctx.hide_system_files() {
+        props.item.name()
+    } else {
+        props.item.name_without_extension()
+    };
     let filetype = props.item.metadata.as_ref().map(|v| v.kind);
     let accessed = props
         .item
@@ -395,13 +442,13 @@ fn ListItem(props: &ItemProps) -> Html {
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
-                <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {ontoggle} />
+                <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {onchange} />
             </div>
             <div class="list-filetypeicon-container">
                 <ListFileTypeIcon {filetype}/>
             </div>
             <div class="list-filename-container">
-                <div class="list-filename">{ props.item.name() }</div>
+                <div class="list-filename">{ name }</div>
             </div>
             <div class="list-modifieddate-container">
                 <div>{ modified }</div>
@@ -417,16 +464,11 @@ fn ListItem(props: &ItemProps) -> Html {
 }
 
 #[function_component]
-fn GridView(_props: &ViewProps) -> Html {
-    html! {}
-}
-
-#[function_component]
 fn TileView(props: &ViewProps) -> Html {
     let content = props
         .items
         .iter()
-        .map(|v| html! { <TileItem item = {v.clone()} onopen = {props.onopen.clone()} /> })
+        .map(|v| html! { <TileItem item = {v.clone()} onopen = {props.onopen.clone()} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/> })
         .collect::<Html>();
 
     html! {
@@ -442,9 +484,11 @@ fn TileItem(props: &ItemProps) -> Html {
     let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
 
     {
+        let ctx = ctx.clone();
+        let item = props.item.clone();
         let highlighted = highlighted.clone();
         use_effect_with(ctx.refresher_state(), move |_| {
-            highlighted.set(false);
+            highlighted.set(ctx.static_data.is_selected_dir_entry(item.clone()));
         })
     }
 
@@ -478,11 +522,11 @@ fn TileItem(props: &ItemProps) -> Html {
         }
     );
 
-    let ontoggle = {
+    let onclickcheckbox = {
         let highlighted = highlighted.clone();
         let ctx = ctx.clone();
         let item = props.item.clone();
-        move |e: Event| {
+        move |e: MouseEvent| {
             e.stop_propagation();
             if !*highlighted {
                 ctx.static_data.select_folder_entry(item.clone());
@@ -504,11 +548,12 @@ fn TileItem(props: &ItemProps) -> Html {
 
     let filetype = props.item.metadata.as_ref().map(|v| v.kind);
 
-    let optional = props
-        .item
-        .metadata
-        .as_ref()
-        .map(|v| v.accessed.datetime.format("%Y-%m-%d %H:%M:%S").to_string());
+    let optional = props.item.metadata.as_ref().map(|v| {
+        v.modified
+            .datetime
+            .format("Modified on %Y-%m-%d %H:%M")
+            .to_string()
+    });
 
     let name = if ctx.show_extensions() {
         props.item.name()
@@ -533,7 +578,7 @@ fn TileItem(props: &ItemProps) -> Html {
     html! {
         <div class={tile_item_class} {ondblclick} {onclick}>
             <div class="tile-checkbox-container">
-                <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {ontoggle} />
+                <input class="explorer-checkbox" type="checkbox" checked={*highlighted} onclick={onclickcheckbox} />
             </div>
             <div class="tile-filetypeicon-container">
                 <TileFileTypeIcon {filetype}/>
@@ -548,6 +593,156 @@ pub fn NotYetImplementedPane() -> Html {
     html! {
         <div id="unimplementedpane" class="fullpane">
             <h1>{"Not Yet Implemented"}</h1>
+        </div>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+struct GridFileTypeIconProps {
+    item: Rc<PitouFile>,
+}
+
+#[function_component]
+fn GridFileTypeIcon(props: &GridFileTypeIconProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let cnt = if ctx.show_thumbnails() {
+        html! { <GridThumbnail item={props.item.clone()} /> }
+    } else {
+        if let Some(m) = props.item.metadata() {
+            match m.kind() {
+                PitouFileKind::Directory => {
+                    if m.size.bytes == 0 {
+                        html! {
+                            <svg viewBox="0 0 491.52 491.52">
+                                <path style="fill:#F6C358;" d="M445.522,88.989h-259.23c-5.832,0-11.24-3.318-14.26-8.749l-13.88-24.957
+                                    c-3.021-5.432-8.427-8.749-14.259-8.749H45.998c-9.208,0-16.671,8.126-16.671,18.15v362.151c0,10.024,7.463,18.15,16.671,18.15
+                                    h399.523c9.207,0,16.671-8.126,16.671-18.15V107.14C462.192,97.116,454.728,88.989,445.522,88.989z"/>
+                                <path style="fill:#FCD462;" d="M474.806,216.429H16.714c-10.557,0-17.956,8.348-16.541,18.538l27.158,195.639
+                                    c1.107,7.974,9.46,14.379,18.667,14.379h399.523c9.207,0,17.56-6.405,18.667-14.379l27.158-195.639
+                                    C492.761,224.777,485.362,216.429,474.806,216.429z"/>
+                            </svg>
+                        }
+                    } else {
+                        html! {
+                            <svg viewBox="0 0 491.52 491.52">
+                                <path style="fill:#F6C358;" d="M445.522,88.989h-259.23c-5.832,0-11.24-3.318-14.26-8.749l-13.88-24.957
+                                    c-3.021-5.432-8.427-8.749-14.259-8.749H45.998c-9.208,0-16.671,8.126-16.671,18.15v362.151c0,10.024,7.463,18.15,16.671,18.15
+                                    h399.523c9.207,0,16.671-8.126,16.671-18.15V107.14C462.192,97.116,454.728,88.989,445.522,88.989z"/>
+                                <rect x="55.383" y="133.12" style="fill:#EBF0F3;" width="385.536" height="122.092"/>
+                                <rect x="55.383" y="150.17" style="fill:#FFFFFF;" width="385.536" height="122.092"/>
+                                <path style="fill:#FCD462;" d="M474.806,216.429H16.714c-10.557,0-17.956,8.348-16.541,18.538l27.158,195.639
+                                    c1.107,7.974,9.46,14.379,18.667,14.379h399.523c9.207,0,17.56-6.405,18.667-14.379l27.158-195.639
+                                    C492.761,224.777,485.362,216.429,474.806,216.429z"/>
+                            </svg>
+                        }
+                    }
+                }
+                PitouFileKind::File => html! { <img src="./public/file.png"/> },
+                PitouFileKind::Link => html! { <img src="./public/file.png"/> },
+            }
+        } else {
+            html! { <img src="./public/unknown_file.png"/> }
+        }
+    };
+    html! {
+        <div class="grid-filetypeicon-container">
+            { cnt }
+        </div>
+    }
+}
+
+#[function_component]
+fn GridThumbnail(_props: &GridFileTypeIconProps) -> Html {
+    html! {}
+}
+
+#[function_component]
+fn GridItem(props: &ItemProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
+
+    {
+        let ctx = ctx.clone();
+        let item = props.item.clone();
+        let highlighted = highlighted.clone();
+        use_effect_with(ctx.refresher_state(), move |_| {
+            highlighted.set(ctx.static_data.is_selected_dir_entry(item.clone()));
+        })
+    }
+
+    let ondblclick = {
+        let item = props.item.clone();
+        let onopen = props.onopen.clone();
+        move |_| onopen.emit(item.clone())
+    };
+
+    let onclick = {
+        let highlighted = highlighted.clone();
+        let item = props.item.clone();
+        let ctx = ctx.clone();
+        move |_| {
+            if !*highlighted {
+                ctx.static_data.select_folder_entry(item.clone());
+                highlighted.set(true)
+            } else {
+                ctx.static_data.clear_dir_entry_selection(item.clone());
+                highlighted.set(false)
+            }
+        }
+    };
+
+    let grid_item_class = format!(
+        "grid-item {}",
+        if *highlighted {
+            "selected"
+        } else {
+            "not-selected"
+        }
+    );
+
+    let onclickcheckbox = {
+        let highlighted = highlighted.clone();
+        let ctx = ctx.clone();
+        let item = props.item.clone();
+        move |e: MouseEvent| {
+            e.stop_propagation();
+            if !*highlighted {
+                ctx.static_data.select_folder_entry(item.clone());
+                highlighted.set(true)
+            } else {
+                ctx.static_data.clear_dir_entry_selection(item.clone());
+                highlighted.set(false)
+            }
+        }
+    };
+
+    let name = if ctx.show_extensions() {
+        props.item.name()
+    } else {
+        props.item.name_without_extension()
+    };
+    html! {
+        <div class={grid_item_class} {ondblclick} {onclick}>
+            <div class="grid-checkbox-container">
+                <input class="grid-checkbox explorer-checkbox" type="checkbox" checked={*highlighted} onclick={onclickcheckbox} />
+            </div>
+            <GridFileTypeIcon item={props.item.clone()}/>
+            <div class="grid-filename">{ name }</div>
+        </div>
+    }
+}
+
+#[function_component]
+fn GridView(props: &ViewProps) -> Html {
+    let content = props
+        .items
+        .iter()
+        .map(|v| html! { <GridItem item = {v.clone()} onopen = {props.onopen.clone()} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/> })
+        .collect::<Html>();
+
+    html! {
+        <div id="pane-grid-view">
+            { content }
         </div>
     }
 }

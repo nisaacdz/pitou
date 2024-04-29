@@ -164,7 +164,7 @@ fn TrashListItem(props: &TrashItemProps) -> Html {
         move |_| toggle()
     };
 
-    let ontoggle = { move |_| toggle() };
+    let onchange = { move |_| toggle() };
 
     let ondblclick = {
         let _item = props.item.clone();
@@ -198,7 +198,7 @@ fn TrashListItem(props: &TrashItemProps) -> Html {
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
-                <input class="explorer-checkbox" type="checkbox" checked={*selected} {ontoggle} />
+                <input class="explorer-checkbox" type="checkbox" checked={*selected} {onchange} />
             </div>
             <div class="list-filetypeicon-container">
                 <ListFileTypeIcon {filetype}/>

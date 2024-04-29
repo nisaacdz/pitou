@@ -1,4 +1,5 @@
 use pitou_core::{frontend::*, *};
+use serde_wasm_bindgen::to_value;
 use web_sys::*;
 use yew::prelude::*;
 
@@ -9,12 +10,10 @@ pub struct SettingsViewProps {
 
 #[function_component]
 pub fn SettingsView(props: &SettingsViewProps) -> Html {
-    let ontoggleextensions = { move |()| () };
-
     html! {
         <div id="settings-pane" class="fullpane">
             <Themes onupdatetheme={props.onupdatetheme.clone()}/>
-            <Extensions ontoggle={ontoggleextensions.clone()} />
+            <Extensions />
             <SystemFiles />
             <RefreshRate />
             <Siblings />
@@ -64,36 +63,45 @@ pub fn Themes(props: &ThemesProps) -> Html {
     }
 }
 
-#[derive(PartialEq, Properties)]
-pub struct ExtensionsProps {
-    pub ontoggle: Callback<()>,
-}
-
 #[function_component]
-pub fn Extensions(props: &ExtensionsProps) -> Html {
+pub fn Extensions() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let checked = ctx.show_extensions();
 
-    let ontoggle = {
-        let ontoggle = props.ontoggle.clone();
-        move |_| ontoggle.emit(())
+    let onchange = {
+        let ctx = ctx.clone();
+        move |e: Event| {
+            let state = e.target_dyn_into::<HtmlInputElement>().unwrap().checked();
+            ctx.update_show_extensions(state);
+        }
     };
+
+    let checked = ctx.show_extensions();
 
     html! {
         <div class="selectable">
             <label class="label">{ "Show extensions" }</label>
-            <input class="selector" type="checkbox" {checked} {ontoggle}/>
+            <input class="selector" type="checkbox" {onchange} {checked}/>
         </div>
     }
 }
 
 #[function_component]
 pub fn SystemFiles() -> Html {
-    let ontoggle = { move |_| () };
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let onchange = {
+        let ctx = ctx.clone();
+        move |e: Event| {
+            let state = e.target_dyn_into::<HtmlInputElement>().unwrap().checked();
+            ctx.update_hide_system_files(state)
+        }
+    };
+
+    let checked = ctx.hide_system_files();
+
     html! {
         <div class="selectable">
             <label class="label">{ "Hide System Files" }</label>
-            <input class="selector" type="checkbox" checked={true} {ontoggle}/>
+            <input class="selector" type="checkbox" {checked} {onchange}/>
         </div>
     }
 }
@@ -102,20 +110,23 @@ pub fn SystemFiles() -> Html {
 pub fn RefreshRate() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let onchange = {
+        let ctx = ctx.clone();
         move |e: Event| {
             let val = e
                 .target_dyn_into::<HtmlInputElement>()
                 .unwrap()
                 .value()
                 .parse()
-                .unwrap();
+                .unwrap_or(AppSettings::default_refresh_rate());
             ctx.update_refresh_rate(val)
         }
     };
+    let value = ctx.refresh_rate().to_string();
+
     html! {
         <div class="selectable">
             <label class="label">{ "Automatic refresh rate" }</label>
-            <input class="selector" type="number" value="12" {onchange} min="1" max="60"/>
+            <input class="selector" type="number" {value} {onchange} min="1" max="60"/>
         </div>
     }
 }
@@ -123,7 +134,7 @@ pub fn RefreshRate() -> Html {
 #[function_component]
 pub fn Siblings() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let ontoggle = {
+    let onchange = {
         move |_| {
             let val = ctx.show_parents();
             ctx.toggle_show_parents(!val);
@@ -132,7 +143,7 @@ pub fn Siblings() -> Html {
     html! {
         <div class="selectable">
             <label class="label">{ "Show siblings panel" }</label>
-            <input class="selector" type="checkbox" checked={false} {ontoggle} />
+            <input class="selector" type="checkbox" checked={false} {onchange} />
         </div>
     }
 }
@@ -140,16 +151,20 @@ pub fn Siblings() -> Html {
 #[function_component]
 pub fn Thumbnails() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
-    let ontoggle = {
+    let onchange = {
+        let ctx = ctx.clone();
         move |_| {
             let val = ctx.show_thumbnails();
             ctx.toggle_show_thumbnails(!val);
         }
     };
+
+    let checked = ctx.show_thumbnails();
+
     html! {
         <div class="selectable">
             <label class="label">{ "Show thumbnails" }</label>
-            <input class="selector" type="checkbox" checked={false} {ontoggle} />
+            <input class="selector" type="checkbox" {checked} {onchange} />
         </div>
     }
 }
@@ -179,6 +194,7 @@ pub fn Zoom() -> Html {
 #[function_component]
 pub fn FilesView() -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
+
     let onchange = {
         let ctx = ctx.clone();
         move |e: Event| {
@@ -193,13 +209,15 @@ pub fn FilesView() -> Html {
         }
     };
 
+    let items_view = ctx.items_view();
+
     html! {
         <div class="selectable">
             <label class="label">{ "Files view" }</label>
             <select class="selector" {onchange}>
-                <option value="0" selected={ctx.items_view() == ItemsView::Tiles}>{ "Tiles" }</option>
-                <option value="1" selected={ctx.items_view() == ItemsView::Grid}>{ "Grid" }</option>
-                <option value="2" selected={ctx.items_view() == ItemsView::Rows}>{ "List" }</option>
+                <option value="0" selected={items_view == ItemsView::Tiles}>{ "Tiles" }</option>
+                <option value="1" selected={items_view == ItemsView::Grid}>{ "Grid" }</option>
+                <option value="2" selected={items_view == ItemsView::Rows}>{ "List" }</option>
             </select>
         </div>
     }

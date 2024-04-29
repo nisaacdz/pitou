@@ -20,6 +20,7 @@ pub struct ContentProps {
     pub onupdatetheme: Callback<ColorTheme>,
     pub navigate_folder: Callback<bool>,
     pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
 }
 
 #[function_component]
@@ -29,7 +30,7 @@ pub fn Content(props: &ContentProps) -> Html {
             <Ribbon navigate_folder={ props.navigate_folder.clone() } reload={ props.reload.clone() } onupdatedir={ props.onupdatedir.clone() }/>
             <Menus onswitchmenu = { props.onswitchmenu.clone() } />
             <Status />
-            <Pane onupdatedir = { props.onupdatedir.clone() } onupdatetheme={ props.onupdatetheme.clone() }/>
+            <Pane onupdatedir={props.onupdatedir.clone()} onupdatetheme={props.onupdatetheme.clone()} reload={props.reload.clone()} quietreload={props.quietreload.clone()} />
         </div>
     }
 }

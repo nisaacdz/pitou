@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
 use crate::app::reusables::{ItemsSortPop, NewItemPop};
-use pitou_core::{frontend::ApplicationContext, AppMenu, PitouFile, PitouFilePath};
-use serde_wasm_bindgen::to_value;
+use pitou_core::{frontend::ApplicationContext, AppMenu, ItemsView, PitouFile, PitouFilePath};
 use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
@@ -57,7 +57,7 @@ fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
                 };
                 refreshing.set(still_refreshing);
             },
-            500,
+            250,
         );
     }
 
@@ -128,7 +128,7 @@ fn RibbonTrash(props: &RibbonTrashProps) -> Html {
         let can_delete = can_delete.clone();
         use_interval(
             move || can_delete.set(ctx.static_data.can_attempt_delete()),
-            500,
+            250,
         )
     }
 
@@ -139,10 +139,8 @@ fn RibbonTrash(props: &RibbonTrashProps) -> Html {
             let reload = reload.clone();
             if let Some(items) = ctx.static_data.folder_entry_selections() {
                 spawn_local(async move {
-                    web_sys::console::log_1(&to_value("starting delete").unwrap());
                     crate::app::cmds::delete(&items).await.ok();
-                    web_sys::console::log_1(&to_value("finished delete").unwrap());
-                    reload.emit(())
+                    reload.emit(());
                 })
             }
         }
@@ -256,6 +254,35 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
         }
     };
 
+    let onchangeitemsview = {
+        let ctx = ctx.clone();
+        let reload = props.reload.clone();
+        move |e: Event| {
+            let val = e.target_dyn_into::<HtmlSelectElement>().unwrap().value();
+            let view = match val.parse::<u8>().unwrap() {
+                0 => ItemsView::Tiles,
+                1 => ItemsView::Grid,
+                2 => ItemsView::Rows,
+                _ => unreachable!(),
+            };
+            ctx.update_items_view(view);
+            reload.emit(())
+        }
+    };
+
+    let onclickitemsview = {
+        let ctx = ctx.clone();
+        let reload = props.reload.clone();
+        move |_| {
+            match ctx.items_view() {
+                ItemsView::Grid => ctx.update_items_view(ItemsView::Rows),
+                ItemsView::Rows => ctx.update_items_view(ItemsView::Tiles),
+                ItemsView::Tiles => ctx.update_items_view(ItemsView::Grid),
+            }
+            reload.emit(())
+        }
+    };
+
     let cnt = if let Some(selected) = *sorting {
         let onexit = {
             let sorting = sorting.clone();
@@ -276,6 +303,8 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
     };
 
     let sort_class = format! {"ribbon-large {}", if ctx.current_menu() == AppMenu::Explorer { "active" } else { "not-active" }};
+    let items_view = ctx.items_view();
+
     html! {
         <div id="ribbon-arrange" class="ribbon-group">
             {cnt}
@@ -283,7 +312,14 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
                 <img src="./public/sort2.png"/>
             </div>
             <div class="ribbon-textgroup">
-                <div class="ribbon-small">{"files view"}</div>
+                <div class="ribbon-small ribbon-mid-small" onclick={onclickitemsview}>
+                    <div>{"files view"}</div>
+                    <select onchange={onchangeitemsview}>
+                    <option value="0" selected={items_view == ItemsView::Tiles}>{ "Tiles" }</option>
+                    <option value="1" selected={items_view == ItemsView::Grid}>{ "Grid" }</option>
+                    <option value="2" selected={items_view == ItemsView::Rows}>{ "List" }</option>
+                    </select>
+                </div>
             </div>
         </div>
     }
@@ -305,7 +341,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
         let can_archive = can_archive.clone();
         use_interval(
             move || can_archive.set(ctx.static_data.has_folder_entry_selections()),
-            500,
+            250,
         )
     }
 
@@ -388,6 +424,8 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
             } else {
                 "Enter file name with extension..."
             };
+
+            let value: Option<String> = None;
             let oncancel = {
                 let new_item = new_item.clone();
                 move |()| new_item.set(None)
@@ -416,7 +454,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
                 }
             };
             html! {
-                <NewItemPop {onfinish} {oncancel} {prompt} {placeholder}/>
+                <NewItemPop {onfinish} {oncancel} {prompt} {placeholder} {value}/>
             }
         } else {
             html! {}
@@ -427,7 +465,8 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
 
     let cnt2 = if let Some(file) = (*renamer).clone() {
         let prompt = format! {"Renaming item: {}", file.name()};
-        let placeholder = "Enter new name...";
+        let placeholder: Option<String> = None;
+        let value = file.name().to_owned();
         let oncancel = {
             let renamer = renamer.clone();
             move |()| renamer.set(None)
@@ -449,7 +488,7 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
             }
         };
 
-        html! { <NewItemPop {onfinish} {oncancel} {prompt} {placeholder}/> }
+        html! { <NewItemPop {onfinish} {oncancel} {prompt} {placeholder} {value}/> }
     } else {
         html! {}
     };
@@ -559,7 +598,7 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
                     can_paste.set(!res.unwrap_or(true));
                 })
             },
-            500,
+            250,
         )
     }
 
@@ -584,6 +623,17 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
                     let _res = crate::app::cmds::cut(items).await.ok();
                 }
             });
+        }
+    };
+
+    let oncopypath = {
+        let ctx = ctx.clone();
+        move |_| {
+            if let Some(pitou) = ctx.static_data.openable_selection() {
+                spawn_local(async move {
+                    crate::app::cmds::copy_path(pitou).await.ok();
+                })
+            }
         }
     };
 
@@ -616,8 +666,8 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
                 </div>
             </div>
             <div class="ribbon-textgroup clipboard">
-                <div class="ribbon-small clipboard">{"copy path"}</div>
-                <div class="ribbon-small clipboard">{"copy shortcut"}</div>
+                <div class="ribbon-small clipboard" onclick={oncopypath}>{"copy path"}</div>
+                <div class="ribbon-small clipboard">{"paste shortcut"}</div>
                 <div class="ribbon-small clipboard">{"clipboard"}</div>
             </div>
         </div>

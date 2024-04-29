@@ -1,5 +1,8 @@
-# Tauri + Yew
 
+# Pitou
+Pitou is a feature-rich, versatile cross-platform file explorer powered by tauri.
+
+Frontend is created with yew.rs
 
 ## Recommended IDE Setup
 
@@ -8,10 +11,10 @@
 
 ## Demo
 
-Standalone demo for windows 64bit os at: `./items/standalone_windows_64bit`
+Standalone demo for windows 64bit is at: `./items/standalone_windows_64bit`
 
 !["Polish Color Theme"](items/shot3.png)
 
-| Image 1 | Image 2 |
+| Home menu | Explorer Menu |
 |---|---|
 | !["Home menu"](items/shot1.png) | !["Explorer Menu"](items/shot2.png) |

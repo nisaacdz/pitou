@@ -16,10 +16,7 @@ pub mod reusables;
 pub fn App() -> Html {
     let tabs_ctx = use_state(|| Rc::new(AllTabsCtx::default()));
 
-    let genr_ctx = use_state(|| {
-        let res = GenCtx::default();
-        Rc::new(RefCell::new(res))
-    });
+    let genr_ctx = use_state(|| Rc::new(RefCell::new(GenCtx::default())));
 
     let static_data = use_state(|| Rc::new(StaticData::new()));
 
@@ -149,11 +146,20 @@ pub fn App() -> Html {
         }
     };
 
+    let quietreload = {
+        let genr_ctx = genr_ctx.clone();
+        let ctx = ctx.clone();
+        move |()| {
+            ctx.toggle_refresher_state();
+            genr_ctx.set((*genr_ctx).clone())
+        }
+    };
+
     html! {
         <main {style}>
             <ContextProvider<ApplicationContext> context={ctx}>
                 <TitleBar tabs_ctx = { (*tabs_ctx).clone() } {onclose} {ontogglemaximize} {onminimize} {add_tab} {rem_tab} {change_tab} />
-                <Content {onswitchmenu} {onupdatedir} {onupdatetheme} {navigate_folder} {reload} />
+                <Content {onswitchmenu} {onupdatedir} {onupdatetheme} {navigate_folder} {reload} {quietreload}/>
             </ContextProvider<ApplicationContext>>
         </main>
     }

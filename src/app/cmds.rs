@@ -4,6 +4,12 @@ use pitou_core::*;
 
 use super::reusables::{ItemsArg, NoArg, PitouArg, RenameArg};
 
+#[allow(unused)]
+pub fn debug_items(items: Rc<Vec<Rc<PitouFile>>>) -> String {
+    let items = items.iter().map(|v| v.name()).collect::<Vec<&str>>();
+    format! {"{:#?}", items}
+}
+
 pub async fn open(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("open", &PitouArg { pitou }).await
 }
@@ -50,4 +56,8 @@ pub async fn create_dir(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
 
 pub async fn create_file(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("create_file", &PitouArg { pitou }).await
+}
+
+pub async fn copy_path(_pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
+    Ok(())
 }
