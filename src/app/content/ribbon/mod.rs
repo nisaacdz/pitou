@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::app::reusables::{ItemsSortPop, NewItemPop};
+use crate::app::reusables::{FindPop, ItemsSortPop, NewItemPop};
 use pitou_core::{frontend::ApplicationContext, AppMenu, ItemsView, PitouFile, PitouFilePath};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlSelectElement;
@@ -11,6 +11,7 @@ use yew_hooks::use_interval;
 pub struct RibbonProps {
     pub navigate_folder: Callback<bool>,
     pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
     pub onupdatedir: Callback<Option<Rc<PitouFile>>>,
 }
 
@@ -23,16 +24,17 @@ pub fn Ribbon(props: &RibbonProps) -> Html {
             <RibbonCreations reload={ props.reload.clone() }/>
             <RibbonTrash reload={ props.reload.clone() }/>
             <RibbonActions onupdatedir={ props.onupdatedir.clone() }/>
-            <RibbonRefresh reload={ props.reload.clone() }/>
+            <RibbonRefresh quietreload={ props.quietreload.clone() }/>
             <RibbonProperties />
-            <RibbonArrange reload={ props.reload.clone() }/>
+            <RibbonArrange quietreload={props.quietreload.clone()}/>
+            <RibbonHighlight quietreload={props.quietreload.clone()} reload={props.reload.clone()}/>
         </div>
     }
 }
 
 #[derive(Properties, PartialEq)]
 struct RibbonRefreshProps {
-    reload: Callback<()>,
+    quietreload: Callback<()>,
 }
 
 #[function_component]
@@ -64,7 +66,7 @@ fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
     let onclick = {
         let refreshing = refreshing.clone();
         let ctx = ctx.clone();
-        let reload = props.reload.clone();
+        let quietreload = props.quietreload.clone();
         move |_| {
             ctx.static_data.clear_all_selections();
             match ctx.current_menu() {
@@ -82,7 +84,7 @@ fn RibbonRefresh(props: &RibbonRefreshProps) -> Html {
                 AppMenu::Settings => (),
             }
             refreshing.set(true);
-            reload.emit(())
+            quietreload.emit(())
         }
     };
 
@@ -232,7 +234,7 @@ fn RibbonActions(props: &RibbonActionsProps) -> Html {
 
 #[derive(Properties, PartialEq)]
 struct RibbonArrangeProps {
-    reload: Callback<()>,
+    quietreload: Callback<()>,
 }
 
 #[function_component]
@@ -256,7 +258,7 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
 
     let onchangeitemsview = {
         let ctx = ctx.clone();
-        let reload = props.reload.clone();
+        let quietreload = props.quietreload.clone();
         move |e: Event| {
             let val = e.target_dyn_into::<HtmlSelectElement>().unwrap().value();
             let view = match val.parse::<u8>().unwrap() {
@@ -266,20 +268,22 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
                 _ => unreachable!(),
             };
             ctx.update_items_view(view);
-            reload.emit(())
+            quietreload.emit(())
         }
     };
 
+    let onclickchooseview = { move |e: MouseEvent| e.stop_propagation() };
+
     let onclickitemsview = {
         let ctx = ctx.clone();
-        let reload = props.reload.clone();
+        let quietreload = props.quietreload.clone();
         move |_| {
             match ctx.items_view() {
                 ItemsView::Grid => ctx.update_items_view(ItemsView::Rows),
                 ItemsView::Rows => ctx.update_items_view(ItemsView::Tiles),
                 ItemsView::Tiles => ctx.update_items_view(ItemsView::Grid),
             }
-            reload.emit(())
+            quietreload.emit(())
         }
     };
 
@@ -291,10 +295,10 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
 
         let onfinish = {
             let ctx = ctx.clone();
-            let reload = props.reload.clone();
+            let quietreload = props.quietreload.clone();
             move |sort| {
                 ctx.update_items_sort(sort);
-                reload.emit(())
+                quietreload.emit(())
             }
         };
         html! { <ItemsSortPop {onfinish} {onexit} {selected} /> }
@@ -309,12 +313,12 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
         <div id="ribbon-arrange" class="ribbon-group">
             {cnt}
             <div class={sort_class} title="sort" onclick={onclicksort}>
-                <img src="./public/sort2.png"/>
+                <img src="./public/sort.png"/>
             </div>
             <div class="ribbon-textgroup">
                 <div class="ribbon-small ribbon-mid-small" onclick={onclickitemsview}>
                     <div>{"files view"}</div>
-                    <select onchange={onchangeitemsview}>
+                    <select onchange={onchangeitemsview} onclick={onclickchooseview}>
                     <option value="0" selected={items_view == ItemsView::Tiles}>{ "Tiles" }</option>
                     <option value="1" selected={items_view == ItemsView::Grid}>{ "Grid" }</option>
                     <option value="2" selected={items_view == ItemsView::Rows}>{ "List" }</option>
@@ -651,7 +655,8 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
         }
     };
 
-    let paste_class = format! {"ribbon-large pasteable{}", if *can_paste { " active" } else { "" }};
+    let paste_class =
+        format! {"ribbon-large pasteable {}", if *can_paste { "active" } else { "not-active" }};
     html! {
         <div id="ribbon-clipboard" class="ribbon-group">
             <div class={paste_class} title="paste" onclick={onpaste}>
@@ -669,6 +674,96 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
                 <div class="ribbon-small clipboard" onclick={oncopypath}>{"copy path"}</div>
                 <div class="ribbon-small clipboard">{"paste shortcut"}</div>
                 <div class="ribbon-small clipboard">{"clipboard"}</div>
+            </div>
+        </div>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+struct RibbonHighlightProps {
+    quietreload: Callback<()>,
+    reload: Callback<()>,
+}
+
+#[function_component]
+fn RibbonHighlight(props: &RibbonHighlightProps) -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let finding = use_state_eq(|| false);
+
+    let ontoggleselection = {
+        let ctx = ctx.clone();
+        let quietreload = props.quietreload.clone();
+        move |_| {
+            if let Some(items) = ctx.active_tab.dir_children() {
+                if ctx
+                    .static_data
+                    .are_all_selected_folder_entries(items.clone())
+                {
+                    items
+                        .iter()
+                        .for_each(|item| ctx.static_data.clear_dir_entry_selection(item.clone()));
+                } else {
+                    items
+                        .iter()
+                        .for_each(|item| ctx.static_data.select_folder_entry(item.clone()));
+                }
+                quietreload.emit(())
+            }
+        }
+    };
+
+    let oninvertselection = {
+        let ctx = ctx.clone();
+        let quietreload = props.quietreload.clone();
+        move |_| {
+            if let Some(items) = ctx.active_tab.dir_children() {
+                items.iter().for_each(|item| {
+                    if ctx.static_data.is_selected_dir_entry(item.clone()) {
+                        ctx.static_data.clear_dir_entry_selection(item.clone())
+                    } else {
+                        ctx.static_data.select_folder_entry(item.clone())
+                    }
+                });
+                quietreload.emit(())
+            }
+        }
+    };
+
+    let onclicksearch = {
+        let finding = finding.clone();
+        move |_| finding.set(!*finding)
+    };
+
+    let cnt = if *finding {
+        let onchange = {
+            let quietreload = props.quietreload.clone();
+            move |_| quietreload.emit(())
+        };
+
+        let onclose = {
+            let finding = finding.clone();
+            move |()| finding.set(false)
+        };
+        html! {
+            <FindPop {onchange} {onclose}/>
+        }
+    } else {
+        html! {}
+    };
+
+    html! {
+        <div id="ribbon-highlight" class="ribbon-group">
+            {cnt}
+            <div class="ribbon-large active" title="find" onclick={onclicksearch}>
+                <img src="./public/search.png"/>
+            </div>
+            <div class="ribbon-medium-group">
+                <div class="ribbon-medium" title="toggle selection" onclick={ontoggleselection}>
+                    <img class="ribbon-clipboard-medium-ico" src="./public/toggle_selection.png"/>
+                </div>
+                <div class="ribbon-medium" title="invert selection" onclick={oninvertselection}>
+                    <img class="ribbon-medium-ico" src="./public/invert_selection3.png"/>
+                </div>
             </div>
         </div>
     }

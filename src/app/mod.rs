@@ -46,8 +46,10 @@ pub fn App() -> Html {
 
     let change_tab = {
         let tabs_ctx = tabs_ctx.clone();
+        let ctx = ctx.clone();
         move |idx| {
             let new_tabs = (**tabs_ctx).clone().change_tab(idx);
+            ctx.toggle_refresher_state();
             tabs_ctx.set(Rc::new(new_tabs))
         }
     };

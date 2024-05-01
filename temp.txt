@@ -12,3 +12,12 @@ right click options {
   rename,
   share,
 }
+
+search settings {
+  max finds: 100,
+  input
+  search kind (EndsWith(), BeginsWith(), Contains(), Regex(), Similar())
+  case sensitive?
+  filter?
+  
+}

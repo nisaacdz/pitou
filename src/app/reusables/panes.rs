@@ -7,6 +7,61 @@ use yew::prelude::*;
 use crate::app::reusables::{ListFileTypeIcon, TileFileTypeIcon};
 
 #[derive(Properties, PartialEq)]
+pub struct FindPopProps {
+    pub onclose: Callback<()>,
+    pub onchange: Callback<String>,
+}
+
+#[function_component]
+pub fn FindPop(props: &FindPopProps) -> Html {
+    let input_ref = use_node_ref();
+    {
+        let input_ref = input_ref.clone();
+        use_effect_with((), move |()| {
+            let elem = input_ref.cast::<HtmlInputElement>().unwrap();
+            elem.focus().ok();
+        })
+    }
+    let onchange = {
+        let onchange = props.onchange.clone();
+        move |e: Event| {
+            let elem = e.target_dyn_into::<HtmlInputElement>().unwrap();
+            onchange.emit(elem.value())
+        }
+    };
+    let onclose = {
+        let onclose = props.onclose.clone();
+        move |_| onclose.emit(())
+    };
+
+    html! {
+        <div class="find-popup">
+            <div class="find-popup-logo">
+                <img src="./public/search.png"/>
+            </div>
+            <input type="text" {onchange} class="find-popup-input" ref={input_ref}/>
+            <div class="find-popup-nav">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7.33199 7.68464C6.94146 8.07517 6.3083 8.07517 5.91777 7.68464C5.52725 7.29412 5.52725 6.66095 5.91777 6.27043L10.5834 1.60483C11.3644 0.823781 12.6308 0.82378 13.4118 1.60483L18.0802 6.27327C18.4707 6.66379 18.4707 7.29696 18.0802 7.68748C17.6897 8.078 17.0565 8.078 16.666 7.68748L13 4.02145V21.9999C13 22.5522 12.5523 22.9999 12 22.9999C11.4477 22.9999 11 22.5522 11 21.9999V4.01666L7.33199 7.68464Z"/>
+                </svg>
+            </div>
+            <div class="find-popup-nav">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7.33199 16.3154C6.94146 15.9248 6.3083 15.9248 5.91777 16.3154C5.52725 16.7059 5.52725 17.339 5.91777 17.7296L10.5834 22.3952C11.3644 23.1762 12.6308 23.1762 13.4118 22.3952L18.0802 17.7267C18.4707 17.3362 18.4707 16.703 18.0802 16.3125C17.6897 15.922 17.0565 15.922 16.666 16.3125L13 19.9786V2.0001C13 1.44781 12.5523 1.0001 12 1.0001C11.4477 1.0001 11 1.44781 11 2.0001V19.9833L7.33199 16.3154Z"/>
+                </svg>
+            </div>
+            <div class="find-popup-close" onclick={onclose}>
+                <svg viewBox="0 0 24 24">
+                    <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59
+                    12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 
+                    1 0 0 0 0-1.42z"/>
+                </svg>
+            </div>
+        </div>
+    }
+}
+
+#[derive(Properties, PartialEq)]
 pub struct ItemsSortPopProps {
     pub selected: Option<PitouFileSort>,
     pub onfinish: Callback<Option<PitouFileSort>>,
@@ -614,10 +669,10 @@ fn GridFileTypeIcon(props: &GridFileTypeIconProps) -> Html {
                     if m.size.bytes == 0 {
                         html! {
                             <svg viewBox="0 0 491.52 491.52">
-                                <path style="fill:#F6C358;" d="M445.522,88.989h-259.23c-5.832,0-11.24-3.318-14.26-8.749l-13.88-24.957
+                                <path fill="#FFB42D" d="M445.522,88.989h-259.23c-5.832,0-11.24-3.318-14.26-8.749l-13.88-24.957
                                     c-3.021-5.432-8.427-8.749-14.259-8.749H45.998c-9.208,0-16.671,8.126-16.671,18.15v362.151c0,10.024,7.463,18.15,16.671,18.15
                                     h399.523c9.207,0,16.671-8.126,16.671-18.15V107.14C462.192,97.116,454.728,88.989,445.522,88.989z"/>
-                                <path style="fill:#FCD462;" d="M474.806,216.429H16.714c-10.557,0-17.956,8.348-16.541,18.538l27.158,195.639
+                                <path fill="#FFD264" d="M474.806,216.429H16.714c-10.557,0-17.956,8.348-16.541,18.538l27.158,195.639
                                     c1.107,7.974,9.46,14.379,18.667,14.379h399.523c9.207,0,17.56-6.405,18.667-14.379l27.158-195.639
                                     C492.761,224.777,485.362,216.429,474.806,216.429z"/>
                             </svg>
@@ -625,20 +680,20 @@ fn GridFileTypeIcon(props: &GridFileTypeIconProps) -> Html {
                     } else {
                         html! {
                             <svg viewBox="0 0 491.52 491.52">
-                                <path style="fill:#F6C358;" d="M445.522,88.989h-259.23c-5.832,0-11.24-3.318-14.26-8.749l-13.88-24.957
+                                <path fill="#FFB42D" d="M445.522,88.989h-259.23c-5.832,0-11.24-3.318-14.26-8.749l-13.88-24.957
                                     c-3.021-5.432-8.427-8.749-14.259-8.749H45.998c-9.208,0-16.671,8.126-16.671,18.15v362.151c0,10.024,7.463,18.15,16.671,18.15
                                     h399.523c9.207,0,16.671-8.126,16.671-18.15V107.14C462.192,97.116,454.728,88.989,445.522,88.989z"/>
                                 <rect x="55.383" y="133.12" style="fill:#EBF0F3;" width="385.536" height="122.092"/>
                                 <rect x="55.383" y="150.17" style="fill:#FFFFFF;" width="385.536" height="122.092"/>
-                                <path style="fill:#FCD462;" d="M474.806,216.429H16.714c-10.557,0-17.956,8.348-16.541,18.538l27.158,195.639
+                                <path fill="#FFD264" d="M474.806,216.429H16.714c-10.557,0-17.956,8.348-16.541,18.538l27.158,195.639
                                     c1.107,7.974,9.46,14.379,18.667,14.379h399.523c9.207,0,17.56-6.405,18.667-14.379l27.158-195.639
                                     C492.761,224.777,485.362,216.429,474.806,216.429z"/>
                             </svg>
                         }
                     }
                 }
-                PitouFileKind::File => html! { <img src="./public/file.png"/> },
-                PitouFileKind::Link => html! { <img src="./public/file.png"/> },
+                PitouFileKind::File => html! { <img src="./public/file3.png"/> },
+                PitouFileKind::Link => html! { <img src="./public/file3.png"/> },
             }
         } else {
             html! { <img src="./public/unknown_file.png"/> }

@@ -27,7 +27,7 @@ fn Ancestry(props: &AncestryProps) -> Html {
         let input_elem_ref = input_elem_ref.clone();
         use_effect(move || {
             if let Some(elem) = input_elem_ref.cast::<HtmlInputElement>() {
-                elem.focus().unwrap()
+                elem.focus().ok();
             }
         });
     }

@@ -216,7 +216,7 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
                     )
                 })
             },
-            200,
+            250,
         );
     }
 
@@ -262,7 +262,7 @@ fn ControlBox(props: &ControlBoxProps) -> Html {
     html! {
         <div id="control-box">
             <div class="control-button close-button" onclick={onclose}>
-                <svg class="elem" id="close-button-cross" viewBox="0 0 24 24" width="24" height="24">
+                <svg class="elem close-button-cross" viewBox="0 0 24 24" width="24" height="24">
                     <path d="M17.71 6.71a1 1 0 0 0-1.42 0L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42L10.59
                     12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42L13.41 12l4.3-4.29a1 
                     1 0 0 0 0-1.42z"/>
