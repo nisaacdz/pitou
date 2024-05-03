@@ -6,6 +6,11 @@ use serde::{
     Deserialize, Deserializer, Serialize,
 };
 
+#[derive(Serialize, Deserialize)]
+pub struct FindPayload {
+    pub input: String,
+}
+
 #[derive(Serialize)]
 pub struct NoArg;
 

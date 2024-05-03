@@ -301,6 +301,7 @@ fn RibbonArrange(props: &RibbonArrangeProps) -> Html {
                 quietreload.emit(())
             }
         };
+
         html! { <ItemsSortPop {onfinish} {onexit} {selected} /> }
     } else {
         html! {}
@@ -737,13 +738,28 @@ fn RibbonHighlight(props: &RibbonHighlightProps) -> Html {
     let cnt = if *finding {
         let onchange = {
             let quietreload = props.quietreload.clone();
-            move |_| quietreload.emit(())
+            move |input| {
+                let quietreload = quietreload.clone();
+                spawn_local(async move {
+                    crate::app::events::emit_event("find", &input).await;
+                    quietreload.emit(())
+                })
+            }
         };
 
         let onclose = {
             let finding = finding.clone();
-            move |()| finding.set(false)
+            let quietreload = props.quietreload.clone();
+            move |()| {
+                finding.set(false);
+                let quietreload = quietreload.clone();
+                spawn_local(async move {
+                    crate::app::events::emit_event("ended_find", &()).await;
+                    quietreload.emit(())
+                })
+            }
         };
+        
         html! {
             <FindPop {onchange} {onclose}/>
         }

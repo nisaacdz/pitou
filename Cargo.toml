@@ -15,6 +15,7 @@ web-sys = { version = "0.3.69", features = ["HtmlSelectElement"]}
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = ["window", "tauri", "event"] }
 yew = "0.21.0"
 yew-hooks = "0.3.1"
+tokio-stream = "0.1.15"
 
 
 [workspace]

@@ -11,7 +11,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::app::reusables::{ChevronRightIcon, DirChildrenArgs, MainPane};
+use crate::app::reusables::{ChevronRightIcon, DirChildrenArgs, FindPayload, MainPane};
 
 #[derive(PartialEq, Properties)]
 struct AncestryProps {
@@ -178,6 +178,7 @@ pub async fn update_children(ctx: ApplicationContext, after: impl Fn()) {
 fn Explorer(props: &ExplorerProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let refresher = use_force_update();
+    let find = use_state(|| None);
 
     {
         let ctx = ctx.clone();
@@ -185,10 +186,30 @@ fn Explorer(props: &ExplorerProps) -> Html {
         use_effect_with(ctx.refresher_state(), move |_| {
             spawn_local(async move {
                 update_children(ctx, move || refresher.force_update()).await;
-            })
-        })
+            });
+        });
     }
 
+    {
+        let find = find.clone();
+        let ctx = ctx.clone();
+        use_effect_with(ctx.refresher_state(), move |_| {
+            spawn_local(async move {
+                crate::app::events::listen_event("find", |v: String| find.set(Some(v))).await;
+            });
+        });
+    }
+
+    {
+        let ctx = ctx.clone();
+        let find = find.clone();   
+        use_effect_with(ctx.refresher_state(), move |_| {
+            spawn_local(async move {
+                crate::app::events::listen_event("ended_find", |()| find.set(None)).await;
+            })
+        });
+    }
+    
     {
         let ctx = ctx.clone();
         let millis = ctx.refresh_rate_as_millis();
@@ -212,6 +233,15 @@ fn Explorer(props: &ExplorerProps) -> Html {
     let quietreload = props.quietreload.clone();
 
     let content = if let Some(items) = ctx.active_tab.dir_children() {
+        let items = if let Some(find) = &*find {
+            if find.len() == 0 {
+                items
+            } else {
+                Rc::new(items.iter().filter_map(|v| v.matches_find(find)).collect())
+            }
+        } else {
+            items
+        };
         let view = ctx.items_view();
         html! { <MainPane {view} {items} {onopen} {reload} {quietreload}/>}
     } else {
