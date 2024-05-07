@@ -4,8 +4,8 @@ use pitou_core::{frontend::*, *};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 mod cmds;
-mod events;
 mod content;
+mod events;
 mod title_bar;
 
 use content::*;

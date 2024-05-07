@@ -1,14 +1,8 @@
 use std::rc::Rc;
 
-use pitou_core::*;
+use pitou_core::{msg::SearchMsg, search::SimplifiedSearchOptions, *};
 
-use super::reusables::{ItemsArg, NoArg, PitouArg, RenameArg};
-
-#[allow(unused)]
-pub fn debug_items(items: Rc<Vec<Rc<PitouFile>>>) -> String {
-    let items = items.iter().map(|v| v.name()).collect::<Vec<&str>>();
-    format! {"{:#?}", items}
-}
+use super::reusables::{ItemsArg, NoArg, PitouArg, RenameArg, SearchOptionsArg};
 
 pub async fn open(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("open", &PitouArg { pitou }).await
@@ -60,4 +54,16 @@ pub async fn create_file(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
 
 pub async fn copy_path(_pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     Ok(())
+}
+
+pub async fn search(options: SimplifiedSearchOptions) -> Result<(), tauri_sys::Error> {
+    tauri_sys::tauri::invoke("search", &SearchOptionsArg { options }).await
+}
+
+pub async fn terminate_search() -> Result<(), tauri_sys::Error> {
+    tauri_sys::tauri::invoke("terminate_search", &NoArg).await
+}
+
+pub async fn search_msg() -> Result<SearchMsg, tauri_sys::Error> {
+    tauri_sys::tauri::invoke("search_msg", &NoArg).await
 }

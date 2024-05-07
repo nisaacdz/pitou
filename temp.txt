@@ -1,23 +1,68 @@
-right click options {
-  duplicate,
-  open,
-  open with
-  copy path
-  copy
-  cut
-  info
-  delete
-  archive,
-  extract,
-  rename,
-  share,
+#pane-list-view {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 25px;
+  padding-left: 5px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
-search settings {
-  max finds: 100,
-  input
-  search kind (EndsWith(), BeginsWith(), Contains(), Regex(), Similar())
-  case sensitive?
-  filter?
-  
+#pane-list-view::after {
+  content: "";
+  height: 200px;
+  width: 770px;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+#pane-list-view-dsc {
+  position: absolute;
+  width: 770px;
+  top: 0px;
+  height: 25px;
+  display: flex;
+  gap: 0;
+  margin-left: 5px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: left;
+  font-size: small;
+  color: var(--secondary-foreground-color);
+}
+
+.pane-list-view-dsc-checkbox-container {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pane-list-view-dsc-checkbox {
+  width: 10px;
+  height: 10px;
+}
+
+.pane-list-view-dsc-filetype {
+  width: 40px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pane-list-view-dsc-filename {
+  width: 350px;
+  height: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  padding-left: 5px;
 }

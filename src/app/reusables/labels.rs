@@ -1,6 +1,6 @@
 use std::{marker::PhantomData, rc::Rc};
 
-use pitou_core::*;
+use pitou_core::{search::SimplifiedSearchOptions, *};
 use serde::{
     de::{SeqAccess, Visitor},
     Deserialize, Deserializer, Serialize,
@@ -9,6 +9,11 @@ use serde::{
 #[derive(Serialize, Deserialize)]
 pub struct FindPayload {
     pub input: String,
+}
+
+#[derive(Serialize)]
+pub struct SearchOptionsArg {
+    pub options: SimplifiedSearchOptions,
 }
 
 #[derive(Serialize)]

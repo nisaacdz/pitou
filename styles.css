@@ -1600,3 +1600,50 @@ body {
   height: 20px;
   fill: var(--primary-spare-color);
 }
+
+#search-results-pane {
+  position: absolute;
+  left: 250px;
+  top: 25px;
+  right: 0px;
+  bottom: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#search-options-pane {
+  position: absolute;
+  left: 0px;
+  width: 250px;
+  bottom: 0px;
+  top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: left;
+  justify-content: start;
+  padding-top: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: hidden;
+  background-color: var(--secondary-background-color);
+  color: var(--primary-foreground-color);
+}
+
+
+#search-options-pane input, #search-options-pane button {
+  height: 25px;
+}
+
+#search-options-search-btn {
+  background-color: var(--primary-background-color);
+  border: 2px solid var(--secondary-background-color);
+}
+
+#search-options-search-btn:hover {
+  border-color: var(--secondary-spare-color);
+}
+
+#search-options-cancel-btn {
+  background-color: red;
+}

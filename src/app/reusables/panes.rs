@@ -319,11 +319,11 @@ struct ViewProps {
 }
 
 #[derive(Properties, PartialEq)]
-struct ItemProps {
-    onopen: Callback<Rc<PitouFile>>,
-    item: Rc<PitouFile>,
-    reload: Callback<()>,
-    quietreload: Callback<()>,
+pub struct ItemProps {
+    pub onopen: Callback<Rc<PitouFile>>,
+    pub item: Rc<PitouFile>,
+    pub reload: Callback<()>,
+    pub quietreload: Callback<()>,
 }
 
 impl PartialEq for ViewProps {
@@ -374,12 +374,12 @@ fn ListView(props: &ViewProps) -> Html {
 }
 
 #[derive(PartialEq, Properties)]
-struct ListDscProps {
-    ontoggle: Callback<()>,
+pub struct ListDscProps {
+    pub ontoggle: Callback<()>,
 }
 
 #[function_component]
-fn ListDsc(props: &ListDscProps) -> Html {
+pub fn ListDsc(props: &ListDscProps) -> Html {
     let onchange = {
         let ontoggle = props.ontoggle.clone();
         move |_| ontoggle.emit(())
@@ -409,7 +409,7 @@ fn ListDsc(props: &ListDscProps) -> Html {
 }
 
 #[function_component]
-fn ListItem(props: &ItemProps) -> Html {
+pub fn ListItem(props: &ItemProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let highlighted = use_state_eq(|| ctx.static_data.is_selected_dir_entry(props.item.clone()));
 

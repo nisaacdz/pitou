@@ -3,10 +3,10 @@ use std::rc::Rc;
 use pitou_core::*;
 use yew::prelude::*;
 
-mod menus;
-mod pane;
-mod ribbon;
-mod status;
+pub mod menus;
+pub mod pane;
+pub mod ribbon;
+pub mod status;
 
 use menus::*;
 use pane::*;

@@ -23,6 +23,9 @@ fn main() {
             create_file,
             rename,
             extract,
+            search,
+            terminate_search,
+            search_msg
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

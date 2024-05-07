@@ -14,12 +14,12 @@ use yew_hooks::use_interval;
 use crate::app::reusables::{ChevronRightIcon, DirChildrenArgs, FindPayload, MainPane};
 
 #[derive(PartialEq, Properties)]
-struct AncestryProps {
-    onopen: Callback<Rc<PitouFile>>,
+pub struct AncestryProps {
+    pub onopen: Callback<Rc<PitouFile>>,
 }
 
 #[function_component]
-fn Ancestry(props: &AncestryProps) -> Html {
+pub fn Ancestry(props: &AncestryProps) -> Html {
     let gen_ctx = use_context::<ApplicationContext>().unwrap();
     let show_ancestry = use_state_eq(|| true);
     let input_elem_ref = use_node_ref();
@@ -202,14 +202,14 @@ fn Explorer(props: &ExplorerProps) -> Html {
 
     {
         let ctx = ctx.clone();
-        let find = find.clone();   
+        let find = find.clone();
         use_effect_with(ctx.refresher_state(), move |_| {
             spawn_local(async move {
                 crate::app::events::listen_event("ended_find", |()| find.set(None)).await;
             })
         });
     }
-    
+
     {
         let ctx = ctx.clone();
         let millis = ctx.refresh_rate_as_millis();

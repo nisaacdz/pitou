@@ -1,5 +1,5 @@
 #![allow(unused)]
-use pitou_core::*;
+use pitou_core::{msg::SearchMsg, search::SimplifiedSearchOptions, *};
 
 #[tauri::command]
 pub fn general_folders() -> Vec<GeneralFolder> {
@@ -88,4 +88,21 @@ pub async fn rename(pitou: PitouFile, name: String) {
 #[tauri::command]
 pub async fn extract(pitou: PitouFile) {
     let _ = pitou;
+}
+
+#[tauri::command]
+pub async fn search(options: SimplifiedSearchOptions) {
+    if let Some(options) = options.try_into() {
+        pitou_core::backend::search(options).await;
+    }
+}
+
+#[tauri::command]
+pub async fn terminate_search() {
+    pitou_core::backend::stream::terminate_stream().await
+}
+
+#[tauri::command]
+pub async fn search_msg() -> SearchMsg {
+    pitou_core::backend::stream::read().await
 }

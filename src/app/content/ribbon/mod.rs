@@ -759,7 +759,7 @@ fn RibbonHighlight(props: &RibbonHighlightProps) -> Html {
                 })
             }
         };
-        
+
         html! {
             <FindPop {onchange} {onclose}/>
         }

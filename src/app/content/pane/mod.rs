@@ -58,7 +58,9 @@ pub fn Pane(props: &PaneProps) -> Html {
         }
         AppMenu::Trash => html! { <TrashView /> },
         AppMenu::Favorites => html! { <NotYetImplementedPane/> },
-        AppMenu::Search => html! { <NotYetImplementedPane/> },
+        AppMenu::Search => {
+            html! { <SearchPane {onopen} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/> }
+        }
         AppMenu::Locked => html! { <NotYetImplementedPane/> },
         AppMenu::Recents => html! { <NotYetImplementedPane/> },
         AppMenu::Cloud => html! { <NotYetImplementedPane/> },
