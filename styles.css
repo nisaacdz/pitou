@@ -623,9 +623,9 @@ body {
   width: 770px;
   top: 0px;
   height: 25px;
+  padding-left: 5px;
   display: flex;
   gap: 0;
-  margin-left: 5px;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
@@ -1601,14 +1601,18 @@ body {
   fill: var(--primary-spare-color);
 }
 
+#search-pane {
+  overflow: hidden;
+}
+
 #search-results-pane {
   position: absolute;
   left: 250px;
   top: 25px;
   right: 0px;
   bottom: 0px;
-  padding-left: 5px;
-  padding-right: 5px;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 #search-options-pane {
@@ -1628,10 +1632,11 @@ body {
   overflow: hidden;
   background-color: var(--secondary-background-color);
   color: var(--primary-foreground-color);
+  box-sizing: border-box;
 }
 
 
-#search-options-pane input, #search-options-pane button {
+#search-options-input, #search-options-search-btn {
   height: 25px;
 }
 

@@ -7,41 +7,33 @@ use tokio_stream::StreamExt;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::{platform::time::interval, prelude::*};
-use yew_hooks::{use_effect_update, use_effect_update_with_deps};
+use yew_hooks::{use_effect_update, use_effect_update_with_deps, use_interval};
 
 async fn begin_stream_search(
     options: SimplifiedSearchOptions,
     bank: Rc<RefCell<Vec<Rc<PitouFile>>>>,
+    searching: Rc<RefCell<bool>>,
     update: UseForceUpdateHandle,
 ) {
     if let Ok(()) = crate::app::cmds::search(options).await {
-        crate::app::events::emit_event("searching", &true).await;
+        *searching.borrow_mut() = true;
         let mut interval = Box::pin(interval(std::time::Duration::from_millis(250)));
         while let Some(_) = interval.next().await {
             if let Ok(msg) = crate::app::cmds::search_msg().await {
                 match msg {
                     msg::SearchMsg::Active(ll) => {
                         bank.borrow_mut().extend(ll.into_iter().map(|v| Rc::new(v)));
-                        web_sys::console::log_1(
-                            &serde_wasm_bindgen::to_value("still searching").unwrap(),
-                        );
                         update.force_update();
                     }
                     msg::SearchMsg::Terminated(ll) => {
                         bank.borrow_mut().extend(ll.into_iter().map(|v| Rc::new(v)));
                         update.force_update();
-                        crate::app::events::emit_event("searching", &false).await;
-                        web_sys::console::log_1(
-                            &serde_wasm_bindgen::to_value("completed search").unwrap(),
-                        );
+                        *searching.borrow_mut() = false;
                         break;
                     }
                 }
             } else {
-                web_sys::console::log_1(
-                    &serde_wasm_bindgen::to_value("encountered an issue").unwrap(),
-                );
-                crate::app::events::emit_event("searching", &false).await;
+                *searching.borrow_mut() = false;
                 break;
             }
         }
@@ -61,21 +53,26 @@ pub struct SearchPaneProps {
 pub fn SearchPane(props: &SearchPaneProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let update = use_force_update();
+    let searching = use_mut_ref(|| false);
 
     let onsearch = {
         let ctx = ctx.clone();
         let update = update.clone();
+        let searching = searching.clone();
         move |options: FrontendSearchOptions| {
-            let ctx = ctx.clone();
-            ctx.static_data.clear_all_selections();
-            ctx.active_tab.reset_search_results();
-            let bank = ctx.active_tab.get_or_init_search_results();
-            let update = update.clone();
-            if let Some(search_dir) = ctx.active_tab.current_dir() {
-                spawn_local(async move {
-                    let options = SimplifiedSearchOptions::build_from(options, search_dir);
-                    begin_stream_search(options, bank, update).await;
-                })
+            if !*searching.borrow() {
+                let ctx = ctx.clone();
+                ctx.static_data.clear_all_selections();
+                ctx.active_tab.reset_search_results();
+                let bank = ctx.active_tab.get_or_init_search_results();
+                let update = update.clone();
+                let searching = searching.clone();
+                if let Some(search_dir) = ctx.active_tab.current_dir() {
+                    spawn_local(async move {
+                        let options = SimplifiedSearchOptions::build_from(options, search_dir);
+                        begin_stream_search(options, bank, searching, update).await;
+                    })
+                }
             }
         }
     };
@@ -83,7 +80,7 @@ pub fn SearchPane(props: &SearchPaneProps) -> Html {
     let oncancel = {
         move |()| {
             spawn_local(async move {
-                crate::app::cmds::terminate_search().await.ok();
+                crate::app::cmds::terminate_search().await.unwrap();
             })
         }
     };
@@ -93,7 +90,7 @@ pub fn SearchPane(props: &SearchPaneProps) -> Html {
     html! {
         <div id="search-pane" class="fullpane">
             <Ancestry onopen={props.onopen.clone()}/>
-            <SearchOptionsPane {onsearch} {oncancel}/>
+            <SearchOptionsPane {onsearch} {oncancel} {searching} />
             <SearchResultsPane {results} onopen={props.onopen.clone()} reload={props.reload.clone()} quietreload={props.quietreload.clone()}/>
         </div>
     }
@@ -103,14 +100,15 @@ pub fn SearchPane(props: &SearchPaneProps) -> Html {
 struct SearchOptionsPaneProps {
     onsearch: Callback<FrontendSearchOptions>,
     oncancel: Callback<()>,
+    searching: Rc<RefCell<bool>>,
 }
 
 #[function_component]
 fn SearchOptionsPane(props: &SearchOptionsPaneProps) -> Html {
     let ctx = use_context::<ApplicationContext>().unwrap();
     let force_update = use_force_update();
-    let searching = use_state(|| false);
     let input_ref = use_node_ref();
+    let searching = use_state_eq(|| *props.searching.borrow());
 
     {
         let input_ref = input_ref.clone();
@@ -120,13 +118,9 @@ fn SearchOptionsPane(props: &SearchOptionsPaneProps) -> Html {
     }
 
     {
+        let prop_searching = props.searching.clone();
         let searching = searching.clone();
-        use_effect(move || {
-            let searching = searching.clone();
-            spawn_local(async move {
-                crate::app::events::listen_event("searching", |n| searching.set(n)).await;
-            })
-        })
+        use_interval(move || searching.set(*prop_searching.borrow()), 250)
     }
 
     let finish = {
@@ -143,6 +137,11 @@ fn SearchOptionsPane(props: &SearchOptionsPaneProps) -> Html {
     let onclicksearch = {
         let onfinish = finish.clone();
         move |_| onfinish()
+    };
+
+    let onclickcancel = {
+        let oncancel = props.oncancel.clone();
+        move |_| oncancel.emit(())
     };
 
     let onchangesearchtype = {
@@ -292,20 +291,20 @@ fn SearchOptionsPane(props: &SearchOptionsPaneProps) -> Html {
     };
 
     let search_or_cancel_btn = {
-        if !*searching {
+        if *searching {
             html! {
-                <button onclick={onclicksearch} id="search-options-search-btn">{"Search"}</button>
+                <button onclick={onclickcancel} id="search-options-cancel-btn">{"Cancel"}</button>
             }
         } else {
             html! {
-                <button onclick={onclicksearch} id="search-options-cancel-btn">{"Cancel"}</button>
+                <button onclick={onclicksearch} id="search-options-search-btn">{"Search"}</button>
             }
         }
     };
 
     html! {
         <div id="search-options-pane" class="side-pane">
-            <input class="search-options-input" type="text" {onkeypress} {placeholder} {oninput} ref={input_ref} {value}/>
+            <input id="search-options-input" type="text" {onkeypress} {placeholder} {oninput} ref={input_ref} {value}/>
             <span class="title">{"Search Options"}</span>
             <label>
                 {"Type:"}
@@ -341,7 +340,7 @@ fn SearchOptionsPane(props: &SearchOptionsPaneProps) -> Html {
             </label>
             <label>
                 {"Max Finds:"}
-                <input type="number" min={1} max={1000} value={max_finds} onchange={onchangemaxfinds}/>
+                <input type="number" min={1} max={5000} value={max_finds} onchange={onchangemaxfinds}/>
             </label>
             { search_or_cancel_btn }
         </div>
@@ -555,7 +554,7 @@ fn ListItem(props: &ListItemProps) -> Html {
                 <ListFileTypeIcon {filetype}/>
             </div>
             <div class="list-filename-container">
-                <div class="list-filename">{ name }</div>
+                <div class="list-filename search-filename">{ name }</div>
             </div>
             <div class="list-modifieddate-container">
                 <div>{ modified }</div>

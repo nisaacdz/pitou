@@ -614,6 +614,8 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
             spawn_local(async move {
                 if let Some(items) = &ctx.static_data.folder_entry_selections() {
                     let _res = crate::app::cmds::copy(items).await.ok();
+                } else if let Some(items) = &ctx.static_data.search_result_selections() {
+                    let _res = crate::app::cmds::copy(items).await.ok();
                 }
             });
         }
