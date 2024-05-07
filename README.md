@@ -9,12 +9,29 @@ Frontend is created with yew.rs
 [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
 
 
+## Libraries used
+* tauri
+* yew
+* wasm-bindgen
+* serde
+* rustqlite
+* tokio
+
+
+## Reproduction
+
+* Install rust
+* Install trunk
+* Install tauri-cli
+* build a binary with  `cargo tauri build`
+
+
 ## Demo
 
-Standalone demo for windows 64bit is at: `./items/standalone_windows_64bit`
+Find a standalone demo of this app for windows 64bit at: `./items/standalone_windows_64bit`
 
-!["Polish Color Theme"](items/shot3.png)
+!["Home view"](items/shot1.png)
 
-| Home menu | Explorer Menu |
-|---|---|
-| !["Home menu"](items/shot1.png) | !["Explorer Menu"](items/shot2.png) |
+!["Searching"](items/shot2.png)
+
+!["Explorer (with polish theme)"](items/shot3.png)
