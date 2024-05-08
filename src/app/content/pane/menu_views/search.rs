@@ -302,9 +302,11 @@ fn SearchOptionsPane(props: &SearchOptionsPaneProps) -> Html {
         }
     };
 
+    let autocomplete = "off";
+
     html! {
         <div id="search-options-pane" class="side-pane">
-            <input id="search-options-input" type="text" {onkeypress} {placeholder} {oninput} ref={input_ref} {value}/>
+            <input id="search-options-input" type="text" {onkeypress} {placeholder} {oninput} ref={input_ref} {value} {autocomplete}/>
             <span class="title">{"Search Options"}</span>
             <label>
                 {"Type:"}

@@ -34,4 +34,6 @@ Find a standalone demo of this app for windows 64bit at: `./items/standalone_win
 
 !["Searching"](items/shot2.png)
 
-!["Explorer (with polish theme)"](items/shot3.png)
+!["Explorer (with polish theme and tiles view)"](items/shot3.png)
+
+!["Explorer (with grid view)"](items/shot4.png)

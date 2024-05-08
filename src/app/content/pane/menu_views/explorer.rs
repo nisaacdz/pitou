@@ -119,8 +119,9 @@ pub fn Ancestry(props: &AncestryProps) -> Html {
             .as_ref()
             .map(|v| v.path.path.display().to_string())
             .unwrap_or_default();
+        let autocomplete = "off";
         html! {
-            <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value} {onkeypress}/>
+            <input ref={input_elem_ref} id="ancestry-path" type="text" {onblur} {value} {onkeypress} {autocomplete}/>
         }
     };
 

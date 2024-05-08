@@ -693,7 +693,7 @@ fn GridFileTypeIcon(props: &GridFileTypeIconProps) -> Html {
                         }
                     }
                 }
-                PitouFileKind::File => html! { <img src="./public/file3.png"/> },
+                PitouFileKind::File => crate::app::reusables::match_extension(&props.item),
                 PitouFileKind::Link => html! { <img src="./public/file3.png"/> },
             }
         } else {

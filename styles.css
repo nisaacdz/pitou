@@ -550,6 +550,10 @@ body {
   fill: var(--secondary-foreground-color)
 }
 
+.fill-secondary-background {
+  fill: var(--secondary-background-color)
+}
+
 .fill-none {
   fill: none;
 }
@@ -1611,8 +1615,11 @@ body {
   top: 25px;
   right: 0px;
   bottom: 0px;
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: hidden;
+}
+
+#search-results-pane .list-filename {
+  direction: rtl;
 }
 
 #search-options-pane {
@@ -1636,13 +1643,15 @@ body {
 }
 
 
-#search-options-input, #search-options-search-btn {
+#search-options-input {
   height: 25px;
 }
 
 #search-options-search-btn {
   background-color: var(--primary-background-color);
   border: 2px solid var(--secondary-background-color);
+  height: 25px;
+  color: var(--primary-foreground-color);
 }
 
 #search-options-search-btn:hover {
@@ -1651,4 +1660,6 @@ body {
 
 #search-options-cancel-btn {
   background-color: red;
+  height: 25px;
+  color: var(--primary-foreground-color);
 }
