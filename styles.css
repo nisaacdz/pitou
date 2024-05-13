@@ -276,6 +276,7 @@ body {
   left: 1px;
   right: 1px;
   background-color: var(--secondary-background-color);
+  display: inline-flex;
 }
 
 #side-menus {
@@ -548,6 +549,10 @@ body {
 
 .fill-secondary-foreground {
   fill: var(--secondary-foreground-color)
+}
+
+.fill-primary-foreground {
+  fill: var(--primary-foreground-color);
 }
 
 .fill-secondary-background {
@@ -853,7 +858,7 @@ body {
   justify-content: center;
 }
 
-.grid-filetypeicon-container img, .grid-filetypeicon-container svg {
+.grid-filetypeicon-container img, .grid-filetypeicon-container svg, .list-filetypeicon-container svg {
   width: 100%;
   height: 100%;
 }
@@ -872,7 +877,7 @@ body {
   justify-content: left;
   padding-left: 10px;
   box-sizing: border-box;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 
@@ -932,6 +937,7 @@ body {
 }
 
 .list-filetypeicon-container {
+  position: relative;
   height: 30px;
   width: 40px;
   display: flex;

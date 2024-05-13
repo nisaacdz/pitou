@@ -4,7 +4,7 @@ use pitou_core::{frontend::*, *};
 use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 
-use crate::app::reusables::{ListFileTypeIcon, TileFileTypeIcon};
+use crate::app::reusables::{list_file_type_icon, tile_file_type_icon};
 
 #[derive(Properties, PartialEq)]
 pub struct FindPopProps {
@@ -473,7 +473,7 @@ pub fn ListItem(props: &ItemProps) -> Html {
     } else {
         props.item.name_without_extension()
     };
-    let filetype = props.item.metadata.as_ref().map(|v| v.kind);
+    
     let accessed = props
         .item
         .metadata
@@ -495,13 +495,15 @@ pub fn ListItem(props: &ItemProps) -> Html {
         .map(|v| v.created.datetime.format("%Y-%m-%d %H:%M").to_string())
         .unwrap_or_default();
 
+    let file_type_icon = list_file_type_icon(&props.item);
+
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
                 <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {onchange} />
             </div>
             <div class="list-filetypeicon-container">
-                <ListFileTypeIcon {filetype}/>
+                { file_type_icon }
             </div>
             <div class="list-filename-container">
                 <div class="list-filename">{ name }</div>
@@ -602,8 +604,6 @@ fn TileItem(props: &ItemProps) -> Html {
         }
     });
 
-    let filetype = props.item.metadata.as_ref().map(|v| v.kind);
-
     let optional = props.item.metadata.as_ref().map(|v| {
         v.modified
             .datetime
@@ -631,13 +631,15 @@ fn TileItem(props: &ItemProps) -> Html {
         </div>
     };
 
+    let file_type_icon = tile_file_type_icon(&props.item);
+
     html! {
         <div class={tile_item_class} {ondblclick} {onclick}>
             <div class="tile-checkbox-container">
                 <input class="explorer-checkbox" type="checkbox" checked={*highlighted} onclick={onclickcheckbox} />
             </div>
             <div class="tile-filetypeicon-container">
-                <TileFileTypeIcon {filetype}/>
+                { file_type_icon }
             </div>
             {description}
         </div>
@@ -693,7 +695,9 @@ fn GridFileTypeIcon(props: &GridFileTypeIconProps) -> Html {
                         }
                     }
                 }
-                PitouFileKind::File => crate::app::reusables::match_extension(&props.item),
+                PitouFileKind::File => {
+                    crate::app::reusables::match_extension_grid(&props.item.path().extension())
+                }
                 PitouFileKind::Link => html! { <img src="./public/file3.png"/> },
             }
         } else {

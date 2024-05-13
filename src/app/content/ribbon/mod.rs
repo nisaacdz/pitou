@@ -651,7 +651,9 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
             if let Some(pitou) = ctx.active_tab.current_dir() {
                 let reload = reload.clone();
                 spawn_local(async move {
-                    let _res = crate::app::cmds::paste(pitou).await.ok();
+                    if let Some(id) = crate::app::cmds::paste(pitou).await.ok() {
+                        crate::app::events::emit_event("transfering", &id).await;
+                    }
                     reload.emit(())
                 });
             }

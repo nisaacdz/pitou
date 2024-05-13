@@ -25,7 +25,9 @@ fn main() {
             extract,
             search,
             terminate_search,
-            search_msg
+            search_msg,
+            transfer_sessions,
+            transfer_session_with_id,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

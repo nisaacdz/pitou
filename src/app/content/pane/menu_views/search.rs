@@ -1,7 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
 use super::Ancestry;
-use crate::app::reusables::ListFileTypeIcon;
 use pitou_core::{frontend::*, search::SimplifiedSearchOptions, *};
 use tokio_stream::StreamExt;
 use wasm_bindgen_futures::spawn_local;
@@ -525,7 +524,6 @@ fn ListItem(props: &ListItemProps) -> Html {
     );
 
     let name = props.item.full_path_str();
-    let filetype = props.item.metadata.as_ref().map(|v| v.kind);
     let accessed = props
         .item
         .metadata
@@ -547,13 +545,15 @@ fn ListItem(props: &ListItemProps) -> Html {
         .map(|v| v.created.datetime.format("%Y-%m-%d %H:%M").to_string())
         .unwrap_or_default();
 
+    let file_type_icon = crate::app::reusables::list_file_type_icon(&props.item);
+
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
                 <input class="explorer-checkbox" type="checkbox" checked={*highlighted} {onchange} />
             </div>
             <div class="list-filetypeicon-container">
-                <ListFileTypeIcon {filetype}/>
+                { file_type_icon }
             </div>
             <div class="list-filename-container">
                 <div class="list-filename search-filename">{ name }</div>

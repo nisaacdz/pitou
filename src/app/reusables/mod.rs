@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use pitou_core::*;
 use yew::prelude::*;
 
@@ -238,34 +240,21 @@ pub fn LinkIcon(props: &ReusableItemProps) -> Html {
     }
 }
 
-#[function_component]
-pub fn FileIcon(props: &ReusableItemProps) -> Html {
-    let id = props.id.clone();
-    let class = format! {"spare-fill-2 {}", &props.class };
-    html! {
-        <svg {id} {class} viewBox="0 0 64 64">
-            <path d="M56,0H8C5.789,0,4,1.789,4,4v56c0,2.211,1.789,4,4,4h48c2.211,0,4-1.789,4-4V4C60,1.789,58.211,0,56,0z
-                M24,20h8c2.211,0,4,1.789,4,4s-1.789,4-4,4h-8c-2.211,0-4-1.789-4-4S21.789,20,24,20z M40,44H24c-2.211,0-4-1.789-4-4s1.789-4,4-4
-                h16c2.211,0,4,1.789,4,4S42.211,44,40,44z"/>
-        </svg>
+pub fn list_trash_item_type_icon(item: &Rc<PitouTrashItem>) -> Html {
+    if item.is_dir() {
+        html! { <FolderIcon id="" class="folder-file-icon file-type-icon list-type-icon" /> }
+    } else {
+        match_extension_list(item.path().extension())
     }
 }
 
-#[derive(PartialEq, Properties)]
-pub struct FileTypeIconProps {
-    pub filetype: Option<PitouFileKind>,
-}
-
-#[function_component]
-pub fn ListFileTypeIcon(props: &FileTypeIconProps) -> Html {
-    match props.filetype {
+pub fn list_file_type_icon(file: &Rc<PitouFile>) -> Html {
+    match file.kind() {
         Some(filetype) => match filetype {
             PitouFileKind::Directory => {
                 html! { <FolderIcon id="" class="folder-file-icon file-type-icon list-type-icon" /> }
             }
-            PitouFileKind::File => {
-                html! { <FileIcon id="" class="file-file-icon file-type-icon list-type-icon" /> }
-            }
+            PitouFileKind::File => match_extension_list(file.path().extension()),
             PitouFileKind::Link => {
                 html! { <LinkIcon id="" class="link-file-icon file-type-icon list-type-icon" /> }
             }
@@ -276,30 +265,21 @@ pub fn ListFileTypeIcon(props: &FileTypeIconProps) -> Html {
     }
 }
 
-#[function_component]
-pub fn TileFileTypeIcon(props: &FileTypeIconProps) -> Html {
-    match props.filetype {
+pub fn tile_file_type_icon(file: &Rc<PitouFile>) -> Html {
+    match file.kind() {
         Some(filetype) => match filetype {
             PitouFileKind::Directory => {
                 html! {
                     <svg viewBox="0 0 1024 1024">
-                        <path d="M242.3 743.4h603.4c27.8 0 50.3-22.5 50.3-50.3V192H192v501.1c0 27.8 22.5 50.3 50.3 50.3z" class="fill-secondary-spare" />
-                        <path d="M178.3 807.4h603.4c27.8 0 50.3-22.5 50.3-50.3V256H128v501.1c0 27.8 22.5 50.3 50.3 50.3z" class="fill-secondary-foreground" />
+                        <path d="M242.3 743.4h603.4c27.8 0 50.3-22.5 50.3-50.3V192H192v501.1c0 27.8 22.5 50.3 50.3 50.3z" class="fill-secondary-foreground" />
+                        <path d="M178.3 807.4h603.4c27.8 0 50.3-22.5 50.3-50.3V256H128v501.1c0 27.8 22.5 50.3 50.3 50.3z" class="fill-secondary-spare" />
                         <path d="M960 515v384c0 35.3-28.7 64-64 64H128c-35.3 0-64-28.7-64-64V383.8c0-35.3 28.7-64 64-64h344.1c24.5 0 46.8 13.9 57.5 35.9l46.5 95.3H896c35.3 0 64 28.7 64 64z" fill="#FFB42D" />
                         <path d="M704 512c0-20.7-1.4-41.1-4.1-61H576.1l-46.5-95.3c-10.7-22-33.1-35.9-57.5-35.9H128c-35.3 0-64 28.7-64 64V899c0 6.7 1 13.2 3 19.3C124.4 945 188.5 960 256 960c247.4 0 448-200.6 448-448z" fill="#FFD264" />
                     </svg>
                 }
             }
-            PitouFileKind::File => {
-                html! {
-                    <svg viewBox="0 0 24 24">
-                        <path d="M19.71,8.29l-6-6A1,1,0,0,0,13,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V9A1,1,0,0,0,19.71,8.29Z" class="fill-secondary-spare">
-                        </path>
-                        <path d="M13,2a1,1,0,0,1,.71.28l6,6A1,1,0,0,1,20,9H14a1,1,0,0,1-1-1Zm4,15a1,1,0,0,0-1-1H8a1,1,0,0,0,0,2h8A1,1,0,0,0,17,17Zm0-4a1,1,0,0,0-1-1H8a1,1,0,0,0,0,2h8A1,1,0,0,0,17,13Z" class="fill-primary-spare">
-                        </path>
-                    </svg>
-                }
-            }
+            PitouFileKind::File => match_extension_tile(file.path().extension()),
+
             PitouFileKind::Link => {
                 html! { <img src="./public/link.png" /> }
             }

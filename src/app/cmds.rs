@@ -1,8 +1,15 @@
 use std::rc::Rc;
 
-use pitou_core::{msg::SearchMsg, search::SimplifiedSearchOptions, *};
+use pitou_core::{
+    msg::{SearchMsg, TransferMsg, TransferSessionID},
+    search::SimplifiedSearchOptions,
+    *,
+};
 
-use super::reusables::{ItemsArg, NoArg, PitouArg, RenameArg, SearchOptionsArg};
+use super::{
+    args::ValueArg,
+    reusables::{ItemsArg, NoArg, PitouArg, RenameArg, SearchOptionsArg},
+};
 
 pub async fn open(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("open", &PitouArg { pitou }).await
@@ -12,7 +19,7 @@ pub async fn open_with(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
     tauri_sys::tauri::invoke("open_with", &PitouArg { pitou }).await
 }
 
-pub async fn paste(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
+pub async fn paste(pitou: Rc<PitouFile>) -> Result<TransferSessionID, tauri_sys::Error> {
     tauri_sys::tauri::invoke("paste", &PitouArg { pitou }).await
 }
 
@@ -66,4 +73,16 @@ pub async fn terminate_search() -> Result<(), tauri_sys::Error> {
 
 pub async fn search_msg() -> Result<SearchMsg, tauri_sys::Error> {
     tauri_sys::tauri::invoke("search_msg", &NoArg).await
+}
+
+pub async fn transfer_sessions() -> Vec<TransferMsg> {
+    tauri_sys::tauri::invoke("get_all_active_sessions", &NoArg)
+        .await
+        .unwrap()
+}
+
+pub async fn transfer_session_with_id(value: TransferSessionID) -> Option<TransferMsg> {
+    tauri_sys::tauri::invoke("get_session_with_id", &ValueArg { value })
+        .await
+        .unwrap()
 }

@@ -5,7 +5,7 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::app::reusables::{ListFileTypeIcon, NoArg, PitouTrashItemsVec, TrashItem};
+use crate::app::reusables::{NoArg, PitouTrashItemsVec, TrashItem};
 
 async fn retrieve_trash_items() -> Option<Rc<Vec<Rc<PitouTrashItem>>>> {
     tauri_sys::tauri::invoke("thrash_items", &NoArg)
@@ -180,12 +180,6 @@ fn TrashListItem(props: &TrashItemProps) -> Html {
         }
     );
 
-    let filetype = if props.item.is_dir() {
-        PitouFileKind::Directory
-    } else {
-        PitouFileKind::File
-    };
-
     let deleted = props
         .item
         .metadata()
@@ -195,13 +189,15 @@ fn TrashListItem(props: &TrashItemProps) -> Html {
         .to_string();
     let name = props.item.name().to_owned();
 
+    let file_type_icon = crate::app::reusables::list_trash_item_type_icon(&props.item);
+
     html! {
         <div class={list_item_class} {ondblclick} {onclick}>
             <div class="list-checkbox-container">
                 <input class="explorer-checkbox" type="checkbox" checked={*selected} {onchange} />
             </div>
             <div class="list-filetypeicon-container">
-                <ListFileTypeIcon {filetype}/>
+                { file_type_icon }
             </div>
             <div class="list-filename-container">
                 <div class="list-filename">{ name }</div>

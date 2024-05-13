@@ -3,6 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use pitou_core::{frontend::*, *};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
+mod args;
 mod cmds;
 mod content;
 mod events;

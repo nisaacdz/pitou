@@ -1,5 +1,9 @@
 #![allow(unused)]
-use pitou_core::{msg::SearchMsg, search::SimplifiedSearchOptions, *};
+use pitou_core::{
+    msg::{SearchMsg, TransferMsg, TransferSessionID},
+    search::SimplifiedSearchOptions,
+    *,
+};
 
 #[tauri::command]
 pub fn general_folders() -> Vec<GeneralFolder> {
@@ -41,8 +45,8 @@ pub async fn delete(items: Vec<PitouFile>) {
 }
 
 #[tauri::command]
-pub async fn paste(pitou: PitouFile) {
-    pitou_core::backend::paste(pitou).await
+pub async fn paste(pitou: PitouFile) -> Option<msg::TransferSessionID> {
+    pitou_core::backend::transfer::paste_items(pitou.path).await
 }
 
 #[tauri::command]
@@ -93,16 +97,26 @@ pub async fn extract(pitou: PitouFile) {
 #[tauri::command]
 pub async fn search(options: SimplifiedSearchOptions) {
     if let Some(options) = options.try_into() {
-        pitou_core::backend::search(options).await;
+        pitou_core::backend::search::search(options).await;
     }
 }
 
 #[tauri::command]
 pub async fn terminate_search() {
-    pitou_core::backend::stream::terminate_stream().await
+    pitou_core::backend::search::terminate_search().await
 }
 
 #[tauri::command]
 pub async fn search_msg() -> SearchMsg {
-    pitou_core::backend::stream::read().await
+    pitou_core::backend::search::read_stream().await
+}
+
+#[tauri::command]
+pub async fn transfer_sessions() -> Vec<TransferMsg> {
+    pitou_core::backend::transfer::get_all_active_sessions()
+}
+
+#[tauri::command]
+pub async fn transfer_session_with_id(value: TransferSessionID) -> Option<TransferMsg> {
+    pitou_core::backend::transfer::get_session_with_id(value)
 }
