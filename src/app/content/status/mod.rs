@@ -2,15 +2,19 @@ use std::{cell::RefCell, collections::HashSet, rc::Rc, time::Duration};
 
 use pitou_core::{
     msg::{TransferMsg, TransferSessionID, TransferSize, TransferState},
-    PitouFileSize,
+    PitouDateTime, PitouFileSize,
 };
 use wasm_bindgen_futures::spawn_local;
-use yew::{platform::time::interval, prelude::*};
+use yew::prelude::*;
 use yew_hooks::prelude::*;
 
 #[function_component]
 pub fn Status() -> Html {
-    html! { <div id="status-bar"></div> }
+    html! {
+        <div id="status-bar">
+            <TransfersWatcher />
+        </div>
+    }
 }
 
 #[function_component]
@@ -42,7 +46,7 @@ pub fn TransfersWatcher() -> Html {
             let sessions = sessions.clone();
 
             spawn_local(async move {
-                crate::app::events::listen_looping_event("tranfering", |v: TransferSessionID| {
+                crate::app::events::listen_looping_event("pasting", |v: TransferSessionID| {
                     let new_sessions = (*sessions).clone();
                     new_sessions.borrow_mut().insert(v);
                     sessions.set(new_sessions);
@@ -160,7 +164,7 @@ fn TransferSession(props: &TransferSessionProps) -> Html {
     };
 
     html! {
-        <div id="file-transfer-session">
+        <div class="file-transfer-session">
             { content }
         </div>
     }
@@ -176,23 +180,36 @@ fn format_session_state(state: TransferState, time_elapsed: Duration, prompt1: &
                     <progress {value} max="100"></progress>
                 </div>
             }
-        },
+        }
         pitou_core::msg::TransferState::Active(TransferSize { current, total }) => {
-            let prompt2 = format! {"{} of {}", PitouFileSize::new(current).format(), PitouFileSize::new(current).format()};
-            let prompt3 = format! {"{:1}", time_elapsed.as_secs() as f64 / 60.0 };
+            let c_level = format! {"{} of {}", PitouFileSize::new(current).format(), PitouFileSize::new(total).format()};
+            let t_passed = format! {"{} elapsed", PitouDateTime::format_duration(time_elapsed) };
             let ratio = current as f64 / total as f64;
             let elapsed = time_elapsed.as_secs() as f64;
-            let prompt4 = format! {"{}s rem", if ratio == 0.0 { "__".into() } else { format! {"{}", ((elapsed / ratio) - elapsed).max(0.0)} }};
+            let rem_time = if ratio == 0.0 {
+                "__".into()
+            } else {
+                let cmp = ((elapsed / ratio) - elapsed).max(0.0) as u64;
+                PitouDateTime::format_duration(Duration::from_secs(cmp))
+            };
+            let t_remaining = format! {"{} remaining", rem_time};
             let value = format!("{}", (ratio * 100 as f64).ceil());
             html! {
-                <div>
-                    <span> { prompt2 } </span>
-                    <span> { prompt4 } </span>
-                    <progress {value} max="100"></progress>
-                </div>
+                <>
+                    <div class="progress-box">
+                        <div>
+                            <progress {value} max="100"></progress>
+                        </div>
+                        <span> { c_level } </span>
+                    </div>
+                    <div class="info-box">
+                        <div> { t_passed } </div>
+                        <div> { t_remaining } </div>
+                    </div>
+                </>
             }
         }
-        pitou_core::msg::TransferState::Terminated(TransferSize { current, total }) => {
+        pitou_core::msg::TransferState::Terminated(TransferSize { current, total: _ }) => {
             let prompt2 = format! {"{} of {}", PitouFileSize::new(current).format(), PitouFileSize::new(current).format()};
             let value = "100";
             html! {

@@ -652,7 +652,7 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
                 let reload = reload.clone();
                 spawn_local(async move {
                     if let Some(id) = crate::app::cmds::paste(pitou).await.ok() {
-                        crate::app::events::emit_event("transfering", &id).await;
+                        crate::app::events::emit_event("pasting", &id).await;
                     }
                     reload.emit(())
                 });

@@ -75,14 +75,8 @@ pub async fn search_msg() -> Result<SearchMsg, tauri_sys::Error> {
     tauri_sys::tauri::invoke("search_msg", &NoArg).await
 }
 
-pub async fn transfer_sessions() -> Vec<TransferMsg> {
-    tauri_sys::tauri::invoke("get_all_active_sessions", &NoArg)
-        .await
-        .unwrap()
-}
-
 pub async fn transfer_session_with_id(value: TransferSessionID) -> Option<TransferMsg> {
-    tauri_sys::tauri::invoke("get_session_with_id", &ValueArg { value })
+    tauri_sys::tauri::invoke("transfer_session_with_id", &ValueArg { value })
         .await
         .unwrap()
 }

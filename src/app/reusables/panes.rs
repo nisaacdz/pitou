@@ -473,7 +473,7 @@ pub fn ListItem(props: &ItemProps) -> Html {
     } else {
         props.item.name_without_extension()
     };
-    
+
     let accessed = props
         .item
         .metadata

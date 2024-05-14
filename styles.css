@@ -277,6 +277,7 @@ body {
   right: 1px;
   background-color: var(--secondary-background-color);
   display: inline-flex;
+  justify-content: center;
 }
 
 #side-menus {
@@ -1668,4 +1669,54 @@ body {
   background-color: red;
   height: 25px;
   color: var(--primary-foreground-color);
+}
+
+#file-transfer-watcher {
+  position: relative;
+  width: auto;
+  height: 100%;
+  font-size: 11px;
+}
+
+.file-transfer-session {
+  height: 100%;
+  min-width: 200px;
+  max-width: 350px;
+  overflow: hidden;
+  width: auto;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 5px;
+  color: var(--secondary-foreground-color);
+}
+
+.file-transfer-session > * {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+
+.file-transfer-session .info-box > * {
+  height: 15px;
+  min-width: 100px;
+  max-width: 200px;
+  width: auto;
+  display: flex;
+  align-items: center;
+}
+
+.file-transfer-session .progress-box > *{
+  height: 15px;
+  width: 130px;
+  display: flex;
+  align-items: center;
+}
+
+.file-transfer-session .progress-box progress {
+  height: 10px;
+  border: 1px solid var(--primary-spare-color);
 }
