@@ -112,6 +112,11 @@ pub async fn search_msg() -> SearchMsg {
 }
 
 #[tauri::command]
+pub async fn is_searching() -> bool {
+    !pitou_core::backend::search::is_terminated().await
+}
+
+#[tauri::command]
 pub async fn transfer_sessions() -> Vec<TransferMsg> {
     pitou_core::backend::transfer::get_all_active_sessions()
 }

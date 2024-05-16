@@ -202,10 +202,10 @@ fn RibbonActions(props: &RibbonActionsProps) -> Html {
         <div id="ribbon-actions" class="ribbon-group">
             <div class="ribbon-medium-group">
                 <div class="ribbon-medium" title="share">
-                    <img src="./public/share2.png"/>
+                    <img src="./public/share.png"/>
                 </div>
                 <div class="ribbon-medium" title="email">
-                    <img src="./public/email.png" />
+                    <img src="./public/email2.png" />
                 </div>
             </div>
             <div class="ribbon-textgroup">
@@ -225,7 +225,7 @@ fn RibbonActions(props: &RibbonActionsProps) -> Html {
                     <img src="./public/cloud_upload.png"/>
                 </div>
                 <div class="ribbon-medium" title="download">
-                    <img src="./public/cloud_download2.png" />
+                    <img src="./public/cloud_download.png" />
                 </div>
             </div>
         </div>
@@ -522,11 +522,11 @@ fn RibbonCreations(props: &RibbonCreationsProps) -> Html {
                     {"new item"}
                 </div>
                 <div class="ribbon-small" onclick={onclickrename}>
-                    <img src="./public/rename3.png"/>
+                    <img src="./public/rename.png"/>
                     {"rename"}
                 </div>
                 <div class="ribbon-small" onclick={onclickextract}>
-                    <img src="./public/extract1.png"/>
+                    <img src="./public/extract.png"/>
                     {"extract"}
                 </div>
             </div>
@@ -669,7 +669,7 @@ fn RibbonClipboard(props: &RibbonClipboardProps) -> Html {
             </div>
             <div class="ribbon-medium-group">
                 <div class="ribbon-medium" title="copy" onclick={oncopy}>
-                    <img class="ribbon-clipboard-medium-ico" src="./public/copy.png"/>
+                    <img class="ribbon-clipboard-medium-ico" src="./public/copy2.png"/>
                 </div>
                 <div class="ribbon-medium" title="cut" onclick={oncut}>
                     <img class="ribbon-medium-ico" src="./public/cut.png"/>
@@ -782,7 +782,7 @@ fn RibbonHighlight(props: &RibbonHighlightProps) -> Html {
                     <img class="ribbon-clipboard-medium-ico" src="./public/toggle_selection.png"/>
                 </div>
                 <div class="ribbon-medium" title="invert selection" onclick={oninvertselection}>
-                    <img class="ribbon-medium-ico" src="./public/invert_selection3.png"/>
+                    <img class="ribbon-medium-ico" src="./public/invert_selection.png"/>
                 </div>
             </div>
         </div>

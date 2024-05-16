@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use pitou_core::{frontend::*, *};
+use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 
@@ -368,6 +369,104 @@ fn ListView(props: &ViewProps) -> Html {
             <ListDsc ontoggle={ontoggleselectall}/>
             <div id="pane-list-view">
                 { content }
+            </div>
+        </>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+pub struct AncestorProps {
+    pub item: Rc<PitouFile>,
+    pub onopen: Callback<Rc<PitouFile>>,
+}
+
+#[function_component]
+pub fn Ancestor(props: &AncestorProps) -> Html {
+    let children_dirs = use_state(|| None);
+
+    let onclick = {
+        let item = props.item.clone();
+        let onopen = props.onopen.clone();
+        move |_| onopen.emit(item.clone())
+    };
+
+    
+    let onclickchevron = {
+        let children_dirs = children_dirs.clone();
+        let item = props.item.clone();
+        move |e: MouseEvent| {
+            let item = item.clone();
+            let children_dirs = children_dirs.clone();
+            e.stop_propagation();
+            if children_dirs.is_some() { return children_dirs.set(None) }
+            spawn_local(async move {
+                children_dirs.set(
+                    crate::app::cmds::children_dirs(&item)
+                        .await
+                        .map(|v| v.children)
+                        .ok(),
+                )
+            });
+        }
+    };
+
+    let chevron_pic = html! {
+        <svg viewBox="0 0 24 24">
+            <path class="fill-primary-foreground" d="M11 15L13.6997 12.3003V12.3003C13.8656 12.1344 13.8656 11.8656 13.6997 11.6997V11.6997L11 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    };
+
+    let contents = if let Some(dirs) = &*children_dirs {
+        let onclose = {
+            let children_dirs = children_dirs.clone();
+            move |e: MouseEvent| {
+                e.stop_propagation();
+                children_dirs.set(None);
+            }
+        };
+        let vals = dirs.iter()
+            .map(|d| {
+                let onclick = {
+                    let d = d.clone();
+                    let onopen = props.onopen.clone();
+                    let children_dirs = children_dirs.clone();
+                    move |e: MouseEvent| {
+                        e.stop_propagation();
+                        children_dirs.set(None);
+                        onopen.emit(d.clone());
+                    }
+                };
+                html! { <div class="ancestry-dir" {onclick}> { d.name() } </div> }
+            })
+            .collect::<Html>();
+        html! {
+            <>
+            {chevron_pic}
+            <div class="ancestry-chevron-dirs">
+                { vals }
+                <div class="ancestry-chevron-close" onclick={onclose}>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z"/>
+                    </svg>
+                </div>
+            </div>
+            </>
+        }
+    } else {
+        html! {
+            {chevron_pic}
+        }
+    };
+
+    // <ChevronRightIcon class="ancestry-chevron" id=""/>
+
+    html! {
+        <>
+            <div class="ancestry-ancestor" {onclick}>
+            { props.item.name() }
+            </div>
+            <div class="ancestry-chevron-container" onclick={onclickchevron}>
+                {contents}
             </div>
         </>
     }

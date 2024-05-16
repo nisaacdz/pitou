@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use pitou_core::{
+    frontend::extra::DirChildren,
     msg::{SearchMsg, TransferMsg, TransferSessionID},
     search::SimplifiedSearchOptions,
     *,
@@ -8,7 +9,7 @@ use pitou_core::{
 
 use super::{
     args::ValueArg,
-    reusables::{ItemsArg, NoArg, PitouArg, RenameArg, SearchOptionsArg},
+    reusables::{DirChildrenArgs, ItemsArg, NoArg, PitouArg, RenameArg, SearchOptionsArg},
 };
 
 pub async fn open(pitou: Rc<PitouFile>) -> Result<(), tauri_sys::Error> {
@@ -79,4 +80,24 @@ pub async fn transfer_session_with_id(value: TransferSessionID) -> Option<Transf
     tauri_sys::tauri::invoke("transfer_session_with_id", &ValueArg { value })
         .await
         .unwrap()
+}
+
+pub async fn is_searching() -> bool {
+    tauri_sys::tauri::invoke("is_searching", &NoArg)
+        .await
+        .unwrap()
+}
+
+pub async fn children_dirs(dir: &Rc<PitouFile>) -> Result<DirChildren, tauri_sys::Error> {
+    let arg = DirChildrenArgs::new(
+        &dir.path,
+        PitouFileFilter {
+            dirs: true,
+            files: false,
+            links: false,
+            sys_items: false,
+        },
+        None,
+    );
+    tauri_sys::tauri::invoke("children", &arg).await
 }

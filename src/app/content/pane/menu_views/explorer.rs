@@ -11,7 +11,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::app::reusables::{ChevronRightIcon, DirChildrenArgs, FindPayload, MainPane};
+use crate::app::reusables::{Ancestor, DirChildrenArgs, FindPayload, MainPane};
 
 #[derive(PartialEq, Properties)]
 pub struct AncestryProps {
@@ -74,9 +74,6 @@ pub fn Ancestry(props: &AncestryProps) -> Html {
     };
 
     let content = if *show_ancestry {
-        let onclickchevron = { move |e: MouseEvent| e.stop_propagation() };
-
-        let onclickancestor = { move |e: MouseEvent| e.stop_propagation() };
         let db = gen_ctx.active_tab.current_dir();
         let items = db
             .as_ref()
@@ -90,20 +87,8 @@ pub fn Ancestry(props: &AncestryProps) -> Html {
                 })
             })
             .map(|v| {
-                let onclick = {
-                    let onopen = props.onopen.clone();
-                    let v = v.clone();
-                    move |_| onopen.emit(v.clone())
-                };
                 html! {
-                    <>
-                        <div class="ancestry-ancestor" onclick={onclickancestor.clone()} {onclick}>
-                        { v.name() }
-                        </div>
-                        <div class="ancestry-chevron-container" onclick={onclickchevron}>
-                            <ChevronRightIcon id="" class="ancestry-chevron"/>
-                        </div>
-                    </>
+                    <Ancestor onopen={props.onopen.clone()} item={v}/>
                 }
             })
             .collect::<Html>();
@@ -117,7 +102,7 @@ pub fn Ancestry(props: &AncestryProps) -> Html {
             .active_tab
             .current_dir()
             .as_ref()
-            .map(|v| v.path.path.display().to_string())
+            .map(|v| v.full_path_str().to_owned())
             .unwrap_or_default();
         let autocomplete = "off";
         html! {

@@ -26,6 +26,7 @@ fn main() {
             search,
             terminate_search,
             search_msg,
+            is_searching,
             transfer_sessions,
             transfer_session_with_id,
         ])

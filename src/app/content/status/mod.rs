@@ -12,6 +12,7 @@ use yew_hooks::prelude::*;
 pub fn Status() -> Html {
     html! {
         <div id="status-bar">
+            <SearchWatcher />
             <TransfersWatcher />
         </div>
     }
@@ -19,21 +20,31 @@ pub fn Status() -> Html {
 
 #[function_component]
 pub fn SearchWatcher() -> Html {
-    let searches = use_state(|| false);
+    let searching = use_state_eq(|| false);
     {
-        let searches = searches.clone();
+        let searching = searching.clone();
         use_interval(
             move || {
-                let searches = searches.clone();
+                let searching = searching.clone();
                 spawn_local(async move {
-                    let msg = false;
-                    searches.set(msg);
+                    let msg = crate::app::cmds::is_searching().await;
+                    searching.set(msg);
                 })
             },
-            250,
+            500,
         )
     }
-    html! { <div id="status-bar"></div> }
+    if !*searching {
+        return html! {};
+    }
+    let content = html! {
+        <img src="./public/search_anim.gif"/>
+    };
+    html! {
+        <div id="file-search-watcher">
+            { content }
+        </div>
+    }
 }
 
 #[function_component]

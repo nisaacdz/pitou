@@ -34,6 +34,7 @@ body {
   width: 100%;
   height: calc(100% - 32px);
   background-color: var(--primary-background-color);
+  overflow: hidden;
 }
 
 #ribbon {
@@ -276,7 +277,10 @@ body {
   left: 1px;
   right: 1px;
   background-color: var(--secondary-background-color);
-  display: inline-flex;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow: hidden;
   justify-content: center;
 }
 
@@ -1059,21 +1063,75 @@ body {
   height: 20px;
   width: 20px;
   box-sizing: border-box;
+  position: relative;
 }
 
-.ancestry-chevron {
+.ancestry-chevron-container > element {
   height: 20px;
   width: 20px;
-  stroke: var(--primary-foreground-color);
-  fill: transparent;
+  position: relative;
 }
 
-.ancestry-chevron:hover {
+.ancestry-chevron-dirs {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  width: max-content;
+  height: auto;
+  max-width: 200px;
+  min-width: 50px;
+  display: flex;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background-color: var(--secondary-background-color);
+  z-index: 3;
+  color: var(--secondary-spare-color);
+  padding: 5px;
+}
+
+.ancestry-dir {
+  width: 100%;
+  height: 20px;
+  font-size: 13px;
+}
+
+.ancestry-chevron-close {
+  background-color: rgb(211, 143, 160);
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ancestry-chevron-close svg {
+  height: 25px;
+  width: 25px;
+  stroke: white;
+  fill: red;
+}
+
+.ancestry-chevron-close:hover {
+  background-color: rgb(211, 111, 136);
+}
+
+.ancestry-chevron-close:hover svg {
+  stroke: red;
+  fill: black;
+}
+
+.ancestry-dir:hover {
+  background-color: var(--primary-background-color);
+}
+
+.ancestry-chevron-container > svg:hover {
   box-sizing: border-box;
   border: 1px solid var(--secondary-spare-color);
 }
 
-.ancestry-chevron:active {
+.ancestry-chevron-container > svg:active {
   background-color: var(--secondary-background-color);
 }
 
@@ -1671,11 +1729,28 @@ body {
   color: var(--primary-foreground-color);
 }
 
+#file-search-watcher {
+  width: 48;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#file-search-watcher img {
+  width: 30px;
+  height: 30px;
+}
+
 #file-transfer-watcher {
   position: relative;
   width: auto;
   height: 100%;
   font-size: 11px;
+  display: flex;
+  gap: 5px;
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
 .file-transfer-session {
@@ -1690,6 +1765,14 @@ body {
   color: var(--secondary-foreground-color);
 }
 
+.file-transfer-session:hover {
+  background-color: var(--primary-background-color);
+}
+
+.file-transfer-session:active {
+  background-color: var(--secondary-spare-color);
+}
+
 .file-transfer-session > * {
   height: 100%;
   display: flex;
@@ -1698,7 +1781,6 @@ body {
   flex-wrap: nowrap;
   overflow: hidden;
 }
-
 
 .file-transfer-session .info-box > * {
   height: 15px;
@@ -1716,7 +1798,8 @@ body {
   align-items: center;
 }
 
-.file-transfer-session .progress-box progress {
+.file-transfer-session progress {
   height: 10px;
+  width: 120px;
   border: 1px solid var(--primary-spare-color);
 }

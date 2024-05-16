@@ -189,17 +189,6 @@ pub fn DBChevronDownIcon(props: &ReusableItemProps) -> Html {
 }
 
 #[function_component]
-pub fn ChevronRightIcon(props: &ReusableItemProps) -> Html {
-    let class = props.class.clone();
-    let id = props.id.clone();
-    html! {
-        <svg {id} {class} viewBox="0 0 24 24">
-            <path d="M11 15L13.6997 12.3003V12.3003C13.8656 12.1344 13.8656 11.8656 13.6997 11.6997V11.6997L11 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-    }
-}
-
-#[function_component]
 pub fn UnknownFileIcon(props: &ReusableItemProps) -> Html {
     let class = props.class.clone();
     let id = props.id.clone();
