@@ -28,7 +28,8 @@ Frontend is created with yew.rs
 
 ## Demo
 
-Find a standalone demo of this app for windows 64bit at: `./items/standalone_windows_64bit`
+Demo is available for windows 64 bit pcs at : 
+[link to demo](https://drive.google.com/file/d/12NFip_kqGVr_7KEFmiYzDP0mqe3mx62N/view?usp=drive_link)
 
 !["Home view"](items/shot1.png)
 
