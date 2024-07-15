@@ -1,8 +1,7 @@
 use std::{cell::RefCell, collections::HashSet, rc::Rc, time::Duration};
 
 use pitou_core::{
-    msg::{TransferMsg, TransferSessionID, TransferSize, TransferState},
-    PitouDateTime, PitouFileSize,
+    frontend::ApplicationContext, msg::{TransferMsg, TransferSessionID, TransferSize, TransferState}, PitouDateTime, PitouFileSize
 };
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -14,6 +13,28 @@ pub fn Status() -> Html {
         <div id="status-bar">
             <SearchWatcher />
             <TransfersWatcher />
+            <SelectionsWatcher />
+        </div>
+    }
+}
+
+#[function_component]
+pub fn SelectionsWatcher() -> Html {
+    let ctx = use_context::<ApplicationContext>().unwrap();
+    let number = use_state_eq(|| 0);
+    {
+        let number = number.clone();
+        use_interval(move || {
+            let new_number = ctx.static_data.selections_size();
+            number.set(new_number);
+        }, 250)
+    }
+    if *number == { 0 } { return html! {} }
+    let prompt = format!{"{} selection{}", *number, if *number == 1 { "" } else { "s" }};
+    html! {
+        <div id="file-selections-watcher">
+            <input type="checkbox" checked={true}/>
+            <span>{ prompt }</span>
         </div>
     }
 }

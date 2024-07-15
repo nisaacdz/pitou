@@ -23,6 +23,7 @@ Frontend is created with yew.rs
 * Install rust
 * Install trunk
 * Install tauri-cli
+* run in dev mode with `cargo tauri dev`
 * build a binary with  `cargo tauri build`
 
 

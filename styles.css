@@ -1803,3 +1803,18 @@ body {
   width: 120px;
   border: 1px solid var(--primary-spare-color);
 }
+
+#file-selections-watcher {
+  width: auto;
+  height: 100%;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  color: var(--secondary-foreground-color);
+  gap: 5px;
+}
+
+#file-selections-watcher > * {
+  width: auto;
+  height: 20px;
+}
