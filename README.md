@@ -29,7 +29,7 @@ Frontend is created with yew.rs
 
 ## Demo
 
-Demo is available for windows 64 bit pcs at : 
+Demo is available for windows x86 64 bit pcs at : 
 [link to demo](https://drive.google.com/file/d/12NFip_kqGVr_7KEFmiYzDP0mqe3mx62N/view?usp=drive_link)
 
 !["Home view"](items/shot1.png)
