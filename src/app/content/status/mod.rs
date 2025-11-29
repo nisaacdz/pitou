@@ -27,12 +27,13 @@ pub fn SelectionsWatcher() -> Html {
         use_interval(move || {
             // Calculate selections size based on the selection type
             // Using available public methods from pitou_core
+            // Note: Other selection types (drives, general folders, trash items, etc.)
+            // don't have public accessor methods, so we only count folder entries and search results
             let new_number = if ctx.static_data.has_folder_entry_selections() {
                 ctx.static_data.folder_entry_selections().map(|v| v.len()).unwrap_or(0)
             } else if ctx.static_data.search_result_selections().is_some() {
                 ctx.static_data.search_result_selections().map(|v| v.len()).unwrap_or(0)
             } else {
-                // For other selection types, check if any selection exists
                 0
             };
             number.set(new_number);
