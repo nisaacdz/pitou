@@ -25,7 +25,16 @@ pub fn SelectionsWatcher() -> Html {
     {
         let number = number.clone();
         use_interval(move || {
-            let new_number = ctx.static_data.selections_size();
+            // Calculate selections size based on the selection type
+            // Using available public methods from pitou_core
+            let new_number = if ctx.static_data.has_folder_entry_selections() {
+                ctx.static_data.folder_entry_selections().map(|v| v.len()).unwrap_or(0)
+            } else if ctx.static_data.search_result_selections().is_some() {
+                ctx.static_data.search_result_selections().map(|v| v.len()).unwrap_or(0)
+            } else {
+                // For other selection types, check if any selection exists
+                0
+            };
             number.set(new_number);
         }, 250)
     }

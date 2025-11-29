@@ -8,15 +8,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
-tauri = { version = "1.6.1", features = [ "window-all", "shell-open"] }
-serde = { version = "1.0.197", features = ["derive"] }
-serde_json = "1.0.114"
-pitou-core = { git = "https://github.com/nisaacdz/pitou-core", features = ["backend"] }
-
-#pitou-core = { path = "../../pitou-core", features = ["backend"] }
+tauri = { version = "2.0", features = [] }
+tauri-plugin-shell = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+pitou-core = { path = "../libs/pitou-core", features = ["backend"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
