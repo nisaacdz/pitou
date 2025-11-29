@@ -19,7 +19,7 @@ impl FolderTracker {
         self.items[self.idx].clone()
     }
 
-    pub fn all(&self) -> Iter<Rc<PitouFile>> {
+    pub fn all(&self) -> Iter<'_, Rc<PitouFile>> {
         self.items.iter()
     }
 
