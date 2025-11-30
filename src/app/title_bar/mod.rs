@@ -4,23 +4,7 @@ use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use crate::app::reusables::DBChevronDownIcon;
-
-/// Material Icon component that uses Google Material Icons font
-#[derive(Properties, PartialEq)]
-pub struct MatIconProps {
-    pub name: AttrValue,
-    #[prop_or_default]
-    pub class: Classes,
-}
-
-#[function_component]
-pub fn MatIcon(props: &MatIconProps) -> Html {
-    let class = classes!("material-icons", props.class.clone());
-    html! {
-        <span {class}>{ &props.name }</span>
-    }
-}
+use crate::app::reusables::{DBChevronDownIcon, MatIcon};
 
 #[derive(Properties)]
 pub struct TitleBarProps {

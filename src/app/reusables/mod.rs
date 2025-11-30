@@ -13,6 +13,22 @@ pub use panes::*;
 pub use svg::*;
 pub use wrappers::*;
 
+/// Material Icon component that uses Google Material Icons font
+#[derive(Properties, PartialEq)]
+pub struct MatIconProps {
+    pub name: AttrValue,
+    #[prop_or_default]
+    pub class: Classes,
+}
+
+#[function_component]
+pub fn MatIcon(props: &MatIconProps) -> Html {
+    let class = classes!("material-icons", props.class.clone());
+    html! {
+        <span {class}>{ &props.name }</span>
+    }
+}
+
 #[derive(PartialEq, Properties)]
 pub struct ReusableItemProps {
     pub class: String,

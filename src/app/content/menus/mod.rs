@@ -1,23 +1,7 @@
 use pitou_core::*;
 use yew::prelude::*;
 
-use crate::app::ApplicationContext;
-
-/// Material Icon component that uses Google Material Icons font
-#[derive(Properties, PartialEq)]
-pub struct MatIconProps {
-    pub name: AttrValue,
-    #[prop_or_default]
-    pub class: Classes,
-}
-
-#[function_component]
-pub fn MatIcon(props: &MatIconProps) -> Html {
-    let class = classes!("material-icons", props.class.clone());
-    html! {
-        <span {class}>{ &props.name }</span>
-    }
-}
+use crate::app::{reusables::MatIcon, ApplicationContext};
 
 #[derive(Properties, PartialEq)]
 pub struct EachMenuProps {
