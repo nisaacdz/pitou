@@ -442,40 +442,44 @@ pub struct ColorTheme {
 }
 
 impl ColorTheme {
+    /// Material Design inspired dark theme
     pub const DEFAULT_DARK: Self = Self {
-        background1: Color(60, 60, 60, 255),
-        background2: Color(105, 105, 105, 255),
-        foreground1: Color(240, 240, 240, 255),
-        foreground2: Color(100, 200, 150, 255),
-        spare1: Color(40, 40, 40, 255),
-        spare2: Color(185, 210, 235, 255),
+        background1: Color(33, 33, 33, 255),       // Surface
+        background2: Color(48, 48, 48, 255),       // Surface variant
+        foreground1: Color(255, 255, 255, 255),    // On Surface
+        foreground2: Color(187, 134, 252, 255),    // Primary (purple accent)
+        spare1: Color(18, 18, 18, 255),            // Background
+        spare2: Color(3, 218, 198, 255),           // Secondary (teal accent)
     };
 
+    /// Material Design inspired light theme
     pub const DEFAULT_LIGHT: Self = Self {
-        background1: Color(230, 230, 230, 255),
-        background2: Color(180, 180, 180, 255),
-        foreground1: Color(50, 50, 50, 255),
-        foreground2: Color(80, 80, 80, 255),
-        spare1: Color(80, 80, 80, 255),
-        spare2: Color(30, 120, 50, 255),
+        background1: Color(255, 255, 255, 255),    // Surface
+        background2: Color(243, 243, 243, 255),    // Surface variant
+        foreground1: Color(33, 33, 33, 255),       // On Surface
+        foreground2: Color(103, 80, 164, 255),     // Primary (purple)
+        spare1: Color(230, 230, 230, 255),         // Background
+        spare2: Color(0, 150, 136, 255),           // Secondary (teal)
     };
 
+    /// Elegant dark theme with cyan accents
     pub const GEM_DARK: Self = Self {
-        background1: Color(50, 50, 50, 255),
-        background2: Color(30, 30, 30, 255),
-        foreground1: Color(240, 240, 240, 255),
-        foreground2: Color(0, 255, 255, 255),
-        spare1: Color(100, 100, 100, 255),
-        spare2: Color(255, 192, 203, 255),
+        background1: Color(30, 30, 35, 255),
+        background2: Color(45, 45, 52, 255),
+        foreground1: Color(230, 230, 235, 255),
+        foreground2: Color(0, 188, 212, 255),      // Cyan accent
+        spare1: Color(20, 20, 24, 255),
+        spare2: Color(255, 171, 145, 255),         // Coral accent
     };
 
+    /// Deep dark theme with blue accents
     pub const POLISH_DARK: Self = Self {
-        background1: Color(30, 30, 30, 255),
-        background2: Color(60, 60, 60, 255),
-        foreground1: Color(220, 220, 220, 255),
-        foreground2: Color(50, 150, 50, 255),
-        spare1: Color(10, 10, 10, 255),
-        spare2: Color(120, 180, 240, 255),
+        background1: Color(18, 18, 18, 255),
+        background2: Color(30, 30, 30, 255),
+        foreground1: Color(224, 224, 224, 255),
+        foreground2: Color(100, 181, 246, 255),    // Light blue accent
+        spare1: Color(12, 12, 12, 255),
+        spare2: Color(129, 199, 132, 255),         // Light green accent
     };
 }
 

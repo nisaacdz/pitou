@@ -1,7 +1,7 @@
 use pitou_core::*;
 use yew::prelude::*;
 
-use crate::app::{reusables::*, ApplicationContext};
+use crate::app::{reusables::MatIcon, ApplicationContext};
 
 #[derive(Properties, PartialEq)]
 pub struct EachMenuProps {
@@ -44,7 +44,7 @@ pub fn ExplorerMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="explorer-menu" {class} {onclick} title="explorer">
-            <ExplorerIcon id="explorer-menu-elem" class="menu-item-elem" />
+            <MatIcon name="folder_open" class="menu-item-icon" />
         </div>
     }
 }
@@ -63,7 +63,7 @@ pub fn SettingsMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="settings-menu" {class} {onclick} title="settings">
-            <SettingsIcon id="settings-menu-elem" class="menu-item-elem" />
+            <MatIcon name="settings" class="menu-item-icon" />
         </div>
     }
 }
@@ -82,7 +82,7 @@ pub fn FavoritesMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="favorites-menu" {class} {onclick} title="pinned files">
-            <FavoritesIcon id="favorites-menu-elem" class="menu-item-elem" />
+            <MatIcon name="star" class="menu-item-icon" />
         </div>
     }
 }
@@ -101,7 +101,7 @@ fn RecentsMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="recents-menu" {class} {onclick} title="recent files">
-            <RecentsIcon id="recents-menu-elem" class="menu-item-elem" />
+            <MatIcon name="history" class="menu-item-icon" />
         </div>
     }
 }
@@ -120,7 +120,7 @@ fn TrashMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="trash-menu" {class} {onclick} title="recycle bin">
-            <TrashIcon id="recycle-menu-elem" class="menu-item-elem"/>
+            <MatIcon name="delete" class="menu-item-icon" />
         </div>
     }
 }
@@ -139,7 +139,7 @@ fn LockedMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="locked-menu" {class} {onclick} title="locked files">
-            <LockedIcon id="locked-menu-elem" class="menu-item-elem"/>
+            <MatIcon name="lock" class="menu-item-icon" />
         </div>
     }
 }
@@ -158,7 +158,7 @@ fn SearchMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="search-menu" {class} {onclick} title="advanced search">
-            <SearchIcon id="search-menu-elem" class="menu-item-elem"/>
+            <MatIcon name="search" class="menu-item-icon" />
         </div>
     }
 }
@@ -177,7 +177,7 @@ fn CloudMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="cloud-menu" {class} {onclick} title="cloud storage">
-            <CloudIcon id="cloud-menu-elem" class="menu-item-elem"/>
+            <MatIcon name="cloud" class="menu-item-icon" />
         </div>
     }
 }
@@ -196,7 +196,7 @@ fn HomeMenu(props: &EachMenuProps) -> Html {
     };
     html! {
         <div id="home-menu" {class} {onclick} title="home">
-            <HomeIcon id="home-menu-elem" class="menu-item-elem" />
+            <MatIcon name="home" class="menu-item-icon" />
         </div>
     }
 }
