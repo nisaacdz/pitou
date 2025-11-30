@@ -65,29 +65,29 @@ body {
   position: absolute;
   top: 5px;
   height: 60px;
-  left: 10px;
+  left: 58px;
   right: 10px;
   background-color: var(--secondary-background-color);
   border-radius: 8px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 8px;
+  gap: 6px;
   overflow: hidden;
-  padding: 4px 8px;
+  padding: 4px 10px;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .ribbon-group {
-  background-color: var(--primary-background-color);
+  background-color: transparent;
   border-radius: 6px;
   padding: 4px;
   transition: background-color 0.15s ease;
 }
 
 .ribbon-group:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 #ribbon-nav {
@@ -168,13 +168,11 @@ body {
 }
 
 .ribbon-large.active:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .ribbon-large.active:hover img {
-  border: 2px solid var(--secondary-spare-color);
-  border-radius: 6px;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .ribbon-large.active img {
@@ -209,7 +207,7 @@ body {
   align-items: center;
   justify-content: center;
   box-sizing: content-box;
-  border: 1px solid var(--primary-spare-color);
+  border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -219,19 +217,19 @@ body {
   width: 20px;
   height: 20px;
   transition: transform 0.15s ease;
+  opacity: 0.85;
 }
 
 .ribbon-medium:hover, .ribbon-small:hover {
-  border-color: var(--primary-foreground-color);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .ribbon-medium:hover img {
-  transform: scale(1.1);
+  opacity: 1;
 }
 
 .ribbon-medium:active, .ribbon-small:active {
-  background-color: var(--secondary-background-color);
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 .ribbon-textgroup {
@@ -261,10 +259,15 @@ body {
   justify-content: start;
   padding-left: 4px;
   padding-right: 4px;
-  border: 1px solid var(--primary-spare-color);
+  border: none;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.15s ease;
+  opacity: 0.85;
+}
+
+.ribbon-small:hover {
+  opacity: 1;
 }
 
 .ribbon-mid-small {
@@ -453,7 +456,7 @@ body {
 .home-section {
   position: relative;
   width: 100%;
-  border-top: 1px dashed var(--secondary-background-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
   margin-top: 10px;
   padding-top: 10px;
@@ -466,14 +469,17 @@ body {
   top: -12px;
   left: 10px;
   width: auto;
-  padding: 0 8px;
-  font-size: 12px;
+  padding: 0 10px;
+  font-size: 11px;
   font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   overflow: hidden;
   display: flex;
   align-items: center;
   background-color: var(--primary-background-color);
   border-radius: 4px;
+  opacity: 0.7;
 }
 
 .home-section-dsc-text:active {
@@ -515,10 +521,8 @@ body {
 }
 
 .drives-section-elem:hover {
-  background-color: var(--secondary-background-color);
+  background-color: rgba(255, 255, 255, 0.04);
   border-color: var(--secondary-spare-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .drives-section-elem-icon {
@@ -748,7 +752,7 @@ body {
   padding-left: 5px;
   display: flex;
   flex-direction: column;
-  row-gap: 5px;
+  row-gap: 2px;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -842,17 +846,16 @@ body {
   border-radius: 6px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .tile-item.selected {
-  background-color: var(--secondary-background-color);
+  background-color: rgba(255, 255, 255, 0.08);
   border-color: var(--secondary-spare-color);
 }
 
 .tile-item:hover {
-  background-color: var(--secondary-background-color);
-  border-color: var(--secondary-spare-color);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .tile-checkbox-container {
@@ -962,17 +965,16 @@ body {
   border-radius: 8px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .grid-item.selected {
-  background-color: var(--secondary-background-color);
+  background-color: rgba(255, 255, 255, 0.08);
   border-color: var(--secondary-spare-color);
 }
 
 .grid-item:hover {
-  background-color: var(--secondary-background-color);
-  border-color: var(--secondary-spare-color);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .grid-checkbox-container {
@@ -1041,16 +1043,16 @@ body {
   border-radius: 4px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .list-item.selected {
-  background-color: var(--secondary-background-color);
+  background-color: rgba(255, 255, 255, 0.08);
   border-color: var(--secondary-spare-color);
 }
 
 .list-item:hover {
-  background-color: var(--secondary-background-color);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .list-item.selected .folder-file-icon.list-type-icon {
