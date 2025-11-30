@@ -1,0 +1,5 @@
+1. Search
+    Notify the stream manager when search is completed.
+    Early completions are excluded
+    Debug search
+2. 
